@@ -3,9 +3,9 @@
 ## Docker
 
 ### building the image
-After every change to the source-code and it is necessary to rebuild the app image. Otherwise the changes will not be applied.
+After each change to the source code, it is necessary to rebuild the application image. Otherwise the changes will not be applied.
 
-To build a new image after doing some changes: go to `kanban/backend/api/` and execute:
+To build a new image after doing some changes: go to `kanban/backend/api/` insite your terminal and execute:
 
 ```
 docker build -t api-image .
@@ -16,7 +16,7 @@ the resulting docker image will be named `api-image`
 ### Running the container
 
 #### Single use Container - (for debugging and frequent changes)
-A single use container gets deleted automatically after it was stopped. Normally Docker would store it for later, leaving it to the developer to remove the pile of once recreated and now unwanted containers after debugging or developing. In such cases a single use container is very useful because it gets removed automatically after it was used.
+A single-use container is automatically deleted when it is stopped. Normally, Docker would save it for later, leaving it to the developer to remove the pile of once-created and now unwanted containers after debugging or development. In such cases, a single use container is very useful because it is automatically removed after use.
 
 To create and run a single-use container use the command:
 
@@ -53,3 +53,4 @@ docker start api-container
 ```
 
 ### accessing the api
+When accessing http://localhost:3000/ with your web browser hello world should be displayed
