@@ -12,4 +12,4 @@ COPY . .
 EXPOSE 3000
 
 # command to run when container is started.
-CMD [ "node", "index.js" ]
+CMD [ "node", "expressAPI.js" ]
