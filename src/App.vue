@@ -1,115 +1,151 @@
 <template>
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col form-inline">
-        <div class="form-group mb-2">
-          <input type="text" class="form-control input-sm" v-model="newTask" placeholder="Task name" @keyup.enter="addTask">
-        </div>
-        <div class="form-group mx-sm-3 mb-2">
-          <button type="button"class="btn btn-primary" @click="addTask">Add Task</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-3">
-        <div class="p2 alert alert-primary">
-          <h3>Backlog</h3>
-          <draggable v-model="arrBacklog" class="list-group kanban-dropzone"group="tasks">
-            <template v-slot:item="{ element }">
-              <div class="list-group-item">
-                {{ element.name }}
-              </div>
-            </template>
-          </draggable>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="p2 alert alert-danger">
-          <h3>Working On</h3>
-          <draggable v-model="arrWorkingOn" class="list-group kanban-dropzone"group="tasks">
-            <template v-slot:item="{ element }">
-              <div class="list-group-item">
-                {{ element.name }}
-              </div>
-            </template>
-          </draggable>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="p2 alert alert-warning">
-          <h3>In Review</h3>
-          <draggable v-model="arrReview" class="list-group kanban-dropzone" group="tasks">
-            <template v-slot:item="{ element }">
-              <div class="list-group-item">
-                {{ element.name }}
-              </div>
-            </template>
-          </draggable>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="p2 alert alert-success">
-          <h3>Done</h3>
-          <draggable v-model="arrDone" class="list-group kanban-dropzone" group="tasks">
-            <template v-slot:item="{ element }">
-              <div class="list-group-item">
-                {{ element.name }}
-              </div>
-            </template>
-          </draggable>
-        </div>
-      </div>
-    </div>
-
-    
-
-
-  </div>
+  <v-app>
+    <NavDrawer />
+    <v-container class="flex" style="background-color: black;"><h1 style="color: white;">hello</h1></v-container>
+    <v-main>
+      <v-container fluid class="flex mt-4">
+        <v-row>
+          <v-col cols="3">
+            <div class="style-box">
+              <h2>Backlog</h2>
+              <draggable v-model="backlogItems" group="tasks">
+                <template #item="{ element, index }">
+                  <div :key="index">
+                    <v-card class="mb-3">
+                      <v-row class="align-items-center">
+                        <v-col cols="10">
+                          <v-card-text>{{ element.title }}</v-card-text>
+                        </v-col>
+                        <v-col cols="2">
+                          <v-btn icon="mdi-delete-outline" small  density="compact" @click.stop="deleteTask(backlogItems, index)">
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </div>
+                </template>
+              </draggable>
+            </div>
+          </v-col>
+          <v-col cols="3">
+            <div class="style-box">
+              <h2>Working on</h2>
+              <draggable v-model="workingItems" group="tasks" @start="drag=true" @end="drag=false">
+                <template #item="{ element, index }">
+                  <div :key="index">
+                    <v-card class="mb-3">
+                      <v-card-text>{{ element.title }}</v-card-text> <v-btn small color="error" density="compact" @click.stop="deleteTask(workingItems, index)">
+                      </v-btn>
+                    </v-card>
+                  </div>
+                </template>
+              </draggable>
+            </div>
+          </v-col>
+          <v-col cols="3">
+            <div class="style-box">
+              <h2>Review</h2>
+              <draggable v-model="reviewItems" group="tasks">
+                <template #item="{ element, index }">
+                  <div :key="index">
+                    <v-card class="mb-3">
+                      <v-card-text>{{ element.title }}</v-card-text> <v-btn small color="error" density="compact" @click.stop="deleteTask(reviewItems, index)">
+                      </v-btn>
+                    </v-card>
+                  </div>
+                </template>
+              </draggable>
+            </div>
+          </v-col>
+          <v-col cols="3">
+            <div class="style-box">
+              <h2>Done</h2>
+              <draggable v-model="doneItems" group="tasks">
+                <template #item="{ element, index }">
+                  <div :key="index">
+                    <v-card class="mb-3">
+                      <v-card-text>{{ element.title }}</v-card-text> <v-btn small color="error" density="compact" @click.stop="deleteTask(doneItems, index)">
+                      </v-btn>
+                    </v-card>
+                  </div>
+                </template>
+              </draggable>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+      <v-btn variant="tonal" color="primary" @click="addTaskToBacklog">Add Task</v-btn>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import draggable from "vuedraggable";
+import NavDrawer from "@/components/NavDrawer.vue";
+import { ref } from 'vue';
+import draggable from 'vuedraggable';
 
 export default {
   components: {
-    draggable,
+    NavDrawer,
+    draggable
   },
-  data() {
-    return {
-      newTask: '',
-      arrBacklog: [
-        { name: 'Task 1' },
-        { name: 'Task 2' },
-      ],
-      arrWorkingOn: [],
-      arrReview: [],
-      arrDone: [],
-
-    };
-  },
+  setup() {
+    const backlogItems = ref([
+     
   
-  dragging: false,
+    ]);
+    const workingItems = ref([
+      
+    ]);
+    const reviewItems = ref([
+      
+    ]);
+    const doneItems = ref([
+      
+    ]);
+    const Task = {
+      id: Number,
+      title: String
+    };
 
-  methods: {
-    addTask() {
-      if (this.newTask) {
-        this.arrBacklog.push({ name: this.newTask });
-        this.newTask = '';
-      }
+    const addTaskToBacklog = () => {
+      backlogItems.value.push({ id: backlogItems.value.length + 1, title: "Task " + (backlogItems.value.length + 1) });
     }
-  },
+    const deleteTask = (list, index) => {
+      list.splice(index, 1);
+    }
+    return {
+      backlogItems,
+      workingItems,
+      reviewItems,
+      doneItems,
+      addTaskToBacklog,
+      deleteTask
+    }
+  }
 }
+
+
 </script>
 
+
 <style>
-.input-sm {
-  width: 200px;
-}
-.kanban-dropzone{
-  min-height: 100px;
+.style-box {
+  background-color: #448AFF;
+
+  border: 1px solid black;  
+  padding: 20px 10px;
   border-radius: 5px;
-  padding: 10px;
+  min-height: 300px;
+
+}
+
+.title-padding {
   margin-bottom: 10px;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
 }
 </style>
