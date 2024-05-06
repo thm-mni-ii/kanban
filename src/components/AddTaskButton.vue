@@ -1,7 +1,7 @@
 <template>
-    <div class="d-flex">
-      <v-text-field v-model="newTaskName" label="New task name" rounded class="shrink"></v-text-field>
-      <v-btn variant="tonal" color="primary" @click="addTask">Add Task</v-btn>
+    <div class="d-flex justify-content-center">
+      <v-text-field class="small-textbox"v-model="newTaskName" label="New task name" dense></v-text-field>
+      <v-btn class="btn-style" variant="tonal" color="primary" @click="addTask">Add Task</v-btn>
     </div>
   </template>
   
@@ -28,8 +28,13 @@
   };
   </script> 
 
-  <style scoped>
-    .v-text-field{
-        width: 40px !important;
-    }
+<style>
+.small-textbox {
+  max-width: 200px !important; 
+  padding-left: 20px;
+}
+.btn-style{
+    padding-left: 12px;
+    margin-top: 10px;
+}
 </style>

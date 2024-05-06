@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <NavDrawer />
-    <v-container class="d-flex justify-center" style="background-color:  #80BA27;"><h1>{{ boardName }}</h1></v-container>
+    <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto><h1>{{ boardName }}</h1></v-container>
     <v-main>
       <v-container fluid class="flex mt-4">
         <v-row>
@@ -140,6 +140,12 @@ export default {
 
 
 <style>
+.my-container {
+  border: 1px solid black;
+  border-radius: 5px;
+  width: auto;
+}
+
 .style-box {
   background-color: grey;
 
@@ -158,4 +164,5 @@ export default {
   display: flex;
   flex-direction: column;
 }
+ 
 </style>
