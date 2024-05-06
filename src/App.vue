@@ -95,7 +95,10 @@ export default {
     draggable
   },
   setup() {
-   c
+    const backlogItems = ref([
+     
+  
+    ]);
     const workingItems = ref([
       
     ]);
