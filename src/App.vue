@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <NavDrawer />
-    <v-container class="flex" style="background-color: black;"><h1 style="color: white;">hello</h1></v-container>
+    <v-container class="d-flex justify-center" style="background-color:  #80BA27;"><h1>{{ boardName }}</h1></v-container>
     <v-main>
       <v-container fluid class="flex mt-4">
         <v-row>
@@ -34,8 +34,11 @@
                 <template #item="{ element, index }">
                   <div :key="index">
                     <v-card class="mb-3">
-                      <v-card-text>{{ element.title }}</v-card-text> <v-btn small color="error" density="compact" @click.stop="deleteTask(workingItems, index)">
-                      </v-btn>
+                      <v-card-text>{{ element.title }}</v-card-text> 
+                      <v-col cols="2">
+                          <v-btn icon="mdi-delete-outline" small  density="compact" @click.stop="deleteTask(workingItems, index)">
+                          </v-btn>
+                        </v-col>
                     </v-card>
                   </div>
                 </template>
@@ -74,26 +77,25 @@
           </v-col>
         </v-row>
       </v-container>
-      <v-btn variant="tonal" color="primary" @click="addTaskToBacklog">Add Task</v-btn>
+      <AddButton @add-task="addTaskToBacklog" />
     </v-main>
   </v-app>
 </template>
 
 <script>
 import NavDrawer from "@/components/NavDrawer.vue";
+import AddButton from "@/components/AddTaskButton.vue";
 import { ref } from 'vue';
 import draggable from 'vuedraggable';
 
 export default {
   components: {
     NavDrawer,
+    AddButton,
     draggable
   },
   setup() {
-    const backlogItems = ref([
-     
-  
-    ]);
+   c
     const workingItems = ref([
       
     ]);
@@ -107,9 +109,13 @@ export default {
       id: Number,
       title: String
     };
+    const boardName = ref("Kanban Board");
+    const onMounted = () => {
+      document.title = boardName.value;
+    }
 
-    const addTaskToBacklog = () => {
-      backlogItems.value.push({ id: backlogItems.value.length + 1, title: "Task " + (backlogItems.value.length + 1) });
+    const addTaskToBacklog = (taskName) => {
+      backlogItems.value.push({ id: backlogItems.value.length + 1, title: taskName });
     }
     const deleteTask = (list, index) => {
       list.splice(index, 1);
@@ -120,7 +126,8 @@ export default {
       reviewItems,
       doneItems,
       addTaskToBacklog,
-      deleteTask
+      deleteTask,
+      boardName
     }
   }
 }
@@ -131,7 +138,7 @@ export default {
 
 <style>
 .style-box {
-  background-color: #448AFF;
+  background-color: grey;
 
   border: 1px solid black;  
   padding: 20px 10px;
