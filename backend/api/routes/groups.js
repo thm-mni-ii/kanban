@@ -86,7 +86,7 @@ router
     res.status(501); //501 = Not Implemented
     res.send(`This feature is comming soon`);
   });
-
+// ab hier
 router
   .route(`/:groupId/boards`)
   .get((req, res) => {
@@ -125,7 +125,7 @@ router
     res.status(501); //501 = Not Implemented
     res.send(`This feature is comming soon`);
   });
-
+// bis hier
 router
   .route(`/:groupId/boards/:boardId/cards`)
   .get((req, res) => {
