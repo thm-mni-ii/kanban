@@ -1,29 +1,42 @@
-# test
+# Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+## Description:
+This issue focuses on frontend development for our Kanban board. The goal is to create a user-friendly and responsive interface that allows users to manage tasks intuitively and easily track the progress of their project.
 
-## Recommended IDE Setup
+# Project Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+First, clone this branch. 
+Afterward you have to install the node_modules by using npm:
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Install vuetify
+Since we are using vuetify, we need to add these:
+
+```sh
+npm add vuetify
+```
+
+### Install mdi font
+We alo need mdi fonts. To install these, use:
+```sh
+npm install @mdi/font
+```
+
+### Run App localy
+To run the App in localhost, use:
 
 ```sh
 npm run dev
 ```
+The App will run localy on Port 5137. The App automatically reloads if any changes have been made and saved.
 
-### Compile and Minify for Production
+### Stopping
+To stop the App, you can use either of these options:
 
-```sh
-npm run build
+```sh  
+q + ENTER OR CTRL + C
 ```
+
