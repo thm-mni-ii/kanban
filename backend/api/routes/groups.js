@@ -1,14 +1,11 @@
 const express = require(`express`);
+const controller = require('./controller');
+
 const router = express.Router();
 
 router
   .route(`/`)
-  .get((req, res) => {
-    //TODO: Implement
-
-    //res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
+  .get(controller.getGroups)
   .post((req, res) => {
     //TODO: Implement
 
@@ -86,46 +83,16 @@ router
     res.status(501); //501 = Not Implemented
     res.send(`This feature is comming soon`);
   });
-// ab hier
 router
   .route(`/:groupId/boards`)
-  .get((req, res) => {
-    const groupId = req.params.groupId;
-    // TODO: decide what to do based on what information is provided
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .post((req, res) => {
-    const groupId = req.params.groupId;
-    // TODO: decide what to do based on what information is provided
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  });
+  .get(controller.getBoardsByGroup)
+  .post(controller.postBoardByGroup);
 
 router
   .route(`/:groupId/boards/:id`)
-  .get((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.id;
-    // TODO: decide what to do based on what information is provided
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .put((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.id;
-    // TODO: decide what to do based on what information is provided
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .delete((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.id;
-    // TODO: decide what to do based on what information is provided
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  });
-// bis hier
+  .get(controller.getSpecificBoardOfGroup)
+  .put(controller.putSpecificBoardOfGroup)
+  .delete(controller.deleteSpecificBoardOfGroup);
 router
   .route(`/:groupId/boards/:boardId/cards`)
   .get((req, res) => {
