@@ -7,7 +7,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-
+app.use(express.json());
 const userRoute = require('./routes/users');
 const groupsRoute = require('./routes/groups');
 

@@ -1,15 +1,17 @@
-FROM node:20
+FROM node:16
 
-WORKDIR /kanban/backend/api
+# Create app directory
+WORKDIR /usr/src/app
 
-COPY package*.json ./
+# Install dependencies
+RUN npm install express
+RUN npm install pg
 
-RUN yarn install
-
+# Copy all files
 COPY . .
 
-# tells the container which port to use. (you find the number of the port in the index.js -> const port)
+# Expose port 3000
 EXPOSE 3000
 
-# command to run when container is started.
+# Run app
 CMD [ "node", "expressAPI.js" ]

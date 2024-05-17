@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  db:
+    container_name: postgres_container
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: test_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # adding volume for datapersistence
+    ports:
+      - "5432:5432"
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports :
+      - "5050:80"
+  api:
+    container_name: api_container
+    build: .
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://root:root@db:5432/test_db
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:  # defining volume at end of file
