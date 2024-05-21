@@ -24,16 +24,28 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: "log@me.in"
       PGADMIN_DEFAULT_PASSWORD: "root"
+      PGADMIN_CONFIG_:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     networks:
       - kanban-net
     depends_on:
       - kandb
+  
+  express-api:
+    build: ./backend/api/
+    container_name: express-api
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - kanban-net
+
 
 networks:
   kanban-net:
     name: kan-net
+    
 
 volumes:
   kandb-data:
