@@ -13,7 +13,7 @@ const postGroup = (req, res) => {
 
 const getBoardsByGroup = (req, res) => {
     const groupId = req.params.groupId;
-    const query = 'SELECT * FROM boards WHERE group_id = $1;';
+    const query = 'SELECT * FROM board WHERE group_id = $1;';
     const values = [groupId];
 
     pool.query(query, values, (error, results) => {
@@ -24,15 +24,15 @@ const getBoardsByGroup = (req, res) => {
 
 const postBoardByGroup = (req, res) => {
     const groupId = req.params.groupId;
-    const { title, description } = req.body;  // assumption: request body includes title and description of board
+    const { name } = req.body;  // assumption: request body includes title and description of board
 
     // validation of input data
-    if (!title || !description) {
+    if (!name) {
         return res.status(400).json({ error: 'Titel und Beschreibung sind erforderlich' });
     }
 
-    const query = 'INSERT INTO boards (group_id, title, description) VALUES ($1, $2, $3) RETURNING *;';
-    const values = [groupId, title, description];
+    const query = 'INSERT INTO board (group_id, name) VALUES ($1, $2) RETURNING *;';
+    const values = [groupId, name];
 
     pool.query(query, values, (error, results) => {
         if (error) {
@@ -47,7 +47,7 @@ const postBoardByGroup = (req, res) => {
 const getSpecificBoardOfGroup = (req, res) => {
     const groupId = req.params.groupId;
     const boardId = req.params.id;
-    const query = 'SELECT * FROM boards WHERE group_id = $1 AND id = $2;';
+    const query = 'SELECT * FROM board WHERE group_id = $1 AND board_id = $2;';
     const values = [groupId, boardId];
 
     pool.query(query, values, (error, results) => {
@@ -59,14 +59,14 @@ const getSpecificBoardOfGroup = (req, res) => {
 const putSpecificBoardOfGroup = (req, res) => {
     const groupId = req.params.groupId;
     const boardId = req.params.id;
-    const { title, description } = req.body;
+    const { title } = req.body;
 
     // validation of input data
     if (!title || !description) {
         return res.status(400).json({ error: 'Titel und Beschreibung sind erforderlich' });
     }
 
-    const query = 'UPDATE boards SET title = $1, description = $2 WHERE group_id = $3 AND id = $4 RETURNING *;';
+    const query = 'UPDATE board SET title = $1, description = $2 WHERE group_id = $3 AND id = $4 RETURNING *;';
     const values = [title, description, groupId, boardId];
 
     pool.query(query, values, (error, results) => {
