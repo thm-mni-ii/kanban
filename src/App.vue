@@ -78,18 +78,22 @@
         </v-row>
       </v-container>
       <AddButton @add-task="addTaskToBacklog" />
+      <TestApi />
     </v-main>
   </v-app>
 </template>
 
 <script>
 import NavDrawer from "@/components/NavDrawer.vue";
-import AddButton from "@/components/AddTaskButton.vue";
+import AddButton from "@/components/AddTaskButton.vue"
+import TestApi from "./components/TestApi.vue";
 import { ref } from 'vue';
 import draggable from 'vuedraggable';
 
+
 export default {
   components: {
+    TestApi,
     NavDrawer,
     AddButton,
     draggable
@@ -123,7 +127,19 @@ export default {
     const deleteTask = (list, index) => {
       list.splice(index, 1);
     }
+    const getAllUsers = () => {
+      fetch('http://localhost:3002/')
+      .then(response => response.json)
+      .then(data => {
+        this.user = data;
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    }     
+
     return {
+      getAllUsers,
       backlogItems,
       workingItems,
       reviewItems,
