@@ -1,19 +1,5 @@
 services:
-  kandb:
-    image: postgres:alpine
-    restart: always
-    container_name: kandb
-    environment:
-      POSTGRES_USER: "kanuser"
-      POSTGRES_DB: "kandb"
-      POSTGRES_PASSWORD: "secret"
-    ports:
-      - 5432:5432
-    volumes:
-      - kandb-data:/var/lib/postgresql/data
-      - ./backend/database/:/docker-entrypoint-initdb.d/
-    networks:
-      - kanban-net
+  
   
   pgadmin:
     image: dpage/pgadmin4
@@ -32,14 +18,35 @@ services:
     depends_on:
       - kandb
   
-  express-api:
-    build: ./backend/api/
-    container_name: express-api
+  kandb:
+    image: postgres:alpine
     restart: always
+    container_name: kandb
+    environment:
+      POSTGRES_USER: "kanuser"
+      POSTGRES_DB: "kandb"
+      POSTGRES_PASSWORD: "secret"
     ports:
-      - "3000:3000"
+      - 5432:5432
+    volumes:
+      - kandb-data:/var/lib/postgresql/data
+      - ./backend/database/:/docker-entrypoint-initdb.d/
     networks:
       - kanban-net
+  
+  api:
+    container_name: api_container
+    build: ./backend/api
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://kanuser:secret@kandb:5432/kandb # Values from kandb, environment
+    ports:
+      - "3000:3000"
+    depends_on:
+      - kandb
+    networks:
+      - kanban-net
+
 
 
 networks:

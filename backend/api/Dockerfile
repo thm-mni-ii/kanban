@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 # Install dependencies
 RUN npm install express
 RUN npm install pg
+RUN npm install cors
 
 # Copy all files
 COPY . .
