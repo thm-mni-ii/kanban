@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
 const port = 3000;
+const cors = require('cors');
 
+app.use(cors());
 //  TODO: remove Hello World
 app.get("/", (req, res) => {
   res.send("Hello World!");
