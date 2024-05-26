@@ -10,27 +10,36 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: "log@me.in"
       PGADMIN_DEFAULT_PASSWORD: "root"
-      PGADMIN_CONFIG_:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     networks:
       - kanban-net
     depends_on:
-      - kandb
+      kandb:
+        condition: service_healthy
+        restart: true
+
   
   kandb:
     image: postgres:alpine
     restart: always
     container_name: kandb
+    command: -c 'max_connections=200'
+    stdin_open: true
+    tty: true
     environment:
       POSTGRES_USER: "kanuser"
       POSTGRES_DB: "kandb"
       POSTGRES_PASSWORD: "secret"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d kandb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - 5432:5432
     volumes:
       - kandb-data:/var/lib/postgresql/data
-      - ./backend/database/:/docker-entrypoint-initdb.d/
     networks:
       - kanban-net
   
@@ -43,9 +52,24 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - kandb
+      kandb:
+        condition: service_healthy
+        restart: true
     networks:
       - kanban-net
+  
+  sql-setup-runner:
+    container_name: sql-setup-runner
+    build: ./backend/database/setup
+    environment:
+      - PATH_TO_SQL=./scripts
+    depends_on:
+      kandb:
+        condition: service_healthy
+        restart: false
+    networks:
+      - kanban-net
+  
 
 
 
