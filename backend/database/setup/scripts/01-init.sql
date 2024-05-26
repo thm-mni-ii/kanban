@@ -1,16 +1,16 @@
-CREATE TABLE label (
+CREATE TABLE IF NOT EXISTS label (
     label_id SERIAL PRIMARY KEY,
     course_id INTEGER,
     name TEXT,
     color TEXT
 );
 
-CREATE TABLE board (
+CREATE TABLE IF NOT EXISTS board (
     board_id SERIAL PRIMARY KEY,
     group_id INTEGER,
     name TEXT
 );
-CREATE TABLE kantask (
+CREATE TABLE IF NOT EXISTS kantask (
     kantask_id SERIAL PRIMARY KEY,
     board_id INTEGER REFERENCES board(board_id),
     name TEXT,
@@ -19,7 +19,7 @@ CREATE TABLE kantask (
     status TEXT
 );
 
-CREATE TABLE assignee (
+CREATE TABLE IF NOT EXISTS assignee (
     assignee_id SERIAL PRIMARY KEY,
     user_id   int not null,
     course_id int not null,
@@ -29,7 +29,7 @@ CREATE TABLE assignee (
     UNIQUE (user_id, course_id, group_id)
 );
 
-CREATE TABLE kantasklabel (
+CREATE TABLE IF NOT EXISTS kantasklabel (
     kantasklabel_id SERIAL PRIMARY KEY,
     label_id INTEGER REFERENCES label(label_id),
     kantask_id INTEGER REFERENCES kantask(kantask_id),
