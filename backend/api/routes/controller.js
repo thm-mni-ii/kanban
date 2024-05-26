@@ -24,11 +24,11 @@ const getBoardsByGroup = (req, res) => {
 
 const postBoardByGroup = (req, res) => {
     const groupId = req.params.groupId;
-    const { name } = req.body;  // assumption: request body includes title and description of board
+    const name = req.body.name;  // request body includes name of board 
 
     // validation of input data
     if (!name) {
-        return res.status(400).json({ error: 'Titel und Beschreibung sind erforderlich' });
+        return res.status(400).json({ error: 'Name des Boards ist erforderlich' });
     }
 
     const query = 'INSERT INTO board (group_id, name) VALUES ($1, $2) RETURNING *;';
@@ -59,15 +59,15 @@ const getSpecificBoardOfGroup = (req, res) => {
 const putSpecificBoardOfGroup = (req, res) => {
     const groupId = req.params.groupId;
     const boardId = req.params.id;
-    const { title } = req.body;
+    const name = req.body.name;
 
     // validation of input data
-    if (!title || !description) {
-        return res.status(400).json({ error: 'Titel und Beschreibung sind erforderlich' });
+    if (!name) {
+        return res.status(400).json({ error: 'Name ist erforderlich' });
     }
 
     const query = 'UPDATE board SET title = $1, description = $2 WHERE group_id = $3 AND id = $4 RETURNING *;';
-    const values = [title, description, groupId, boardId];
+    const values = [name, groupId, boardId];
 
     pool.query(query, values, (error, results) => {
         if (error) {
