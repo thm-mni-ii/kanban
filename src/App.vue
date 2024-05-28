@@ -5,76 +5,10 @@
     <v-main>
       <v-container fluid class="flex mt-4">
         <v-row>
-          <v-col cols="3">
-            <div class="style-box">
-              <h2>Backlog</h2>
-              <draggable v-model="backlogItems" group="tasks">
-                <template #item="{ element, index }">
-                  <div :key="index">
-                    <v-card class="mb-3">
-                      <v-row class="align-items-center">
-                        <v-col cols="10">
-                          <v-card-text>{{ element.title }}</v-card-text>
-                        </v-col>
-                        <v-col cols="2">
-                          <v-btn icon="mdi-delete-outline" small  density="compact" @click.stop="deleteTask(backlogItems, index)">
-                          </v-btn>
-                        </v-col>
-                      </v-row>
-                    </v-card>
-                  </div>
-                </template>
-              </draggable>
-            </div>
-          </v-col>
-          <v-col cols="3">
-            <div class="style-box">
-              <h2>Working on</h2>
-              <draggable v-model="workingItems" group="tasks" @start="drag=true" @end="drag=false">
-                <template #item="{ element, index }">
-                  <div :key="index">
-                    <v-card class="mb-3">
-                      <v-card-text>{{ element.title }}</v-card-text> 
-                      <v-col cols="2">
-                          <v-btn icon="mdi-delete-outline" small  density="compact" @click.stop="deleteTask(workingItems, index)">
-                          </v-btn>
-                        </v-col>
-                    </v-card>
-                  </div>
-                </template>
-              </draggable>
-            </div>
-          </v-col>
-          <v-col cols="3">
-            <div class="style-box">
-              <h2>Review</h2>
-              <draggable v-model="reviewItems" group="tasks">
-                <template #item="{ element, index }">
-                  <div :key="index">
-                    <v-card class="mb-3">
-                      <v-card-text>{{ element.title }}</v-card-text> <v-btn small color="error" density="compact" @click.stop="deleteTask(reviewItems, index)">
-                      </v-btn>
-                    </v-card>
-                  </div>
-                </template>
-              </draggable>
-            </div>
-          </v-col>
-          <v-col cols="3">
-            <div class="style-box">
-              <h2>Done</h2>
-              <draggable v-model="doneItems" group="tasks">
-                <template #item="{ element, index }">
-                  <div :key="index">
-                    <v-card class="mb-3">
-                      <v-card-text>{{ element.title }}</v-card-text> <v-btn small color="error" density="compact" @click.stop="deleteTask(doneItems, index)">
-                      </v-btn>
-                    </v-card>
-                  </div>
-                </template>
-              </draggable>
-            </div>
-          </v-col>
+          <Label sectionTitle="Backlog" :items="backlogItems" @update:items="backlogItems = $event" />
+          <Label sectionTitle="Working on" :items="workingItems" @update:items="workingItems = $event" />
+          <Label sectionTitle="Review" :items="reviewItems" @update:items="reviewItems = $event" />
+          <Label sectionTitle="Done" :items="doneItems" @update:items="doneItems = $event" />
         </v-row>
       </v-container>
       <AddButton @add-task="addTaskToBacklog" />
@@ -87,16 +21,16 @@
 import NavDrawer from "@/components/NavDrawer.vue";
 import AddButton from "@/components/AddTaskButton.vue"
 import TestApi from "./components/TestApi.vue";
+import Label from "@/components/Label.vue";
 import { ref } from 'vue';
-import draggable from 'vuedraggable';
 
 
 export default {
   components: {
+    Label,
     TestApi,
     NavDrawer,
     AddButton,
-    draggable
   },
   setup() {
     const backlogItems = ref([
@@ -160,16 +94,6 @@ export default {
   border: 1px solid black;
   border-radius: 5px;
   width: auto;
-}
-
-.style-box {
-  background-color: grey;
-
-  border: 1px solid black;  
-  padding: 20px 10px;
-  border-radius: 5px;
-  min-height: 300px;
-
 }
 
 .title-padding {
