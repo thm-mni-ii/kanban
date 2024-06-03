@@ -95,110 +95,24 @@ router
   .delete(controller.deleteSpecificBoardOfGroup);
 router
   .route(`/:groupId/boards/:boardId/cards`)
-  .get((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .post((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  });
+  .get(controller.getCardsOfBoardOfGroup)
+  .post(controller.postCardToBoardOfGroup);
 
 router
   .route(`/:groupId/boards/:boardId/cards:id`)
-  .get((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-    const cardsID = req.params.id;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .put((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-    const cardsID = req.params.id;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .delete((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-    const cardsID = req.params.id;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  });
+  .get(controller.getSpecificCardOfBoardOfGroup)
+  .put(controller.putSpecificCardToBoardOfGroup)
+  .delete(controller.deleteSpecificCardOfBoardOfGroup);
 
 router
   .route(`/:groupId/boards/:boardId/labels`)
-  .get((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .post((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  });
+  .get(controller.getLabelsOfBoardOfGroup)
+  .post(controller.postLabelToBoardOfGroup);
 
   router.route(`/:groupId/boards/:boardId/labels:id`)
-  .get((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-    const labelId = req.params.id;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .put((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-    const labelId = req.params.id;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
-  .delete((req, res) => {
-    const groupId = req.params.groupId;
-    const boardId = req.params.boardId;
-    const labelId = req.params.id;
-
-    // TODO: decide what to do based on what information is provided
-
-    res.status(501); //501 = Not Implemented
-    res.send(`This feature is comming soon`);
-  })
+  .get(controller.getSpecificLabelOfBoardOfGroup)
+  .put(controller.putSpecificLabelToBoardOfGroup)
+  .delete(controller.deleteSpecificLabelOfBoardOfGroup)
 
 
 module.exports = router
