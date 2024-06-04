@@ -32,7 +32,7 @@ services:
       POSTGRES_DB: "kandb"
       POSTGRES_PASSWORD: "secret"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d kandb"]
+      test: ["CMD-SHELL", "pg_isready -d kandb -U kanuser"]
       interval: 5s
       timeout: 5s
       retries: 5
