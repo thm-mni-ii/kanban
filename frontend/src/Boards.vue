@@ -29,30 +29,37 @@ export default {
         async loadBoards() {
             let response;
             try {
-                response = await fetch(`http://localhost:3000/groups/1/boards`, {mode: 'no-cors'});
+                response = await fetch(`http://localhost:3000/groups/1/boards`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
             } catch (error) {
                 console.error('Error fetching data:', error);
                 return;
             }
-
-            let responseClone;
-            try {
-                responseClone = response.clone();
-                const data = await response.json();
-                this.boards = data;
-                console.log(this.boards);
-            } catch (rejectionReason) {
-                console.log('Error parsing JSON from response:', rejectionReason);
-                if (responseClone) {
-                    const bodyText = await responseClone.text();
-                    console.log('Received the following instead of valid JSON:', bodyText);
-                }
-            }
         },
-        addBoard() {
-            // Logik zum Hinzufügen eines neuen Boards
-            // Dies ist nur ein Platzhalter, ersetzen Sie ihn durch Ihren tatsächlichen Code zum Hinzufügen eines neuen Boards
-            console.log('Add board');
+        async addBoard() {
+            let response;
+            try {
+                response = await fetch(`http://localhost:3000/groups/1/boards`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: 'New Board',
+                    }),
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                this.boards.push(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return;
+            }
         },
     },
 };
