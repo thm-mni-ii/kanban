@@ -66,7 +66,7 @@ const putSpecificBoardOfGroup = (req, res) => {
         return res.status(400).json({ error: 'Name ist erforderlich' });
     }
 
-    const query = 'UPDATE board SET title = $1, description = $2 WHERE group_id = $3 AND id = $4 RETURNING *;';
+    const query = 'UPDATE board SET name = $1, description = $2 WHERE group_id = $3 AND board_id = $4 RETURNING *;';
     const values = [name, groupId, boardId];
 
     pool.query(query, values, (error, results) => {
@@ -87,7 +87,7 @@ const deleteSpecificBoardOfGroup = (req, res) => {
     const groupId = req.params.groupId;
     const boardId = req.params.id;
 
-    const query = 'DELETE FROM boards WHERE group_id = $1 AND id = $2 RETURNING *;';
+    const query = 'DELETE FROM board WHERE group_id = $1 AND board_id = $2 RETURNING *;';
     const values = [groupId, boardId];
 
     pool.query(query, values, (error, results) => {
@@ -107,7 +107,7 @@ const deleteSpecificBoardOfGroup = (req, res) => {
 const getCardsOfBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
 
-    const query = 'SELECT * FROM cards WHERE board_id = $1';
+    const query = 'SELECT * FROM kantask WHERE board_id = $1';
     const values = [boardId]
 
     pool.query(query, values, (error, results) => {
@@ -118,19 +118,19 @@ const getCardsOfBoardOfGroup = (req, res) => {
 
 const postCardToBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
-    const { title, description, assigned_to, due_date, created_at, status } = req.body;
+    const { name, description, assigned_to, due_date, created_at, status } = req.body;
 
     // validation of input data
-    if (!title || !created_at || !status) {
+    if (!name || !created_at || !status) {
         return res.status(400).json({ error: 'Titel, Erstelldatum und Status sind erforderlich' });
     }
 
     const query = `
-        INSERT INTO cards (board_id, title, description, assigned_to, due_date, created_at, status) 
+        INSERT INTO kantask (board_id, name, description, assigned_to, due_date, created_at, status) 
         VALUES ($1, $2, $3, $4, $5, $6, $7) 
         RETURNING *;
     `;
-    const values = [boardId, title, description, assigned_to, due_date, created_at, status];
+    const values = [boardId, name, description, assigned_to, due_date, created_at, status];
 
     pool.query(query, values, (error, results) => {
         if (error) {
@@ -145,7 +145,7 @@ const postCardToBoardOfGroup = (req, res) => {
 const getSpecificCardOfBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
     const cardId = req.params.id;
-    const query = 'SELECT * FROM cards WHERE board_id = $1 and id = $2';
+    const query = 'SELECT * FROM kantask WHERE board_id = $1 and kantask_id = $2';
     const values = [boardId, cardId]
 
     pool.query(query, values, (error, results) => {
@@ -157,19 +157,19 @@ const getSpecificCardOfBoardOfGroup = (req, res) => {
 const putSpecificCardToBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
     const cardId = req.params.id;
-    const { title, description, assigned_to, due_date, created_at, status } = req.body;
+    const { name, description, assigned_to, due_date, created_at, status } = req.body;
 
     // validation of input data
-    if (!title || !created_at || !status) {
+    if (!name || !created_at || !status) {
         return res.status(400).json({ error: 'Titel, Erstelldatum, und Status sind erforderlich' });
     }
 
     const query = `
-        UPDATE cards SET title = $1, description = $2, assigned_to = $3, due_date = $4, created_at = $5, status = $6
-        WHERE board_id = $7 AND id = $8 
+        UPDATE kantask SET name = $1, description = $2, assigned_to = $3, due_date = $4, created_at = $5, status = $6
+        WHERE board_id = $7 AND kantask_id = $8 
         RETURNING *;
         `;
-    const values = [title, description, assigned_to, due_date, created_at, status, boardId, cardId];
+    const values = [name, description, assigned_to, due_date, created_at, status, boardId, cardId];
 
     pool.query(query, values, (error, results) => {
         if (error) {
@@ -189,7 +189,7 @@ const deleteSpecificCardOfBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
     const cardId = req.params.id;
 
-    const query = 'DELETE FROM cards WHERE board_id = $1 AND id = $2 RETURNING *;';
+    const query = 'DELETE FROM kantask WHERE board_id = $1 AND kantask_id = $2 RETURNING *;';
     const values = [boardId, cardId];
 
     pool.query(query, values, (error, results) => {
@@ -209,7 +209,7 @@ const deleteSpecificCardOfBoardOfGroup = (req, res) => {
 const getLabelsOfBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
 
-    const query = 'SELECT * FROM labels WHERE board_id = $1';
+    const query = 'SELECT * FROM label WHERE board_id = $1';
     const values = [boardId]
 
     pool.query(query, values, (error, results) => {
@@ -220,15 +220,15 @@ const getLabelsOfBoardOfGroup = (req, res) => {
 
 const postLabelToBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
-    const { title, color } = req.body;  // assumption: request body includes title and color of label
+    const { name, color } = req.body;  // assumption: request body includes name and color of label
 
     // validation of input data
-    if (!title || !color) {
+    if (!name || !color) {
         return res.status(400).json({ error: 'Titel und Farbe sind erforderlich' });
     }
 
-    const query = 'INSERT INTO labels (board_id, title, color) VALUES ($1, $2, $3) RETURNING *;';
-    const values = [boardId, title, color];
+    const query = 'INSERT INTO label (board_id, name, color) VALUES ($1, $2, $3) RETURNING *;';
+    const values = [boardId, name, color];
 
     pool.query(query, values, (error, results) => {
         if (error) {
@@ -243,7 +243,7 @@ const postLabelToBoardOfGroup = (req, res) => {
 const getSpecificLabelOfBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
     const labelId = req.params.id;
-    const query = 'SELECT * FROM labels WHERE board_id = $1 and id = $2';
+    const query = 'SELECT * FROM label WHERE board_id = $1 and label_id = $2';
     const values = [boardId, labelId]
 
     pool.query(query, values, (error, results) => {
@@ -255,19 +255,19 @@ const getSpecificLabelOfBoardOfGroup = (req, res) => {
 const putSpecificLabelToBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
     const labelId = req.params.id;
-    const { title, color } = req.body;
+    const { name, color } = req.body;
 
     // validation of input data
-    if (!title || !color) {
+    if (!name || !color) {
         return res.status(400).json({ error: 'Titel und Farbe sind erforderlich' });
     }
 
     const query = `
-        UPDATE labels SET title = $1, color = $2 
-        WHERE board_id = $3 AND id = $4 
+        UPDATE label SET name = $1, color = $2 
+        WHERE board_id = $3 AND label_id = $4 
         RETURNING *;
         `;
-    const values = [title, color, boardId, labelId];
+    const values = [name, color, boardId, labelId];
 
     pool.query(query, values, (error, results) => {
         if (error) {
@@ -287,7 +287,7 @@ const deleteSpecificLabelOfBoardOfGroup = (req, res) => {
     const boardId = req.params.boardId;
     const labelId = req.params.id;
 
-    const query = 'DELETE FROM labels WHERE board_id = $1 AND id = $2 RETURNING *;';
+    const query = 'DELETE FROM label WHERE board_id = $1 AND label_id = $2 RETURNING *;';
     const values = [boardId, labelId];
 
     pool.query(query, values, (error, results) => {
