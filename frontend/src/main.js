@@ -1,9 +1,8 @@
 
-import "bootstrap/dist/css/bootstrap.min.css";
-//import './assets/main.css'
+
 import { createApp } from 'vue'
 import App from './Boards.vue'
-import "bootstrap/dist/js/bootstrap.min.js"
+import route from './routes/router.js'
 
 //Vuetify
 import '@mdi/font/css/materialdesignicons.css'
@@ -16,4 +15,7 @@ const vuetify = createVuetify({
   directives,
 })
 
-createApp(App).use(vuetify).mount('#app')
+createApp(App)
+  .use(vuetify)
+  .use(route)
+  .mount('#app')
