@@ -2,7 +2,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 //import './assets/main.css'
 import { createApp } from 'vue'
-import App from './App.vue'
+import App from './Boards.vue'
 import "bootstrap/dist/js/bootstrap.min.js"
 
 //Vuetify

@@ -15,7 +15,7 @@
     "bootstrap-vue": "^2.23.1",
     "vue": "^3.4.21",
     "vuedraggable": "^4.1.0",
-    "vuetify": "^3.6.7"
+    "vuetify": "^3.6.8"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

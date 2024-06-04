@@ -12,7 +12,7 @@
         </v-row>
       </v-container>
       <AddButton @add-task="addTaskToBacklog" />
-      <TestApi />
+      
     </v-main>
   </v-app>
 </template>
@@ -61,19 +61,9 @@ export default {
     const deleteTask = (list, index) => {
       list.splice(index, 1);
     }
-    const getAllUsers = () => {
-      fetch('http://localhost:3002/')
-      .then(response => response.json)
-      .then(data => {
-        this.user = data;
-      })
-      .catch(error => {
-        console.error(error);
-      });
-    }     
+    
 
     return {
-      getAllUsers,
       backlogItems,
       workingItems,
       reviewItems,
