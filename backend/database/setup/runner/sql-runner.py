@@ -60,9 +60,12 @@ def execute_sql_script(file: PathLike, cur: Cursor):
     
 def main():
     logger.info("SQL-Runner started.")
-    # get sql script files
     
+    # get sql script files
     scripts = get_paths_to_sql_scripts(getenv("PATH_TO_SQL", "./scripts"))
+
+    # the scripts should be executed in alphabetical order, so they need to be sorted
+    scripts.sort()
 
     try:
         # Conntect to database
@@ -75,6 +78,7 @@ def main():
                 for path in scripts:
                     execute_sql_script(path, conn.cursor())
                     conn.commit()
+                    
         logger.info("SQL-Runner finished.")
         exit(0)
         
