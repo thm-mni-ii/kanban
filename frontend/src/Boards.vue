@@ -1,4 +1,5 @@
 <template>
+    
     <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
         <h1>Meine Boards</h1>
     </v-container>
@@ -22,7 +23,7 @@
     </v-row>
     <div></div>
     <v-btn @click="loadBoards">Load Boards</v-btn>
-    <v-btn @click="goToApp">Go to App</v-btn>
+    <v-btn @click="goToApp">Go to App</v-btn>  
 </template>
 
 <script>
@@ -71,7 +72,7 @@ export default {
         },
         goToApp() {
             console.log('Go to App');
-            this.$router.push('/')
+            this.$router.push('/app')
                 .then(() => {
                     console.log('Navigated to App');
                 })

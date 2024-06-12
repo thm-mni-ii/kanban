@@ -3,6 +3,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import Board from './Boards.vue'
+import Start from './Start.vue'
 import route from './router.js'
 
 //Vuetify
@@ -18,7 +19,7 @@ const vuetify = createVuetify({
 
 
 
-createApp(Board)
+createApp(Start)
   .use(vuetify)
   .use(route)
   .mount('#app')

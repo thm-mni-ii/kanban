@@ -1,19 +1,22 @@
-// router.js
-
 import { createRouter, createWebHistory } from 'vue-router'
+import Start from './Start.vue'
 import App from './App.vue'
 import Boards from './Boards.vue'
 
 const routes = [
   {
-    path: '/app',
-    name: 'App',
-    component: App
+    path: '/',
+    name: 'Start',
+    component: Start,
+    children:[{
+      path: '',
+      component: Boards,
+    }]
   },
   {
-    path: '/',
-    name: 'Boards',
-    component: Boards
+    path: '/app',
+    name: 'App',
+    component: App,
   }
 ]
 
