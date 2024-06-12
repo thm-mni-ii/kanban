@@ -1,8 +1,9 @@
 
 
 import { createApp } from 'vue'
-import App from './Boards.vue'
-import route from './routes/router.js'
+import App from './App.vue'
+import Board from './Boards.vue'
+import route from './router.js'
 
 //Vuetify
 import '@mdi/font/css/materialdesignicons.css'
@@ -15,7 +16,9 @@ const vuetify = createVuetify({
   directives,
 })
 
-createApp(App)
+
+
+createApp(Board)
   .use(vuetify)
   .use(route)
   .mount('#app')
