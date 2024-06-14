@@ -8,16 +8,18 @@ const routes = [
     path: '/',
     name: 'Start',
     component: Start,
-    children:[{
-      path: '',
-      component: Boards,
-    }]
   },
   {
-    path: '/app',
+    path: '/groups/:groupId/boards/:boardId',
     name: 'App',
     component: App,
-  }
+  },
+  {
+    path: '/groups/:groupId/boards',
+    name: 'Boards',
+    component: Boards,
+    props: true,
+  },
 ]
 
 const router = createRouter({
