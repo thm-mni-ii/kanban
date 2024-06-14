@@ -1,29 +1,55 @@
 <template>
-    
+
     <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
         <h1>Meine Boards</h1>
     </v-container>
-    <div class="container">
-        <div class="left"></div>
-        <div class="right"></div>
+    <div class="d-flex  flex-column align-items-center justify-center">
+        <v-card v-for="board in boards" :key="board.boardId" class="mb-4"
+        @click="goToApp(board)"
+        variant="outlined" 
+        >
+            <v-card-title>
+                {{ board.name }}
+            </v-card-title>
+        </v-card>
+        <v-btn 
+         @click="dialog = true" 
+         class="mt-5" 
+         style="width: 500px;"
+         color="#5865f2">
+            <v-icon left>mdi-plus</v-icon>
+            Add Board
+        </v-btn>
     </div>
-    <v-row class="myRow">
-        <v-col cols="3" v-for="board in boards" :key="board.id">
-            <!-- <router-link :to="{ name: 'kanban-board', params: { name: board.name }}">
-                <v-card>{{ board.name }}</v-card>
-            </router-link>-->
-        </v-col>
-        <v-col cols="3">
-            <v-row>
-            <v-text-field v-model="boardName" label="Hinzufügen" @keyup.enter="addBoard(boardName)"></v-text-field>    
-            <v-btn class="add-board d-flex justify-center align-center" @click="addBoard">
-                <v-icon large>mdi-plus</v-icon>
-            </v-btn></v-row>
-        </v-col>
-    </v-row>
-    <div></div>
-    <v-btn @click="loadBoards">Load Boards</v-btn>
-    <v-btn @click="goToApp">Go to App</v-btn>  
+    <v-dialog v-model="dialog" persistent max-width="500px">
+        <v-card>
+            <v-card-title>
+                <span class="headline">New Board</span>
+            </v-card-title>
+            <v-card-text>
+                <v-container>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field v-model="boardName" label="Board Name" required></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="dialog = false">Close</v-btn>
+                <v-btn color="blue darken-1" text @click="addBoard">Save</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+    <div>
+        <v-switch label="Buttons" v-model="buttonsActivated"
+         class="primary"
+        ></v-switch>
+        <v-btn @click="loadBoards" v-if="buttonsActivated">Load Boards</v-btn>
+        <v-btn @click="goToApp" v-if="buttonsActivated">Go to App</v-btn>
+        <v-btn @click="home" v-if="buttonsActivated">Home</v-btn>
+    </div>
 </template>
 
 <script>
@@ -32,28 +58,38 @@ export default {
         return {
             boards: [],
             boardName: '',
+            dialog: false,
+            buttonsActivated: false,
         };
     },
     created() {
         this.loadBoards();
     },
     methods: {
+        home(){
+            this.$router.push('/')
+        },
+        async showsBoards(){
+            console.log(this.boards);
+        },
         async loadBoards() {
             try {
-                const response = await fetch('http://localhost:3000/groups/1/boards/');
+                const groupId = this.$route.params.groupId;
+                const response = await fetch(`http://localhost:3000/groups/${groupId}/boards/`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
                 this.boards = data;
-                console.log(this.boards);
+                console.log(data);
             } catch (error) {
                 console.error('There was an error!', error);
             }
         },
         async addBoard() {
+            const groupId = this.$route.params.groupId;
             try {
-                const response = await fetch('http://localhost:3000/groups/1/boards/', {
+                const response = await fetch(`http://localhost:3000/groups/${group_id}/boards/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -63,22 +99,16 @@ export default {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                const data = await response.json();
-                //console.log(data);
-                this.boardName="";
+                this.boardName = "";
+                this.dialog = false;
+                this.loadBoards();
             } catch (error) {
                 console.error('There was an error!', error);
             }
         },
-        goToApp() {
-            console.log('Go to App');
-            this.$router.push('/app')
-                .then(() => {
-                    console.log('Navigated to App');
-                })
-                .catch((error) => {
-                    console.error('There was an error!', error);
-                });
+        goToApp(board) {
+            this.$router.push(`/groups/${this.$route.params.groupId}/boards/${board.board_id}`);
+            console.log(board);
         },
     },
 }
