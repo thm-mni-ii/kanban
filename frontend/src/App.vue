@@ -20,7 +20,6 @@
 <script>
 import NavDrawer from "@/components/NavDrawer.vue";
 import AddButton from "@/components/AddTaskButton.vue"
-import TestApi from "./components/TestApi.vue";
 import Label from "@/components/Label.vue";
 import { ref } from 'vue';
 
@@ -28,7 +27,6 @@ import { ref } from 'vue';
 export default {
   components: {
     Label,
-    TestApi,
     NavDrawer,
     AddButton,
   },
