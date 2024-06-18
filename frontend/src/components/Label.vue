@@ -34,10 +34,10 @@ export default {
   props: {
     sectionTitle: String,
     items: Array,
-    status : String 
+    status: String
   },
   methods: {
-    async loadCards(){
+    async loadCards() {
       try {
         const groupId = this.$route.params.groupId;
         const boardId = this.$route.params.boardId;
@@ -48,17 +48,29 @@ export default {
         const data = await response.json();
         this.cards = data;
         this.cards = this.cards.filter(card => card.status === this.status);
-        console.log('fetched data' + data + "cards: "+ this.cards);
       } catch (error) {
         console.error('There was an error!', error);
       }
     },
-    async deleteCard(index){
-      console.log(index);
-    }
+    async deleteCard(index) {
+      const card = this.cards[index];
+      const id = card.kantask_id;
+      
+      const groupId = this.$route.params.groupId;
+      const boardId = this.$route.params.boardId;
+      
+      const response = await fetch(`http://localhost:3000/groups/${groupId}/boards/${boardId}/cards${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok' + response.status);
+      }else{
+        this.cards.splice(index, 1);
+      }
+    },
   },
-  
-  created(){
+
+  created() {
     this.loadCards();
   }
 }
