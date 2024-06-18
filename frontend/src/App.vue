@@ -1,25 +1,28 @@
 <template>
   <v-app>
     <NavDrawer />
-    <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto><h1>{{ boardName }}</h1></v-container>
+    <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
+      <h1>{{ boardName }}</h1>
+    </v-container>
     <v-main>
       <v-container fluid class="flex mt-4">
         <v-row>
-          <Label sectionTitle="Backlog" :items="backlogItems" @update:items="backlogItems = $event" />
-          <Label sectionTitle="Working on" :items="workingItems" @update:items="workingItems = $event" />
-          <Label sectionTitle="Review" :items="reviewItems" @update:items="reviewItems = $event" />
-          <Label sectionTitle="Done" :items="doneItems" @update:items="doneItems = $event" />
+          <Label sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event" />
+          <Label sectionTitle="Working on" status="working_on" :items="workingItems"
+            @update:items="workingItems = $event" />
+          <Label sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" />
+          <Label sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" />
         </v-row>
       </v-container>
-      <AddButton @add-task="addTaskToBacklog" />
-      
+      <v-btn color="primary" dark @click="showDialog">Add Card</v-btn>
+      <addCard ref="addCard" @addedCard="reloadCards" />
     </v-main>
   </v-app>
 </template>
 
 <script>
 import NavDrawer from "@/components/NavDrawer.vue";
-import AddButton from "@/components/AddTaskButton.vue"
+import addCard from "@/components/addCard.vue";
 import Label from "@/components/Label.vue";
 import { ref } from 'vue';
 
@@ -28,21 +31,21 @@ export default {
   components: {
     Label,
     NavDrawer,
-    AddButton,
+    addCard,
   },
   setup() {
     const backlogItems = ref([
-     
-  
+
+
     ]);
     const workingItems = ref([
-      
+
     ]);
     const reviewItems = ref([
-      
+
     ]);
     const doneItems = ref([
-      
+
     ]);
     const Task = {
       id: Number,
@@ -53,24 +56,30 @@ export default {
       document.title = boardName.value;
     }
 
-    const addTaskToBacklog = (taskName) => {
-      backlogItems.value.push({ id: backlogItems.value.length + 1, title: taskName });
-    }
-    const deleteTask = (list, index) => {
-      list.splice(index, 1);
-    }
-    
-
     return {
       backlogItems,
       workingItems,
       reviewItems,
       doneItems,
-      addTaskToBacklog,
-      deleteTask,
       boardName
     }
-  }
+  },
+  methods: {
+    showDialog() {
+      this.$refs.addCard.showDialog();
+    },
+    reloadCards() {
+      this.$refs.labelComponents.forEach(labelComponent => {
+        labelComponent.$emit('reloadCards');
+      });
+    },
+  },
+  async mounted() {
+  this.$refs.labels.forEach(label => {
+    label.loadCards();
+  });
+}
+
 }
 
 
@@ -92,5 +101,4 @@ export default {
   display: flex;
   flex-direction: column;
 }
- 
 </style>
