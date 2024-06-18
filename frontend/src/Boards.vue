@@ -3,7 +3,7 @@
     <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
         <h1>Meine Boards</h1>
     </v-container>
-    <div class="d-flex  flex-column align-items-center justify-center" style="max-width: 500px;">
+    <div class="d-flex  flex-column align-items-center justify-center" style="max-width: 500px; margin: 10% auto;">
         <v-card v-for="board in boards" :key="board.boardId" class="mb-4"
         @click="goToApp(board)"
         variant="outlined" 
@@ -81,7 +81,6 @@ export default {
                 }
                 const data = await response.json();
                 this.boards = data;
-                console.log(data);
             } catch (error) {
                 console.error('There was an error!', error);
             }

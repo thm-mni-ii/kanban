@@ -7,11 +7,11 @@
     <v-main>
       <v-container fluid class="flex mt-4">
         <v-row>
-          <Label sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event" />
-          <Label sectionTitle="Working on" status="working_on" :items="workingItems"
+          <Label ref="labels"sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event" />
+          <Label ref="labels"sectionTitle="Working on" status="working_on" :items="workingItems"
             @update:items="workingItems = $event" />
-          <Label sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" />
-          <Label sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" />
+          <Label ref="labels"sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" />
+          <Label ref="labels"sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" />
         </v-row>
       </v-container>
       <v-btn color="primary" dark @click="showDialog">Add Card</v-btn>
@@ -67,11 +67,6 @@ export default {
   methods: {
     showDialog() {
       this.$refs.addCard.showDialog();
-    },
-    reloadCards() {
-      this.$refs.labelComponents.forEach(labelComponent => {
-        labelComponent.$emit('reloadCards');
-      });
     },
   },
   async mounted() {

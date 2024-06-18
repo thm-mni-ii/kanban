@@ -21,6 +21,13 @@ export default {
     gotoBoards() {
       this.$router.push({ name: 'Boards' });
     },
+    passRouter() {
+      return this.$route.params.groupId;
+    },  
+    goToHome() {
+      this.$router.push({ name: 'Start' });
+    },
+    getGroupMembers,
   }
 }
 </script>

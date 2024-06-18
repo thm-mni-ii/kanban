@@ -69,6 +69,7 @@
           this.cardDescription = "";
           this.dialog = false;
           this.$emit('addedCard');
+          console.log(this.$emit('addedCard'));
         } catch (error) {
           console.error('There was an error!', error);
         }
