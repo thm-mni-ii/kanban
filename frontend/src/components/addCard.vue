@@ -34,6 +34,7 @@
   </template>
   
   <script>
+  import { apiUrl } from '@/lib/getApi.js';
   export default {
     data() {
       return {
@@ -55,7 +56,7 @@
           status: 'backlog', 
         };
         try {
-          const response = await fetch(`http://localhost:3000/groups/${groupId}/boards/${boardId}/cards/`, {
+          const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

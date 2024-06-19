@@ -24,7 +24,7 @@
 import NavDrawer from "@/components/NavDrawer.vue";
 import addCard from "@/components/addCard.vue";
 import Label from "@/components/Label.vue";
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 
 export default {
@@ -34,34 +34,23 @@ export default {
     addCard,
   },
   setup() {
-    const backlogItems = ref([
+    const backlogItems = ref([]);
+    const workingItems = ref([]);
+    const reviewItems = ref([]);
+    const doneItems = ref([]);
 
-
-    ]);
-    const workingItems = ref([
-
-    ]);
-    const reviewItems = ref([
-
-    ]);
-    const doneItems = ref([
-
-    ]);
-    const Task = {
-      id: Number,
-      title: String
-    };
     const boardName = ref("Kanban Board");
-    const onMounted = () => {
-      document.title = boardName.value;
-    }
 
     return {
       backlogItems,
       workingItems,
       reviewItems,
       doneItems,
-      boardName
+      boardName,
+      backlogLabel,
+      workingLabel,
+      reviewLabel,
+      doneLabel,
     }
   },
   methods: {
@@ -69,15 +58,7 @@ export default {
       this.$refs.addCard.showDialog();
     },
   },
-  async mounted() {
-  this.$refs.labels.forEach(label => {
-    label.loadCards();
-  });
 }
-
-}
-
-
 </script>
 
 

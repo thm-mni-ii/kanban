@@ -46,13 +46,17 @@
         <v-switch label="Buttons" v-model="buttonsActivated"
          class="primary"
         ></v-switch>
+        <v-container class="d-flex justify-center">
         <v-btn @click="loadBoards" v-if="buttonsActivated">Load Boards</v-btn>
         <v-btn @click="goToApp" v-if="buttonsActivated">Go to App</v-btn>
         <v-btn @click="home" v-if="buttonsActivated">Home</v-btn>
+        </v-container>
+
     </div>
 </template>
 
 <script>
+import { apiUrl } from '@/lib/getApi.js';
 export default {
     data() {
         return {
@@ -75,7 +79,7 @@ export default {
         async loadBoards() {
             try {
                 const groupId = this.$route.params.groupId;
-                const response = await fetch(`http://localhost:3000/groups/${groupId}/boards/`);
+                const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -88,7 +92,7 @@ export default {
         async addBoard() {
             const groupId = this.$route.params.groupId;
             try {
-                const response = await fetch(`/groups/${groupId}/boards/`, {
+                const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import { apiUrl } from '@/lib/getApi.js';
 import { ref } from 'vue';
 import draggable from 'vuedraggable';
 export default {
@@ -41,7 +42,7 @@ export default {
       try {
         const groupId = this.$route.params.groupId;
         const boardId = this.$route.params.boardId;
-        const response = await fetch(`http://localhost:3000/groups/${groupId}/boards/${boardId}/cards/`);
+        const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -59,7 +60,7 @@ export default {
       const groupId = this.$route.params.groupId;
       const boardId = this.$route.params.boardId;
       
-      const response = await fetch(`http://localhost:3000/groups/${groupId}/boards/${boardId}/cards${id}`, {
+      const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
