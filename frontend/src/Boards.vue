@@ -88,7 +88,7 @@ export default {
         async addBoard() {
             const groupId = this.$route.params.groupId;
             try {
-                const response = await fetch(`http://localhost:3000/groups/${groupId}/boards/`, {
+                const response = await fetch(`/groups/${groupId}/boards/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

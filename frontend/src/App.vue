@@ -7,11 +7,11 @@
     <v-main>
       <v-container fluid class="flex mt-4">
         <v-row>
-          <Label ref="labels"sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event" />
-          <Label ref="labels"sectionTitle="Working on" status="working_on" :items="workingItems"
+          <Label ref="backlogLabel"sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event" />
+          <Label ref="workingLabel"sectionTitle="Working on" status="working_on" :items="workingItems"
             @update:items="workingItems = $event" />
-          <Label ref="labels"sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" />
-          <Label ref="labels"sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" />
+          <Label ref="reviewlabel"sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" />
+          <Label ref="doneLabel"sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" />
         </v-row>
       </v-container>
       <v-btn color="primary" dark @click="showDialog">Add Card</v-btn>

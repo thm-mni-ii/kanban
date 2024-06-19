@@ -27,7 +27,6 @@ export default {
     goToHome() {
       this.$router.push({ name: 'Start' });
     },
-    getGroupMembers,
   }
 }
 </script>

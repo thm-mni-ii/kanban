@@ -61,7 +61,6 @@ export default {
 
         onGroupCardClick(groupId) {
             this.$router.push({ name: 'Boards', params: { groupId: groupId } });
-            console.log('Group clicked', groupId);
         }
     },
 }
