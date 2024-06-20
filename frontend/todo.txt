@@ -1,0 +1,7 @@
+assignee 
+Boards löschen / umbennen?
+card wann verschoben
+wokring nur möglich, wenn assignee zugeordnet ist
+namen anzeigen
+Kurse und so oder gleich zu Kanban board
+änderungen an der datenbank als neue version
