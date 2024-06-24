@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 
 interface GroupDetails{
     id: number;
@@ -59,7 +57,7 @@ enum CourseRole {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function getGroupList(cid: number, visible?: boolean){
+export async function getGroupList(cid: number, visible?: boolean){
     try {
         let url = `https://feedback.mni.thm.de/api/v1/courses/${cid}/groups`
         if (visible!== undefined){
@@ -85,7 +83,7 @@ async function getGroupList(cid: number, visible?: boolean){
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function createGroup(cid: number, postData: GroupInput){
+export async function createGroup(cid: number, postData: GroupInput){
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups`, {
             method: 'POST',
@@ -111,7 +109,7 @@ async function createGroup(cid: number, postData: GroupInput){
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function getGroup(cid: number, gid: number){
+export async function getGroup(cid: number, gid: number){
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`);
         if (!response.ok){
@@ -134,7 +132,7 @@ async function getGroup(cid: number, gid: number){
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function updateGroup(cid: number, gid: number, postData: GroupInput){
+export async function updateGroup(cid: number, gid: number, postData: GroupInput){
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`, {
             method: 'PUT',
@@ -159,7 +157,7 @@ async function updateGroup(cid: number, gid: number, postData: GroupInput){
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function deleteGroup(cid: number, gid: number) {
+export async function deleteGroup(cid: number, gid: number) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`, {
             method: 'DELETE',
@@ -187,7 +185,7 @@ async function deleteGroup(cid: number, gid: number) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function addUserToGroup(cid: number, gid: number, uid: number){
+export async function addUserToGroup(cid: number, gid: number, uid: number){
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
             method: 'PUT',
@@ -211,7 +209,7 @@ async function addUserToGroup(cid: number, gid: number, uid: number){
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function removeUserFromGroup(cid: number, gid: number,  uid: number) {
+export async function removeUserFromGroup(cid: number, gid: number,  uid: number) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
             method: 'DELETE',
@@ -233,7 +231,7 @@ async function removeUserFromGroup(cid: number, gid: number,  uid: number) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function removeAllUsersFromGroup(cid: number, gid: number) {
+export async function removeAllUsersFromGroup(cid: number, gid: number) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users`, {
             method: 'DELETE',
@@ -255,7 +253,7 @@ async function removeAllUsersFromGroup(cid: number, gid: number) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function getUserGroups(uid: number) {
+export async function getUserGroups(uid: number) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/users/${uid}/groups`);
         if (!response.ok){
@@ -277,7 +275,7 @@ async function getUserGroups(uid: number) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function getGroupMembers(cid: number, gid: number){
+export async function getGroupMembers(cid: number, gid: number){
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/participants`);
         if (!response.ok){

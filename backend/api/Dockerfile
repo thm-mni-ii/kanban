@@ -3,16 +3,28 @@ FROM node:16
 # Create app directory
 WORKDIR /usr/src/app
 
-# Install dependencies
-RUN npm install express
-RUN npm install pg
-RUN npm install cors
+# copy dependencies
+ADD ./package.json .
 
-# Copy all files
-COPY . .
+# Install dependencies
+RUN npm install
+
+
+# Copy 
+ADD ./services ./services
+ADD ./TS ./TS
+ADD ./tsconfig.json ./
+
+RUN npx tsc -init
+RUN npx tsc
+
+# Copy all other files
+ADD . .
 
 # Expose port 3000
 EXPOSE 3000
 
 # Run app
 CMD [ "node", "expressAPI.js" ]
+
+# ENTRYPOINT [ "executable" ]

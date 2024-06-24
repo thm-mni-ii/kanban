@@ -1,5 +1,6 @@
 const express = require(`express`);
 const controller = require('./controller');
+const groupService = require('../services/groupService')
 
 const router = express.Router();
 
@@ -7,7 +8,8 @@ router
   .route(`/`)
   .get(controller.getGroups)
   .post((req, res) => {
-    //TODO: Implement
+    groupService.getGroupList()
+    
 
     res.status(501); //501 = Not Implemented
     res.send(`This feature is comming soon`);
