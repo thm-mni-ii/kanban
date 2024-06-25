@@ -55,8 +55,12 @@ services:
       kandb:
         condition: service_healthy
         restart: true
+      ts-builder:
+        condition: service_completed_successfully
     networks:
       - kanban-net
+    volumes:
+      - ts_build_output:/tsc_out
   
   sql-setup-runner:
     container_name: sql-setup-runner
@@ -70,8 +74,13 @@ services:
     networks:
       - kanban-net
   
-
-
+  ts-builder:
+    container_name: ts-builder
+    build: ./TypeScriptBuilder
+    volumes:
+      - ts_build_output:/tsc_out
+    networks:
+      - kanban-net
 
 networks:
   kanban-net:
@@ -81,6 +90,7 @@ networks:
 volumes:
   kandb-data:
   pgadmin-data:
+  ts_build_output:
 
     
     

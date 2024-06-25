@@ -1,0 +1,14 @@
+{
+  "name": "typescriptbuilder",
+  "version": "1.0.0",
+  "description": "this is a container which compiles typescript into js code to make it executable for js based containers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "sven roman reinhard",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.5.2"
+  }
+}

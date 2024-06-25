@@ -9,15 +9,6 @@ ADD ./package.json .
 # Install dependencies
 RUN npm install
 
-
-# Copy 
-ADD ./services ./services
-ADD ./TS ./TS
-ADD ./tsconfig.json ./
-
-RUN npx tsc -init
-RUN npx tsc
-
 # Copy all other files
 ADD . .
 
@@ -26,5 +17,3 @@ EXPOSE 3000
 
 # Run app
 CMD [ "node", "expressAPI.js" ]
-
-# ENTRYPOINT [ "executable" ]

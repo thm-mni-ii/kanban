@@ -1,6 +1,6 @@
 const express = require(`express`);
 const controller = require('./controller');
-const groupService = require('../services/groupService')
+const groupService = require('/tsc_out/groupService') // tsc_out is a volume. the file will be provided by the type script builder
 
 const router = express.Router();
 
@@ -8,8 +8,8 @@ router
   .route(`/`)
   .get(controller.getGroups)
   .post((req, res) => {
-    groupService.getGroupList()
-    
+
+    // TODO: implement
 
     res.status(501); //501 = Not Implemented
     res.send(`This feature is comming soon`);
