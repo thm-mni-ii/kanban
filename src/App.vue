@@ -1,168 +1,221 @@
 <template>
   <v-app>
-    <NavDrawer />
-    <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto><h1>{{ boardName }}</h1></v-container>
+    <!-- Navigation Drawer -->
+    <NavDrawer @open-dialog="dialog = true" />
+
+    <!-- App Bar -->
+    <v-app-bar app color="purple" dark>
+      <v-toolbar-title>Kanban Board</v-toolbar-title>
+    </v-app-bar>
+
+    <!-- Main Content -->
     <v-main>
-      <v-container fluid class="flex mt-4">
+      <v-container fluid>
+        <v-row justify="center">
+          <h1 class="headline mb-4">KANBAN BOARD</h1>
+        </v-row>
         <v-row>
-          <v-col cols="3">
-            <div class="style-box">
-              <h2>Backlog</h2>
-              <draggable v-model="backlogItems" group="tasks">
-                <template #item="{ element, index }">
-                  <div :key="index">
-                    <v-card class="mb-3">
-                      <v-row class="align-items-center">
-                        <v-col cols="10">
-                          <v-card-text>{{ element.title }}</v-card-text>
-                        </v-col>
-                        <v-col cols="2">
-                          <v-btn icon="mdi-delete-outline" small  density="compact" @click.stop="deleteTask(backlogItems, index)">
-                          </v-btn>
-                        </v-col>
-                      </v-row>
+          <v-col v-for="(lane, index) in lanes" :key="index" cols="3">
+            <v-card class="mx-auto lane" outlined>
+              <v-card-title :class="lane.color">{{ lane.title }}</v-card-title>
+              <v-card-text>
+                <draggable v-model="lane.items" group="tasks">
+                  <template #item="{ element, index }">
+                    <v-card class="mb-2" :key="index">
+                      <v-card-text>{{ element.title }}</v-card-text>
+                      <v-card-actions>
+                        <v-btn icon @click.stop="deleteTask(lane.items, index)">
+                          <v-icon color="error">mdi-delete</v-icon>
+                        </v-btn>
+                        <v-btn icon @click.stop="editTask(lane.items, index)">
+                          <v-icon color="primary">mdi-pencil</v-icon>
+                        </v-btn>
+                      </v-card-actions>
                     </v-card>
-                  </div>
-                </template>
-              </draggable>
-            </div>
-          </v-col>
-          <v-col cols="3">
-            <div class="style-box">
-              <h2>Working on</h2>
-              <draggable v-model="workingItems" group="tasks" @start="drag=true" @end="drag=false">
-                <template #item="{ element, index }">
-                  <div :key="index">
-                    <v-card class="mb-3">
-                      <v-card-text>{{ element.title }}</v-card-text> 
-                      <v-col cols="2">
-                          <v-btn icon="mdi-delete-outline" small  density="compact" @click.stop="deleteTask(workingItems, index)">
-                          </v-btn>
-                        </v-col>
-                    </v-card>
-                  </div>
-                </template>
-              </draggable>
-            </div>
-          </v-col>
-          <v-col cols="3">
-            <div class="style-box">
-              <h2>Review</h2>
-              <draggable v-model="reviewItems" group="tasks">
-                <template #item="{ element, index }">
-                  <div :key="index">
-                    <v-card class="mb-3">
-                      <v-card-text>{{ element.title }}</v-card-text> <v-btn small color="error" density="compact" @click.stop="deleteTask(reviewItems, index)">
-                      </v-btn>
-                    </v-card>
-                  </div>
-                </template>
-              </draggable>
-            </div>
-          </v-col>
-          <v-col cols="3">
-            <div class="style-box">
-              <h2>Done</h2>
-              <draggable v-model="doneItems" group="tasks">
-                <template #item="{ element, index }">
-                  <div :key="index">
-                    <v-card class="mb-3">
-                      <v-card-text>{{ element.title }}</v-card-text> <v-btn small color="error" density="compact" @click.stop="deleteTask(doneItems, index)">
-                      </v-btn>
-                    </v-card>
-                  </div>
-                </template>
-              </draggable>
-            </div>
+                    
+                  </template>
+                </draggable>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
       </v-container>
-      <AddButton @add-task="addTaskToBacklog" />
     </v-main>
+
+    <!-- Floating Action Button -->
+    <AddTaskButton @add-task="addTask" />
+
+    <!-- Dialog for Adding New Group -->
+    <v-dialog v-model="dialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Neue Gruppe</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field label="Gruppenname" v-model="newGroup.name"></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field label="Mitglieder (Komma-getrennt)" v-model="newGroup.members"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="addGroup">Hinzufügen</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog for Editing Task -->
+    <v-dialog v-model="editDialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Aufgabe bearbeiten</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field label="Aufgabentitel" v-model="currentTask.title"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="saveTask">Speichern</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
-import NavDrawer from "@/components/NavDrawer.vue";
-import AddButton from "@/components/AddTaskButton.vue";
-import { ref } from 'vue';
+import NavDrawer from '@/components/NavDrawer.vue';
+import AddTaskButton from '@/components/AddTaskButton.vue';
+import { ref, onMounted } from 'vue';
 import draggable from 'vuedraggable';
 
 export default {
   components: {
     NavDrawer,
-    AddButton,
+    AddTaskButton,
     draggable
   },
   setup() {
-    const backlogItems = ref([
-     
-  
+    const lanes = ref([
+      { title: 'TO DO', items: [], color: 'blue lighten-1' },
+      { title: 'ON GOING', items: [], color: 'orange lighten-1' },
+      { title: 'REVISION', items: [], color: 'red lighten-1' },
+      { title: 'DONE', items: [], color: 'green lighten-1' }
     ]);
-    const workingItems = ref([
-      
-    ]);
-    const reviewItems = ref([
-      
-    ]);
-    const doneItems = ref([
-      
-    ]);
-    const Task = {
-      id: Number,
-      title: String
-    };
+    const newGroup = ref({ name: '', members: '' });
+    const dialog = ref(false);
+    const editDialog = ref(false);
+    const currentTask = ref({ title: '' });
+    const currentTaskList = ref(null);
+    const currentTaskIndex = ref(-1);
     const boardName = ref("Kanban Board");
-    const onMounted = () => {
-      document.title = boardName.value;
-    }
 
-    const addTaskToBacklog = (taskName) => {
-      backlogItems.value.push({ id: backlogItems.value.length + 1, title: taskName });
-    }
+    onMounted(() => {
+      document.title = boardName.value;
+    });
+
     const deleteTask = (list, index) => {
       list.splice(index, 1);
-    }
+    };
+
+    const editTask = (list, index) => {
+      currentTask.value = { ...list[index] };
+      currentTaskList.value = list;
+      currentTaskIndex.value = index;
+      editDialog.value = true;
+    };
+
+    const saveTask = () => {
+      if (currentTaskList.value && currentTaskIndex.value >= 0) {
+        currentTaskList.value[currentTaskIndex.value].title = currentTask.value.title;
+        editDialog.value = false;
+      }
+    };
+
+    const addGroup = () => {
+      if (newGroup.value.name && newGroup.value.members) {
+        const membersArray = newGroup.value.members.split(',').map(member => member.trim());
+        console.log({ name: newGroup.value.name, members: membersArray });
+        newGroup.value.name = '';
+        newGroup.value.members = '';
+        dialog.value = false;
+      } else {
+        alert('Bitte fülle alle Felder aus');
+      }
+    };
+
+    const addTask = () => {
+      const taskTitle = prompt('Task Title');
+      if (taskTitle) {
+        lanes.value[0].items.push({ title: taskTitle });
+      }
+    };
+
     return {
-      backlogItems,
-      workingItems,
-      reviewItems,
-      doneItems,
-      addTaskToBacklog,
+      lanes,
+      newGroup,
+      dialog,
+      editDialog,
+      currentTask,
       deleteTask,
+      editTask,
+      saveTask,
+      addGroup,
+      addTask,
       boardName
-    }
+    };
   }
-}
-
-
+};
 </script>
 
 
 <style>
 .my-container {
-  border: 1px solid black;
-  border-radius: 5px;
-  width: auto;
+  background-color: #5f27ba;
+  color: white;
 }
 
-.style-box {
-  background-color: grey;
-
-  border: 1px solid black;  
-  padding: 20px 10px;
-  border-radius: 5px;
-  min-height: 300px;
-
+.v-list-item-avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
 
-.title-padding {
-  margin-bottom: 10px;
+.v-list-item {
+  cursor: pointer;
 }
 
-.flex-column {
+.lane {
+  background-color: #f5f5f5;
+  height: 600px;
+  overflow-y: auto;
+}
+
+.lane .v-card-title {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  color: white;
+  border-radius: 10px 10px 0 0;
 }
- 
+
+.headline {
+  font-weight: bold;
+}
+
+.lane .v-card {
+  border-radius: 10px;
+}
 </style>

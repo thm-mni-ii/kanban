@@ -1,40 +1,26 @@
 <template>
-    <div class="d-flex justify-content-center">
-      <v-text-field class="small-textbox"v-model="newTaskName" label="New task name" dense></v-text-field>
-      <v-btn class="btn-style" variant="tonal" color="primary" @click="addTask">Add Task</v-btn>
-    </div>
-  </template>
-  
-  <script>
-  import { ref } from 'vue';
-  
-  export default {
-    setup(props, context) {
-      const newTaskName = ref('');
-  
-      const addTask = () => {
-        if (newTaskName.value) {
-          // Emit the new task name to the parent component
-          context.emit('add-task', newTaskName.value);
-          newTaskName.value = '';
-        }
-      };
-  
-      return {
-        newTaskName,
-        addTask
-      };
-    }
-  };
-  </script> 
+  <v-fab-transition>
+    <v-btn
+      fab
+      bottom
+      right
+      color="primary"
+      @click="$emit('add-task')"
+    >
+      <v-icon>mdi-plus</v-icon>
+    </v-btn>
+  </v-fab-transition>
+</template>
 
-<style>
-.small-textbox {
-  max-width: 200px !important; 
-  padding-left: 20px;
-}
-.btn-style{
-    padding-left: 12px;
-    margin-top: 10px;
+<script>
+export default {
+  name: 'AddTaskButton',
+};
+</script>
+<style scoped>
+.v-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
 }
 </style>
