@@ -3,7 +3,7 @@
     <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
         <h1>Meine Boards</h1>
     </v-container>
-    <div class="d-flex  flex-column align-items-center justify-center" style="max-width: 500px; margin: 10% auto;">
+    <div class="d-flex  flex-column align-items-center justify-center" style=" margin: 10% auto;">
         <v-card v-for="board in boards" :key="board.boardId" class="mb-4"
         @click="goToApp(board)"
         variant="outlined" 
@@ -111,7 +111,6 @@ export default {
         },
         goToApp(board) {
             this.$router.push(`/groups/${this.$route.params.groupId}/boards/${board.board_id}`);
-            console.log(board);
         },
     },
 }
@@ -131,9 +130,7 @@ export default {
 .left,
 .right {
     width: 100px;
-    /* Oder jede gewünschte Breite */
     height: 100px;
-    /* Oder jede gewünschte Höhe */
 }
 
 .myRow {
