@@ -57,21 +57,26 @@ const getIdsFromParams = (params, ...ids) => {
 
 router
   .route(`/`)
-  .get((req, res) => {
+  .get(async (req, res) => {
     try {
+      console.log("Step 1");
       const ids = getIdsFromParams(req.params, "cid");
-      const groups = groupService.getGroupList(ids.cid);
+      console.log("Step 2");
+      const groups = await groupService.getGroupList(ids.cid);
+      console.log("Step 3");
       res.status(200).json(groups);
+      console.log("Step 4");
     } catch (err) {
+      console.log("Step Error");
       res.status(500).send(err.message);
     }
   })
-  .post((req, res) => {
+  .post(async (req, res) => {
     const hasProp = bodyHasProperty(req, "postData");
     if(hasProp.successful) {
       try {
         const ids = getIdsFromParams(req.params, "cid")
-        const groupDetails = groupService.createGroup(ids.cid, req.body.postData);
+        const groupDetails = await groupService.createGroup(ids.cid, req.body.postData);
         res.status(200).send(groupDetails);
       } catch (err) {
         res.status(500).send(err.message);
@@ -106,12 +111,12 @@ router
       res.status(400).send(hasProp.failureMsg);
     }
   })
-  .delete((req, res) => {
+  .delete(async (req, res) => {
     const hasProp = bodyHasProperty(req, "courseID");
     if (hasProp.successful) {
       try {
         const ids = getIdsFromParams(req.params, "cid", "gid");
-        groupService.deleteGroup(ids.cid, ids.gid);
+        await groupService.deleteGroup(ids.cid, ids.gid);
         res.status(200).send();
       } catch (err) {
         res.status(500).send(err.message);
@@ -123,19 +128,19 @@ router
 
 router
   .route(`/:gid/users`)
-  .get((req, res) => {
+  .get(async (req, res) => {
       try {
         const ids = getIdsFromParams(req.params, "cid", "gid");
-        const members = groupService.getGroupMembers(ids.cid, ids.gid);
+        const members = await groupService.getGroupMembers(ids.cid, ids.gid);
         res.status(200).json({"members":members});
       } catch (err) {
         res.status(500).send(err.message);
       }
   })
-  .delete((req, res) => {
+  .delete(async (req, res) => {
     try {
       const ids = getIdsFromParams(req.params, "cid", "gid");
-      groupService.removeAllUsersFromGroup(ids.cid, ids.gid);
+      await groupService.removeAllUsersFromGroup(ids.cid, ids.gid);
       res.status(200).send();
     } catch (err) {
       res.status(500).send(err.message);
@@ -147,19 +152,19 @@ router
  */
 router
   .route(`/:groupId/users/:uid`)
-  .put((req, res) => {
+  .put(async (req, res) => {
     try {
       const ids = getIdsFromParams(req.params, "cid", "gid", "uid");
-      const memberShipData = groupService.addUserToGroup(ids.cid, ids.gid, ids.uid);
+      const memberShipData = await groupService.addUserToGroup(ids.cid, ids.gid, ids.uid);
       res.status(200).json(memberShipData);
     } catch (err) {
       res.status(500).send(err.message);
     }
   })
-  .delete((req, res) => {
+  .delete(async (req, res) => {
     try {
       const ids = getIdsFromParams(req.params, "cid", "gid", "uid");
-      groupService.removeUserFromGroup(ids.cid, ids.gid, ids.uid);
+      await groupService.removeUserFromGroup(ids.cid, ids.gid, ids.uid);
       res.status(200).send();
     } catch (err) {
       res.status(500).send(err.message);
