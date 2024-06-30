@@ -32,7 +32,7 @@ const bodyHasProperty = (req, ...requiredProperties) => {
 router
   .route(`/`)
   .get((req, res) => {
-    const hasProp = bodyHasProperty(req, res, "courseID");
+    const hasProp = bodyHasProperty(req, "courseID");
     if (hasProp.successful) {
       res.status(200).json(groupService.getGroupList(req.body.courseID));
     } else {
@@ -40,7 +40,7 @@ router
     }
   })
   .post((req, res) => {
-    const hasProp = bodyHasProperty(req, res, "courseID", "postData");
+    const hasProp = bodyHasProperty(req, "courseID", "postData");
     if(hasProp.successful) {
       try {
         const groupDetails = groupService.createGroup(req.body.courseID, req.body.postData);
