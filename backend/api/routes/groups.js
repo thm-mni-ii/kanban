@@ -84,21 +84,21 @@ router
 
 router
   .route(`/:gid`)
-  .get((req, res) => {
+  .get(async (req, res) => {
       try {
         const ids = getIdsFromParams(req. params, "cid", "gid")
-        res.status(200).json(groupService.getGroup(ids.cid, ids.gid));
+        res.status(200).json(await groupService.getGroup(ids.cid, ids.gid));
       } catch (err) {
       res.status(500).send(err.message);
     }
   })
-  .put((req, res) => {
+  .put(async (req, res) => {
     const hasProp = bodyHasProperty(req, "postData");
     
     if (hasProp.successful) {
       try {
         const ids = getIdsFromParams(req.params, "cid", "gid");
-        res.status(200).json(groupService.updateGroup(ids.cid, ids.gid, req.body.postData));
+        res.status(200).json(await groupService.updateGroup(ids.cid, ids.gid, req.body.postData));
       } catch (err) {
         res.status(500).send(err.message);
       }
