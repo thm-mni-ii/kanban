@@ -59,15 +59,10 @@ router
   .route(`/`)
   .get(async (req, res) => {
     try {
-      console.log("Step 1");
       const ids = getIdsFromParams(req.params, "cid");
-      console.log("Step 2");
       const groups = await groupService.getGroupList(ids.cid);
-      console.log("Step 3");
       res.status(200).json(groups);
-      console.log("Step 4");
     } catch (err) {
-      console.log("Step Error");
       res.status(500).send(err.message);
     }
   })
