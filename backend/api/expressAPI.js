@@ -13,8 +13,9 @@ app.use(express.json());
 const userRoute = require('./routes/users');
 const groupsRoute = require('./routes/groups');
 
-app.use('/users', userRoute);
-app.use('/groups', groupsRoute);
+app.use('/api/v1/users', userRoute);
+app.use('/api/v1/courses/:cid/groups', groupsRoute);
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
