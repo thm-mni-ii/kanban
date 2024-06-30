@@ -28,6 +28,14 @@ const bodyHasProperty = (req, ...requiredProperties) => {
   return {"successful": missingProps.length == 0 && missingValues.length == 0, "missingProps": missingProps, "missingValues":missingValues, "failureMsg":msg};
 }
 
+const tryToCall = (functionToCall, ...params) => {
+  try {
+    return {"status": 200, "response": functionToCall.apply(null, params)};
+  } catch (err) {
+    return {"status": 500, "response": err.message};
+  }
+}
+
 
 router
   .route(`/`)
