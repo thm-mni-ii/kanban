@@ -67,10 +67,9 @@
             throw new Error('Network response was not ok');
           }
           this.cardName = "";
-          this.cardDescription = "";
-          this.dialog = false;
+          this.cardDescription = "";          
           this.$emit('addedCard');
-          console.log(this.$emit('addedCard'));
+          this.dialog = false;
         } catch (error) {
           console.error('There was an error!', error);
         }

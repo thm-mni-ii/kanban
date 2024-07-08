@@ -2,7 +2,7 @@
   <v-col cols="3">
     <div class="style-box">
       <h2>{{ sectionTitle }}</h2>
-      <draggable :list="cards" group="tasks" @start="drag = true" @end="drag = false">
+      <draggable :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved">
         <template #item="{ element, index }">
           <div :key="index">
             <v-card class="mb-3">
@@ -56,17 +56,25 @@ export default {
     async deleteCard(index) {
       const card = this.cards[index];
       const id = card.kantask_id;
-      
+
       const groupId = this.$route.params.groupId;
       const boardId = this.$route.params.boardId;
-      
+
       const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
         throw new Error('Network response was not ok' + response.status);
-      }else{
+      } else {
         this.cards.splice(index, 1);
+      }
+    }, onCardMoved(event) {
+      if (event.moved) {
+        this.$emit('cardMoved', {
+          card: event.moved.element,
+          oldStatus: this.status,
+          newStatus: null // New status will be determined in App.vue
+        });
       }
     },
   },

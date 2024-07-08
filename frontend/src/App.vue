@@ -7,11 +7,11 @@
     <v-main>
       <v-container fluid class="flex mt-4">
         <v-row>
-          <Label sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event" />
+          <Label sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event" @cardMoved="handleCardMoved"/>
           <Label sectionTitle="Working on" status="working_on" :items="workingItems"
-            @update:items="workingItems = $event" />
-          <Label sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" />
-          <Label sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" />
+            @update:items="workingItems = $event" @cardMoved="handleCardMoved"  />
+          <Label sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" @cardMoved="handleCardMoved"  />
+          <Label sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" @cardMoved="handleCardMoved"  />
         </v-row>
       </v-container>
       <v-btn color="primary" dark @click="showDialog">Add Card</v-btn>
@@ -25,6 +25,7 @@ import NavDrawer from "@/components/NavDrawer.vue";
 import addCard from "@/components/addCard.vue";
 import Label from "@/components/Label.vue";
 import { ref, onMounted } from 'vue';
+import { apiUrl } from '@/lib/getApi.js';
 
 
 export default {
@@ -41,6 +42,8 @@ export default {
 
     const boardName = ref("Kanban Board");
 
+    
+
     return {
       backlogItems,
       workingItems,
@@ -50,10 +53,36 @@ export default {
     }
   },
   methods: {
+    async fetchCards() {
+    try {
+      const groupId = this.$route.params.groupId;
+      const boardId = this.$route.params.boardId;
+      const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const cards = await response.json();
+      // Assign new arrays to ensure reactivity
+      this.backlogItems.value = cards.filter(card => card.status === 'backlog');
+      console.log(JSON.parse(JSON.stringify(this.backlogItems.value)));
+      this.workingItems.value = cards.filter(card => card.status === 'working_on');
+      console.log(JSON.parse(JSON.stringify(this.workingItems.value)));
+      this.reviewItems.value = cards.filter(card => card.status === 'review');
+      this.doneItems.value = cards.filter(card => card.status === 'done');
+    } catch (error) {
+      console.error('Failed to fetch cards:', error);
+    }
+  },
     showDialog() {
       this.$refs.addCard.showDialog();
     },
+    reloadCards() {
+       this.fetchCards();
+    },
   },
+  onMounted() {
+    this.fetchCards();
+  }
 }
 </script>
 

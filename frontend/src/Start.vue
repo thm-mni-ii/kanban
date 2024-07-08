@@ -16,7 +16,7 @@
                 </ul>
             </div>
         </v-container>
-        <router-view v-if="!isStart" </router-view> 
+        <router-view v-if="!isStart"></router-view>
     </v-app>
 </template>
 
