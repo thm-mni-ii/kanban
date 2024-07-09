@@ -80,7 +80,7 @@ export default {
   },
 
   created() {
-    this.loadCards();
+   this.loadCards();
   }
 }
 </script>

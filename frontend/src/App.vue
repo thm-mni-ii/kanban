@@ -6,16 +6,22 @@
     </v-container>
     <v-main>
       <v-container fluid class="flex mt-4">
+        <v-btn color="primary mb-1" dark @click="showDialog" style="width: 23.7%">
+          <v-icon>mdi-plus</v-icon>
+          Add Card
+        </v-btn>
+        <addCard ref="addCard" @addedBacklog="() => reloadCardsByStatus('backlog')" 
+                                @addedWorking_on="() => reloadCardsByStatus('working_on')" 
+                                @addedReview="() => reloadCardsByStatus('review')" 
+                                @addedDone="() => reloadCardsByStatus('done')" />
         <v-row>
-          <Label sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event" @cardMoved="handleCardMoved"/>
-          <Label sectionTitle="Working on" status="working_on" :items="workingItems"
+          <Label ref="backlogLabel" sectionTitle="Backlog" status="backlog"  :items="backlogItems" @update:items="backlogItems = $event" @cardMoved="handleCardMoved"/>
+          <Label ref="workingLabel" sectionTitle="Working on" status="working_on" :items="workingItems"
             @update:items="workingItems = $event" @cardMoved="handleCardMoved"  />
-          <Label sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" @cardMoved="handleCardMoved"  />
-          <Label sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" @cardMoved="handleCardMoved"  />
+          <Label ref="reviewLabel" sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" @cardMoved="handleCardMoved"  />
+          <Label ref="doneLabel" sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" @cardMoved="handleCardMoved"  />
         </v-row>
       </v-container>
-      <v-btn color="primary" dark @click="showDialog">Add Card</v-btn>
-      <addCard ref="addCard" @addedCard="reloadCards" />
     </v-main>
   </v-app>
 </template>
@@ -64,9 +70,7 @@ export default {
       const cards = await response.json();
       // Assign new arrays to ensure reactivity
       this.backlogItems.value = cards.filter(card => card.status === 'backlog');
-      console.log(JSON.parse(JSON.stringify(this.backlogItems.value)));
       this.workingItems.value = cards.filter(card => card.status === 'working_on');
-      console.log(JSON.parse(JSON.stringify(this.workingItems.value)));
       this.reviewItems.value = cards.filter(card => card.status === 'review');
       this.doneItems.value = cards.filter(card => card.status === 'done');
     } catch (error) {
@@ -76,12 +80,27 @@ export default {
     showDialog() {
       this.$refs.addCard.showDialog();
     },
-    reloadCards() {
-       this.fetchCards();
+    reloadCardsByStatus(status) {
+      switch (status) {
+        case 'backlog':
+          this.$refs.backlogLabel.loadCards();
+          break;
+        case 'working_on':
+        this.$refs.workingLabel.loadCards();
+          break;
+        case 'review':
+        this.$refs.reviewLabel.loadCards();
+          break;
+        case 'done':
+        this.$refs.doneLabel.loadCards();
+          break;
+        default:
+          console.error('Invalid status');
+      }
     },
   },
   onMounted() {
-    this.fetchCards();
+    //this.fetchCards();
   }
 }
 </script>
