@@ -12,21 +12,9 @@ Afterward you have to install the node_modules by using npm:
 npm install
 ```
 
-### Install vuetify
-Since we are using vuetify, we need to add these:
-
-```sh
-npm add vuetify
-```
-
-### Install mdi font
-We alo need mdi fonts. To install these, use:
-```sh
-npm install @mdi/font
-```
-
 ### Run App localy
-To run the App in localhost, use:
+To run the App use:
+
 
 ```sh
 npm run dev

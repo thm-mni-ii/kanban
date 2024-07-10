@@ -1,66 +1,53 @@
 <template>
   <v-app>
     <NavDrawer />
-    <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto><h1>{{ boardName }}</h1></v-container>
+    <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
+      <h1>{{ boardName }}</h1>
+    </v-container>
     <v-main>
       <v-container fluid class="flex mt-4">
+        <v-btn color="primary mb-1" dark @click="showDialog" style="width: 23.7%">
+          <v-icon>mdi-plus</v-icon>
+          Add Card
+        </v-btn>
+        <addCard ref="addCard" @addedBacklog="() => reloadCardsByStatus('backlog')" 
+                                @addedWorking_on="() => reloadCardsByStatus('working_on')" 
+                                @addedReview="() => reloadCardsByStatus('review')" 
+                                @addedDone="() => reloadCardsByStatus('done')" />
         <v-row>
-          <Label sectionTitle="Backlog" :items="backlogItems" @update:items="backlogItems = $event" />
-          <Label sectionTitle="Working on" :items="workingItems" @update:items="workingItems = $event" />
-          <Label sectionTitle="Review" :items="reviewItems" @update:items="reviewItems = $event" />
-          <Label sectionTitle="Done" :items="doneItems" @update:items="doneItems = $event" />
+          <Label ref="backlogLabel" sectionTitle="Backlog" status="backlog"  :items="backlogItems" @update:items="backlogItems = $event" @cardMoved="handleCardMoved"/>
+          <Label ref="workingLabel" sectionTitle="Working on" status="working_on" :items="workingItems"
+            @update:items="workingItems = $event" @cardMoved="handleCardMoved"  />
+          <Label ref="reviewLabel" sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event" @cardMoved="handleCardMoved"  />
+          <Label ref="doneLabel" sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event" @cardMoved="handleCardMoved"  />
         </v-row>
       </v-container>
-      <AddButton @add-task="addTaskToBacklog" />
-      
     </v-main>
   </v-app>
 </template>
 
 <script>
 import NavDrawer from "@/components/NavDrawer.vue";
-import AddButton from "@/components/AddTaskButton.vue"
-import TestApi from "./components/TestApi.vue";
+import addCard from "@/components/addCard.vue";
 import Label from "@/components/Label.vue";
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { apiUrl } from '@/lib/getApi.js';
 
 
 export default {
   components: {
     Label,
-    TestApi,
     NavDrawer,
-    AddButton,
+    addCard,
   },
   setup() {
-    const backlogItems = ref([
-     
-  
-    ]);
-    const workingItems = ref([
-      
-    ]);
-    const reviewItems = ref([
-      
-    ]);
-    const doneItems = ref([
-      
-    ]);
-    const Task = {
-      id: Number,
-      title: String
-    };
-    const boardName = ref("Kanban Board");
-    const onMounted = () => {
-      document.title = boardName.value;
-    }
+    const backlogItems = ref([]);
+    const workingItems = ref([]);
+    const reviewItems = ref([]);
+    const doneItems = ref([]);
 
-    const addTaskToBacklog = (taskName) => {
-      backlogItems.value.push({ id: backlogItems.value.length + 1, title: taskName });
-    }
-    const deleteTask = (list, index) => {
-      list.splice(index, 1);
-    }
+    const boardName = ref("Kanban Board");
+
     
 
     return {
@@ -68,14 +55,54 @@ export default {
       workingItems,
       reviewItems,
       doneItems,
-      addTaskToBacklog,
-      deleteTask,
-      boardName
+      boardName,
     }
+  },
+  methods: {
+    async fetchCards() {
+    try {
+      const groupId = this.$route.params.groupId;
+      const boardId = this.$route.params.boardId;
+      const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const cards = await response.json();
+      // Assign new arrays to ensure reactivity
+      this.backlogItems.value = cards.filter(card => card.status === 'backlog');
+      this.workingItems.value = cards.filter(card => card.status === 'working_on');
+      this.reviewItems.value = cards.filter(card => card.status === 'review');
+      this.doneItems.value = cards.filter(card => card.status === 'done');
+    } catch (error) {
+      console.error('Failed to fetch cards:', error);
+    }
+  },
+    showDialog() {
+      this.$refs.addCard.showDialog();
+    },
+    reloadCardsByStatus(status) {
+      switch (status) {
+        case 'backlog':
+          this.$refs.backlogLabel.loadCards();
+          break;
+        case 'working_on':
+        this.$refs.workingLabel.loadCards();
+          break;
+        case 'review':
+        this.$refs.reviewLabel.loadCards();
+          break;
+        case 'done':
+        this.$refs.doneLabel.loadCards();
+          break;
+        default:
+          console.error('Invalid status');
+      }
+    },
+  },
+  onMounted() {
+    //this.fetchCards();
   }
 }
-
-
 </script>
 
 
@@ -94,5 +121,4 @@ export default {
   display: flex;
   flex-direction: column;
 }
- 
 </style>

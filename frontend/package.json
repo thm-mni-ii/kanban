@@ -1,6 +1,12 @@
 {
-  "devDependencies": {
-    "typescript": "^5.4.5"
+  "name": "test",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -10,10 +16,10 @@
     "vue": "^3.4.21",
     "vue-router": "^4.3.2",
     "vuedraggable": "^4.1.0",
-    "vuetify": "^3.6.8",
-    "node-fetch": "^3.3.2"
+    "vuetify": "^3.6.8"
   },
-    "scripts":{
-      "build": "tsc"
-    }
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.2.8"
+  }
 }
