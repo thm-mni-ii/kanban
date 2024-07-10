@@ -1,11 +1,11 @@
 <template>
   <v-col cols="3">
-    <div class="style-box">
+    <div class="style-box ml-2 mt-2 mb-2 mr-2">
       <h2>{{ sectionTitle }}</h2>
       <draggable :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved">
         <template #item="{ element, index }">
           <div :key="index">
-            <v-card class="mb-3">
+            <v-card class="mb-3" style="background: #f7f2f9;">
               <v-card-text>{{ element.name }}</v-card-text>
               <v-col cols="2">
                 <v-btn icon="mdi-delete-outline" small density="compact" @click.stop="deleteCard(index)">
@@ -87,7 +87,7 @@ export default {
 
 <style scoped>
 .style-box {
-  background-color: grey;
+  background-color: white;
   border: 1px solid black;
   padding: 20px 10px;
   border-radius: 5px;
