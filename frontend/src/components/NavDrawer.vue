@@ -1,10 +1,7 @@
 <template>
   <v-navigation-drawer expand-on-hover rail style="background-color: #405E9A;">
-    <v-list>
-      <v-list-item prepend-avatar="https://cdn.vuetifyjs.com/images/lists/1.jpg" subtitle="michel@gmailcom"
-        title="Max Michel"></v-list-item>
-    </v-list>
 
+    
     <v-divider></v-divider>
 
     <v-list density="compact" nav>
