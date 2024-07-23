@@ -304,6 +304,191 @@ const deleteSpecificLabelOfBoardOfGroup = (req, res) => {
     });
 };
 
+const getTasksPerGroup = (req, res) => {
+    
+    const query = "SELECT b.group_id, COUNT(k.kantask_id) AS task_count FROM board b JOIN kantask k ON b.board_id = k.board_id GROUP BY b.group_id;"
+
+    pool.query(query, null, (err, res) => {
+        if (err) {
+            console.log("Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe");
+            return res.status(500).json({ error: 'Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(500).json({ error: 'Keine Daten' });
+        }
+
+        res.status(200).json(results.rows);
+    });
+}
+
+const getTasksDoneByGroup = (req, res) => {
+    const groupId = req.params.goupId;
+
+    const values = [groupId]; 
+
+    const query = `
+    SELECT  b.group_id,  
+    COUNT(*) FILTER (WHERE k.done_time < CURRENT_TIMESTAMP) AS completed_tasks, 
+    COUNT(*) FILTER (WHERE k.done_time IS NULL OR k.done_time > CURRENT_TIMESTAMP) AS pending_tasks 
+    FROM  board b 
+    JOIN  kantask k ON b.board_id = k.board_id
+    WHERE  b.group_id = $1
+    GROUP BY  b.group_id;
+    `
+
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der erledigiten Aufgaben:', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der erledigiten Aufgaben:' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(500).json({ error: 'Keine Daten' });
+        }
+
+        res.status(200).json(results);
+    });
+}
+
+const getTasksPerMember = (req, res) => {
+    const groupId = req.params.groupId;
+    const values = [groupId];
+
+    const query = `
+    SELECT a.user_id, COUNT(a.kantask_id) AS task_count
+    FROM assignee a
+    JOIN kantask k ON a.kantask_id = k.kantask_id
+    JOIN board b ON k.board_id = b.board_id
+    WHERE b.group_id = $1
+    GROUP BY a.user_id;
+    `
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der Aufgaben pro Gruppenmitglied:', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der Aufgaben pro Gruppenmitglied:' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(500).json({ error: 'Keine Daten' });
+        }
+
+        res.status(200).json(results);
+    });
+
+}
+
+const getTasksDoneByInPercent = (req, res) => {
+
+    const query = `
+    SELECT b.group_id,
+    COUNT(*) FILTER (WHERE k.done_time < CURRENT_TIMESTAMP AND k.done_time IS NOT NULL) * 100.0 / COUNT(*) AS percent_tasks_done
+    FROM board b
+    JOIN kantask k ON b.board_id = k.board_id
+    GROUP BY b.group_id;
+    `
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(500).json({ error: 'Keine Daten' });
+        }
+
+        res.status(200).json(results);
+    });
+
+}
+const getTaskamountPerLabel = (req, res) => {
+    const query = `
+    SELECT l.label_id, l.name AS label_name, COUNT(ktl.kantask_id) AS task_count
+    FROM label l
+    JOIN kantasklabel ktl ON l.label_id = ktl.label_id
+    GROUP BY l.label_id, l.name;
+    `
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der eledigten Aufgaben pro Label', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben pro Label' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(500).json({ error: 'Keine Daten' });
+        }
+
+        res.status(200).json(results);
+    });
+
+}
+
+const getMembersPerGroup = (req, res) => {
+    const query = `
+    SELECT group_id, COUNT(*) AS member_count
+    FROM assignee
+    GROUP BY group_id;
+    `
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der Mitglieder pro Gruppe', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der Mitglieder pro Gruppe' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(500).json({ error: 'Keine Daten' });
+        }
+
+        res.status(200).json(results);
+    });
+
+}
+
+const getLatestDoneTime = (req, res) => {
+    const query = `
+    SELECT kantask_id, name, description, due_date, done_time
+    FROM kantask 
+    WHERE done_time = (SELECT MAX(done_time) FROM kantask WHERE done_time IS NOT NULL);
+    `
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der letzten erledigten Aufgabe', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der letzten erledigten Aufgabe' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(500).json({ error: 'Keine Daten' });
+        }
+
+        res.status(200).json(results);
+    });
+
+}
+
+const getTasksDoneByDate = (req, res) => {
+    const query = `
+    SELECT group_id, DATE(done_time) AS day, COUNT(*) AS completed_tasks
+    FROM kantask
+    WHERE done_time IS NOT NULL
+    GROUP BY group_id, DATE(done_time)
+    ORDER BY group_id,
+    day;
+    `
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der Erlidigten Aufgaben pro Tag', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der Erlidigten Aufgaben pro Tag' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(500).json({ error: 'Keine Daten' });
+        }
+
+        res.status(200).json(results);
+    });
+
+}
+
 module.exports = {
     getGroups,
     postGroup,
@@ -322,4 +507,13 @@ module.exports = {
     getSpecificLabelOfBoardOfGroup,
     putSpecificLabelToBoardOfGroup,
     deleteSpecificLabelOfBoardOfGroup,
+    getTasksPerGroup,
+    getTasksDoneByGroup,
+    getTasksPerMember,
+    getTasksDoneByInPercent,
+    getTaskamountPerLabel,
+    getMembersPerGroup,
+    getLatestDoneTime,
+    getTasksDoneByDate
+    
 };
