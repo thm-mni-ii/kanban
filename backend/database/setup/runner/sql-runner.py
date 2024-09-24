@@ -110,7 +110,7 @@ def main():
     logger.info("SQL-Runner started.")
     
     # get sql script files
-    paths_to_scripts: list[str] = get_paths_to_sql_scripts(getenv("PATH_TO_SQL", "./scripts"))
+    paths_to_scripts: list[str] = get_paths_to_sql_scripts(getenv("PATH_TO_SQL_SCRIPTS", "./scripts"))
 
     # the scripts should be executed in alphabetical order, so they need to be sorted
     paths_to_scripts.sort()
