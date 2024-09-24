@@ -37,7 +37,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - 5432:5432
+      - ${KANDB_PORT}:${KANDB_PORT}
     volumes:
       - kandb-data:/var/lib/postgresql/data
     networks:
@@ -61,8 +61,8 @@ services:
   sql-setup-runner:
     container_name: sql-setup-runner
     build: ./backend/database/setup
-    environment:
-      PATH_TO_SQL_SCRIPTS: ${PATH_TO_SQL_SCRIPTS}
+    env_file:
+      - .env
     depends_on:
       kandb:
         condition: service_healthy

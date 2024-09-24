@@ -116,9 +116,15 @@ def main():
     paths_to_scripts.sort()
 
     try:
+        # get Connection details
+        dbname: str = getenv("POSTGRES_DB")
+        port: str = getenv("KANDB_PORT")
+        user: str = getenv("POSTGRES_USER")
+        password: str = getenv("POSTGRES_PASSWORD")
+
         # Conntect to database
         logger.info("Trying to Connect to the Database")
-        with connect("host=kandb port=5432 dbname=kandb user=kanuser password=secret") as conn:
+        with connect(f"host=kandb port={port} dbname={dbname} user={user} password={password}") as conn:
             logger.info("Connection successful")
 
             # create migration table, if not exists, to remember which scripts are already executed
