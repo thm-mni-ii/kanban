@@ -31,9 +31,10 @@ def execute_sql_script(path: PathLike, cur: Cursor):
         sql = open(path, 'r').read()
         logger.info(f"Trying to execute SQL")
         cur.execute(sql, prepare=False)
-        logger.info(f"Successfully executed SQL from {path}\n")
+        logger.info(f"Successfully executed SQL from {path}")
     except Exception as e:
-        logger.error(f"An error occured when trying to run SQL from file {path}: \n{e}")
+        logger.info(f"An error occured when trying to run SQL from file {path}")
+        logger.error(f"{e}\n")
         raise
         
     
@@ -62,7 +63,7 @@ def main():
                         execute_sql_script(path, conn.cursor())
                         conn.commit()
                     except Exception as e:
-                        logger.error(f"rolling back changes made by file {path}\n")
+                        logger.info(f"rolling back changes made by file {path}")
                         conn.rollback()
                     finally:
                         counter += 1
