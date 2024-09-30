@@ -489,6 +489,81 @@ const getTasksDoneByDate = (req, res) => {
 
 }
 
+async function createTimeTracking(req, res) {
+    const { group_id, user_id, activity_start, activity_duration, title, description } = req.body;
+  
+    try {
+      const client = await pool.connect();
+      const query = 'INSERT INTO time_tracking (group_id, user_id, activity_start, activity_duration, title, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING time_tracking_id';
+      const values = [group_id, user_id, activity_start, activity_duration, title, description];
+      const result = await client.query(query, values);
+      client.release();
+  
+      res.status(201).json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error creating time tracking record', params: req.body});
+    }
+  }
+
+  async function getAllTimeEntries(req, res) {
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM time_tracking';
+      const result = await client.query(query);
+      client.release();
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching time entries' });
+    }
+  }
+
+  async function getTimeEntryById(req, res) {
+    const timeTrackingId = req.params.id;
+  
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM time_tracking WHERE time_tracking_id = $1';
+      const values = [timeTrackingId];
+      const result = await client.query(query, values);
+      client.release();
+  
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Time entry not found' });
+      } else {
+        res.json(result.rows[0]);
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching time entry' });
+    }
+  }
+  
+const getTimeEntriesByGroup = async (req, res) => {
+    res.status(501).json({error: 'feature is not implemented'});
+}
+
+const getTimeEntriesByGroupUser = async (req, res) => {
+    res.status(501).json({error: 'feature is not implemented'});
+}
+
+const getTimeEntriesByUser = async (req, res) => {
+    res.status(501).json({error: 'feature is not implemented'});
+}
+
+const updateTimeEntry = async (req, res) => {
+    res.status(501).json({error: 'feature is not implemented'});
+}
+
+const deleteTimeEntry = async (req, res) => {
+    res.status(501).json({error: 'feature is not implemented'});
+}
+
+
+
+
 module.exports = {
     getGroups,
     postGroup,
@@ -514,6 +589,14 @@ module.exports = {
     getTaskamountPerLabel,
     getMembersPerGroup,
     getLatestDoneTime,
-    getTasksDoneByDate
+    getTasksDoneByDate,
+    createTimeTracking,
+    getAllTimeEntries,
+    getTimeEntryById,
+    getTimeEntriesByGroup,
+    getTimeEntriesByGroupUser,
+    getTimeEntriesByUser,
+    updateTimeEntry,
+    deleteTimeEntry
     
 };
