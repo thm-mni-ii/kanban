@@ -24,36 +24,16 @@ def get_paths_to_sql_scripts(path_to_directory: str) -> list[str]:
         raise
 
 
-def extract_sql_stmts_from_file(path: PathLike):
+def execute_sql_script(path: PathLike, cur: Cursor):
     try:
-        with open(path, 'r') as file:
-            # clean up each statement
-            statements = [stmt.strip() for stmt in file.read().split(';') if stmt.strip()]
-            
-            # return remaining statements
-            return statements
+        logger.info(f"Trying to run SQL from file {path}")
+        logger.info(f"Trying to read file")
+        sql = open(path, 'r').read()
+        logger.info(f"Trying to execute SQL")
+        cur.execute(sql, prepare=False)
+        logger.info(f"Successfully executed SQL from {path}\n")
     except Exception as e:
-        logger.error(f"Error processing file {path}: {e}")
-        raise
-    
-    
-def execute_stmt(stmt: str, cur: Cursor):
-    try:
-        logger.info(f"Executing Statement: \n {stmt}")
-        cur.execute(stmt, prepare=True)
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        raise
-
-def execute_sql_script(file: PathLike, cur: Cursor):
-    try:
-        logger.info(f"beginning to execute SQL from file {file}")
-        statements = extract_sql_stmts_from_file(file)
-        for stmt in statements:
-            execute_stmt(stmt, cur)
-        logger.info(f"finished executing SQL from file {file}")
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"An error occured when trying to run SQL from file {path}: \n{e}")
         raise
         
     
@@ -75,9 +55,17 @@ def main():
         
             with conn.cursor() as cur:
                 # execute each script
+                counter: int = 1
                 for path in scripts:
-                    execute_sql_script(path, conn.cursor())
-                    conn.commit()
+                    logger.info(f"Script {counter}/{len(scripts)}")
+                    try:
+                        execute_sql_script(path, conn.cursor())
+                        conn.commit()
+                    except Exception as e:
+                        logger.error(f"rolling back changes made by file {path}\n")
+                        conn.rollback()
+                    finally:
+                        counter += 1
                     
         logger.info("SQL-Runner finished.")
         exit(0)
