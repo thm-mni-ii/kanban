@@ -13,7 +13,6 @@ router.get('/', controller.getAllTimeEntries);
 
 router.get('/:id', controller.getTimeEntryById);
 
-// TODO:
 router.get('/group/:id', controller.getTimeEntriesByGroup);
 
 router.get('/group/:groupid/user/:userid', controller.getTimeEntriesByGroupUser);

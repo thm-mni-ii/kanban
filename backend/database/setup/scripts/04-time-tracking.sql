@@ -2,16 +2,16 @@ CREATE TABLE IF NOT EXISTS time_tracking (
     time_tracking_id SERIAL PRIMARY KEY,
     group_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
-    activity_start TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    activity_duration BIGINT,
+    activity_start TIMESTAMP WITHOUT TIME ZONE NOT NULL, -- UTC
+    activity_duration BIGINT, -- duration in SECONDS
     title TEXT,
     description TEXT,
     UNIQUE(group_id, user_id, activity_start)
 );
 
 CREATE TABLE IF NOT EXISTS task_tracking (
-    time_tracking_id INTEGER REFERENCES time_tracking(time_tracking_ID),
-    kantask_id INTEGER REFERENCES kantask(kantask_id),
+    time_tracking_id INTEGER REFERENCES time_tracking(time_tracking_ID) ON DELETE CASCADE,
+    kantask_id INTEGER REFERENCES kantask(kantask_id) ON DELETE CASCADE,
     PRIMARY KEY (kantask_id, time_tracking_id)
 
 );

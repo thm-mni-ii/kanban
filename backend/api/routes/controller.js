@@ -499,7 +499,7 @@ async function createTimeTracking(req, res) {
       const result = await client.query(query, values);
       client.release();
   
-      res.status(201).json(result.rows[0]);
+      res.status(201).json(result.rows);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Error creating time tracking record', params: req.body});
@@ -533,7 +533,7 @@ async function createTimeTracking(req, res) {
       if (result.rows.length === 0) {
         res.status(404).json({ error: 'Time entry not found' });
       } else {
-        res.json(result.rows[0]);
+        res.json(result.rows);
       }
     } catch (err) {
       console.error(err);
@@ -542,23 +542,116 @@ async function createTimeTracking(req, res) {
   }
   
 const getTimeEntriesByGroup = async (req, res) => {
-    res.status(501).json({error: 'feature is not implemented'});
-}
+    const groupid = req.params.id;
+  
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM time_tracking WHERE group_id = $1';
+      const values = [groupid];
+      const result = await client.query(query, values);
+      client.release();
+  
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Time entry not found' });
+      } else {
+        res.json(result.rows);
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching time entry' });
+    }
+  }
 
 const getTimeEntriesByGroupUser = async (req, res) => {
-    res.status(501).json({error: 'feature is not implemented'});
-}
+    const {groupid, userid} = req.params;
+  
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM time_tracking WHERE group_id = $1 AND user_id = $2';
+      const values = [groupid, userid];
+      const result = await client.query(query, values);
+      client.release();
+  
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Time entry not found' });
+      } else {
+        res.json(result.rows);
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching time entry' });
+    }
+  }
 
 const getTimeEntriesByUser = async (req, res) => {
-    res.status(501).json({error: 'feature is not implemented'});
-}
+    const userid = req.params.id;
+  
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM time_tracking WHERE user_id = $1';
+      const values = [userid];
+      const result = await client.query(query, values);
+      client.release();
+  
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Time entry not found' });
+      } else {
+        res.json(result.rows);
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching time entry' });
+    }
+  }
 
 const updateTimeEntry = async (req, res) => {
-    res.status(501).json({error: 'feature is not implemented'});
+    const time_tracking_id = req.params.id;
+    const { activity_start, activity_duration, title, description } = req.body;
+  
+    try {
+      const client = await pool.connect();
+  
+      // Update the time entry
+      const updateQuery = 'UPDATE time_tracking SET activity_start = $1, activity_duration = $2, title = $3, description = $4 WHERE time_tracking_id = $5 RETURNING *';
+      const updateValues = [activity_start, activity_duration, title, description, time_tracking_id];
+      const updateResult = await client.query(updateQuery, updateValues);
+  
+      if (updateResult.rowCount === 0) {
+        res.status(404).json({ error: 'Time entry not found'});
+      } else {
+        res.json(updateResult.rows);
+      }
+  
+      client.release();
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error updating time entry' });
+    }
 }
 
 const deleteTimeEntry = async (req, res) => {
-    res.status(501).json({error: 'feature is not implemented'});
+    const time_tracking_id = req.params.id;
+    
+    try {
+        const client = await pool.connect();
+        const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 RETURNING *';
+        const deleteValues = [time_tracking_id];
+        
+    // Delete the time entry
+    const deleteResult = await client.query(deleteQuery, deleteValues);
+
+    if (deleteResult.rowCount === 0) {
+      res.status(404).json({ error: 'Time entry not found'});
+    } else {
+      res.json(deleteResult.rows);
+    }
+
+    client.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error deleting time entry', values: deleteValues });
+  }
+
 }
 
 
