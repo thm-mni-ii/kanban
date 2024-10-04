@@ -494,7 +494,7 @@ async function createTimeTracking(req, res) {
   
     try {
       const client = await pool.connect();
-      const query = 'INSERT INTO time_tracking (group_id, user_id, activity_start, activity_duration, title, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING time_tracking_id';
+      const query = 'INSERT INTO time_tracking (group_id, user_id, activity_start, activity_duration, title, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING time_tracking_id;';
       const values = [group_id, user_id, activity_start, activity_duration, title, description];
       const result = await client.query(query, values);
       client.release();
@@ -525,7 +525,7 @@ async function createTimeTracking(req, res) {
   
     try {
       const client = await pool.connect();
-      const query = 'SELECT * FROM time_tracking WHERE time_tracking_id = $1';
+      const query = 'SELECT * FROM time_tracking WHERE time_tracking_id = $1;';
       const values = [timeTrackingId];
       const result = await client.query(query, values);
       client.release();
@@ -546,7 +546,7 @@ const getTimeEntriesByGroup = async (req, res) => {
   
     try {
       const client = await pool.connect();
-      const query = 'SELECT * FROM time_tracking WHERE group_id = $1';
+      const query = 'SELECT * FROM time_tracking WHERE group_id = $1;';
       const values = [groupid];
       const result = await client.query(query, values);
       client.release();
@@ -567,7 +567,7 @@ const getTimeEntriesByGroupUser = async (req, res) => {
   
     try {
       const client = await pool.connect();
-      const query = 'SELECT * FROM time_tracking WHERE group_id = $1 AND user_id = $2';
+      const query = 'SELECT * FROM time_tracking WHERE group_id = $1 AND user_id = $2;';
       const values = [groupid, userid];
       const result = await client.query(query, values);
       client.release();
@@ -588,7 +588,7 @@ const getTimeEntriesByUser = async (req, res) => {
   
     try {
       const client = await pool.connect();
-      const query = 'SELECT * FROM time_tracking WHERE user_id = $1';
+      const query = 'SELECT * FROM time_tracking WHERE user_id = $1;';
       const values = [userid];
       const result = await client.query(query, values);
       client.release();
@@ -612,7 +612,7 @@ const updateTimeEntry = async (req, res) => {
       const client = await pool.connect();
   
       // Update the time entry
-      const updateQuery = 'UPDATE time_tracking SET activity_start = $1, activity_duration = $2, title = $3, description = $4 WHERE time_tracking_id = $5 RETURNING *';
+      const updateQuery = 'UPDATE time_tracking SET activity_start = $1, activity_duration = $2, title = $3, description = $4 WHERE time_tracking_id = $5 RETURNING *;';
       const updateValues = [activity_start, activity_duration, title, description, time_tracking_id];
       const updateResult = await client.query(updateQuery, updateValues);
   
@@ -634,7 +634,7 @@ const deleteTimeEntry = async (req, res) => {
     
     try {
         const client = await pool.connect();
-        const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 RETURNING *';
+        const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 RETURNING *;';
         const deleteValues = [time_tracking_id];
         
     // Delete the time entry
@@ -654,7 +654,127 @@ const deleteTimeEntry = async (req, res) => {
 
 }
 
+async function getAllTaskEntries(req, res) {
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM task_tracking';
+      const result = await client.query(query);
+      client.release();
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching task entries' });
+    }
+  }
+  
+    async function getTaskEntriesByGroup(req, res) {
+        const groupId = req.params.groupid;
 
+      try {
+        const client = await pool.connect();
+        const query = 'SELECT * FROM task_tracking JOIN time_tracking USING(time_tracking_id) WHERE group_id = $1;';
+        const result = await client.query(query,[groupId]);
+        client.release();
+    
+        res.json(result.rows);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error fetching task entries' });
+      }
+    }
+
+  async function getTaskEntriesByUser(req, res) {
+    const userId = req.params.userid;
+
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM task_tracking JOIN time_tracking USING(time_tracking_id) WHERE user_id = $1;';
+      const result = await client.query(query, [userId]);
+      client.release();
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching task entries' });
+    }
+  }
+
+  async function getTaskEntriesByGroupUser(req, res) {
+    const {groupId, userId} = req.params;
+
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM task_tracking JOIN time_tracking USING(time_tracking_id) WHERE group_id = $1 AND user_id = $2;';
+      const result = await client.query(query, [groupId, userId]);
+      client.release();
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching task entries' });
+    }
+  }
+
+  async function getTaskEntriesByTime(req, res) {
+    const time_tracking_id = req.params.timeid;
+    
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM task_tracking JOIN time_tracking USING(time_tracking_id) WHERE time_tracking_id = $1;';
+      const result = await client.query(query, [time_tracking_id]);
+      client.release();
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching task entries' });
+    }
+  }
+
+  async function createTaskEntry(req, res) {
+    const { time_tracking_id, kantask_id} = req.body;
+  
+    try {
+      const client = await pool.connect();
+      const query = 'INSERT INTO task_tracking (time_tracking_id, kantask_id) VALUES ($1, $2) RETURNING *;';
+      const values = [time_tracking_id, kantask_id];
+      const result = await client.query(query, values);
+      client.release();
+  
+      res.status(201).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error creating time tracking record', params: req.body});
+    }
+  }
+
+async function deleteTaskTrackingEntry(req, res) {
+    const { time_tracking_id, kantask_id} = req.body;
+    
+    try {
+        const client = await pool.connect();
+        const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 AND kantask_id = $2 RETURNING *;';
+        const deleteValues = [time_tracking_id, kantask_id];
+        
+    // Delete the task_tracking entry
+    const deleteResult = await client.query(deleteQuery, deleteValues);
+
+    if (deleteResult.rowCount === 0) {
+      res.status(404).json({ error: 'Time entry not found'});
+    } else {
+      res.json(deleteResult.rows);
+    }
+
+    client.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error deleting time entry', values: deleteValues });
+  }
+
+
+    
+}
 
 
 module.exports = {
@@ -690,6 +810,13 @@ module.exports = {
     getTimeEntriesByGroupUser,
     getTimeEntriesByUser,
     updateTimeEntry,
-    deleteTimeEntry
+    deleteTimeEntry,
+    getAllTaskEntries,
+    getTaskEntriesByGroup,
+    getTaskEntriesByUser,
+    getTaskEntriesByGroupUser,
+    getTaskEntriesByTime,
+    createTaskEntry,
+    deleteTaskTrackingEntry,
     
 };
