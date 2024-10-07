@@ -11,33 +11,31 @@ router.post('/', controller.createTimeTracking);
 
 router.get('/', controller.getAllTimeEntries);
 
-router.get('/:id', controller.getTimeEntryById);
-
 router.get('/group/:id', controller.getTimeEntriesByGroup);
 
 router.get('/group/:groupid/user/:userid', controller.getTimeEntriesByGroupUser);
 
 router.get('/user/:id', controller.getTimeEntriesByUser);
 
-router.put('/:id', controller.updateTimeEntry);
-
-router.delete('/:id', controller.deleteTimeEntry);
-
 router.get('/task', controller.getAllTaskEntries);
-
-router.get('/task/group/:groupid', controller.getTaskEntriesByGroup);
 
 router.get('/task/user/:userid', controller.getTaskEntriesByUser);
 
-router.get('/task/group/:groupid/user/:userid', controller.getTaskEntriesByGroupUser);
+router.get('/task/group/:groupid', controller.getTaskEntriesByGroup);
 
-router.get('/task/time/:timeid', controller.getTaskEntriesByTime);
+router.get('/task/group/:groupid/user/:userid', controller.getTaskEntriesByGroupUser);
 
 router.post('/task', controller.createTaskEntry);
 
 router.delete('/task', controller.deleteTaskTrackingEntry);
 
-// TODO: routes to get tasks and time entries by date
+router.get('/:timeid/tasks', controller.getTaskEntriesByTime);
+
+router.get('/:id', controller.getTimeEntryById); // must be below /task routes. otherwise the word task will be mistaken for the :id
+
+router.put('/:id', controller.updateTimeEntry);
+
+router.delete('/:id', controller.deleteTimeEntry);
 
 // TODO: test it
 

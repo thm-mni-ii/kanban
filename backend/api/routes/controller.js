@@ -701,20 +701,19 @@ async function getAllTaskEntries(req, res) {
   }
 
   async function getTaskEntriesByGroupUser(req, res) {
-    const {groupId, userId} = req.params;
+    const {groupid, userid} = req.params;
 
     try {
       const client = await pool.connect();
       const query = 'SELECT * FROM task_tracking JOIN time_tracking USING(time_tracking_id) WHERE group_id = $1 AND user_id = $2;';
-      const result = await client.query(query, [groupId, userId]);
+      const result = await client.query(query, [groupid, userid]);
       client.release();
-  
+
       res.json(result.rows);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Error fetching task entries' });
-    }
-  }
+    }}
 
   async function getTaskEntriesByTime(req, res) {
     const time_tracking_id = req.params.timeid;
@@ -754,7 +753,7 @@ async function deleteTaskTrackingEntry(req, res) {
     
     try {
         const client = await pool.connect();
-        const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 AND kantask_id = $2 RETURNING *;';
+        const deleteQuery = 'DELETE FROM task_tracking WHERE time_tracking_id = $1 AND kantask_id = $2 RETURNING *;';
         const deleteValues = [time_tracking_id, kantask_id];
         
     // Delete the task_tracking entry
@@ -770,11 +769,10 @@ async function deleteTaskTrackingEntry(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error deleting time entry', values: deleteValues });
-  }
-
-
-    
+  }    
 }
+
+
 
 
 module.exports = {
