@@ -308,7 +308,7 @@ const getTasksPerGroup = (req, res) => {
     
     const query = "SELECT b.group_id, COUNT(k.kantask_id) AS task_count FROM board b JOIN kantask k ON b.board_id = k.board_id GROUP BY b.group_id;"
 
-    pool.query(query, null, (err, res) => {
+    pool.query(query, (err, res) => {
         if (err) {
             console.log("Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe");
             return res.status(500).json({ error: 'Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe' });
@@ -320,6 +320,8 @@ const getTasksPerGroup = (req, res) => {
 
         res.status(200).json(results.rows);
     });
+
+
 }
 
 const getTasksDoneByGroup = (req, res) => {
