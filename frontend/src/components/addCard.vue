@@ -13,15 +13,6 @@
             <v-col cols="12">
               <v-textarea v-model="cardDescription" label="Description" required></v-textarea>
             </v-col>
-            <v-col cols="12">
-              <v-select
-              v-model="cardStatus"
-              :items="statusOptions"
-              label="Status"
-              required
-              >
-              </v-select>
-            </v-col>
           </v-row>
         </v-container>
       </v-card-text>
@@ -43,20 +34,19 @@ export default {
       cardName: '',
       cardDescription: '',
       cardDueDate: new Date().toISOString().split('T')[0],
-      cardStatus: 'backlog',
-      statusOptions: ['backlog', 'working_on', 'review', 'done'],
+      cardStatus: 'backlog', // Default status set to 'backlog'
     }
   },
   methods: {
     async addCard() {
-        const groupId = this.$route.params.groupId;
-        const boardId = this.$route.params.boardId; 
+      const groupId = this.$route.params.groupId;
+      const boardId = this.$route.params.boardId; 
       const card = {
         name: this.cardName,
         description: this.cardDescription,
         due_date: this.cardDueDate,
         created_at: new Date(),
-        status: this.cardStatus,
+        status: 'backlog', // Ensure status is always 'backlog'
       };
       try {
         const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`, {
@@ -71,7 +61,7 @@ export default {
         }
         this.cardName = "";
         this.cardDescription = "";
-        this.$emit(`added${this.cardStatus.charAt(0).toUpperCase() + this.cardStatus.slice(1)}`);
+        this.$emit('cardAdded');
         this.dialog = false;
       } catch (error) {
         console.error('There was an error!', error);
