@@ -114,5 +114,11 @@ router
   .put(controller.putSpecificLabelToBoardOfGroup)
   .delete(controller.deleteSpecificLabelOfBoardOfGroup)
 
+router.route(`/:groupId/boards/:boardId/cards:id/time_spent`)
+ .get(controller.getSpecificCardTimeDetails)
+ .put(controller.updateSpecificCardTime);
+
+router.route(`/:groupId/boards/:boardId/cards:id/status`)
+ .put(controller.updateStatusOfCard);
 
 module.exports = router
