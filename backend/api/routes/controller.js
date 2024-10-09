@@ -1,4 +1,5 @@
 const pool = require('../db');
+const { get } = require('./groups');
 
 const getGroups = (req, res) => {
     pool.query("SELECT * FROM groups", (error, results) => {
@@ -304,6 +305,60 @@ const deleteSpecificLabelOfBoardOfGroup = (req, res) => {
     });
 };
 
+const getSpecificCardTimeDetails = (req, res) => {
+    const cardId = req.params.id;
+    const boardId = req.params.boardId;
+    const query = 'SELECT time_spent FROM kantask WHERE kantask_id = $1 AND board_id = $2;';
+    const values = [cardId, boardId];  
+
+    pool.query(query, values, (error, results) => {
+        if (error) throw error;
+        res.status(200).json(results.rows);
+    });
+}
+
+const updateSpecificCardTime = (req, res) => {
+    const cardId = req.params.id;
+    const boardId = req.params.boardId;
+    const { time_spent } = req.body;
+    const query = 'UPDATE kantask SET time_spent = time_spent + $1 WHERE kantask_id = $2 AND board_id = $3 RETURNING time_spent;';
+    const values = [time_spent, cardId, boardId];
+
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Aktualisieren der Zeit:', error);
+            return res.status(500).json({ error: 'Fehler beim Aktualisieren der Zeit' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(404).json({ error: 'Karte nicht gefunden' });
+        }
+
+        res.status(200).json(results.rows[0]);
+    });
+}
+
+const updateStatusOfCard = (req, res) => {
+    const cardId = req.params.id;
+    const boardId = req.params.boardId;
+    const { status } = req.body;
+    const query = 'UPDATE kantask SET status = $1 WHERE kantask_id = $2 AND board_id = $3 RETURNING status;';
+    const values = [status, cardId, boardId];
+
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Aktualisieren des Status:', error);
+            return res.status(500).json({ error: 'Fehler beim Aktualisieren des Status' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(404).json({ error: 'Karte nicht gefunden' });
+        }
+
+        res.status(200).json(results.rows[0]);
+    });
+}
+
 module.exports = {
     getGroups,
     postGroup,
@@ -322,4 +377,8 @@ module.exports = {
     getSpecificLabelOfBoardOfGroup,
     putSpecificLabelToBoardOfGroup,
     deleteSpecificLabelOfBoardOfGroup,
+    getSpecificCardTimeDetails,
+    updateSpecificCardTime,
+    updateStatusOfCard
+    
 };
