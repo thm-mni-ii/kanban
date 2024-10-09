@@ -42,17 +42,6 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
-    <div>
-        <v-switch label="Buttons" v-model="buttonsActivated"
-         class="primary"
-        ></v-switch>
-        <v-container class="d-flex justify-center">
-        <v-btn @click="loadBoards" v-if="buttonsActivated">Load Boards</v-btn>
-        <v-btn @click="goToApp" v-if="buttonsActivated">Go to App</v-btn>
-        <v-btn @click="home" v-if="buttonsActivated">Home</v-btn>
-        </v-container>
-
-    </div>
 </template>
 
 <script>
@@ -63,7 +52,6 @@ export default {
             boards: [],
             boardName: '',
             dialog: false,
-            buttonsActivated: false,
         };
     },
     created() {
@@ -72,9 +60,6 @@ export default {
     methods: {
         home(){
             this.$router.push('/')
-        },
-        async showsBoards(){
-            console.log(this.boards);
         },
         async loadBoards() {
             try {
