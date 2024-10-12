@@ -10,13 +10,13 @@
           <v-icon>mdi-plus</v-icon>
           Add Card
         </v-btn>
-        <addCard ref="addCard" @cardAdded="reloadCards"/>
+        <addCard ref="addCardRef" @cardAdded="reloadCards"/>
         <v-card class="mt-4" style="background: #f7f2f9;">
           <v-row>
-            <Label ref="backlogLabel" sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event"  @cardSelected="selectCard" @cardStatusUpdated="updateCardStatus"/>
-            <Label ref="workingLabel" sectionTitle="Working on" status="working_on" :items="workingItems" @update:items="workingItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
-            <Label ref="reviewLabel" sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
-            <Label ref="doneLabel" sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
+            <Label ref="backlogLabelRef" sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event"  @cardSelected="selectCard" @cardStatusUpdated="updateCardStatus"/>
+            <Label ref="workingLabelRef" sectionTitle="Working on" status="working_on" :items="workingItems" @update:items="workingItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
+            <Label ref="reviewLabelRef" sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
+            <Label ref="doneLabelRef" sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
           </v-row>
         </v-card>
       </v-container>

@@ -2,7 +2,7 @@
   <v-col cols="3">
     <div class="style-box ml-2 mt-2 mb-2 mr-2">
       <h2 class="text-center mb-3">{{ sectionTitle }}</h2>
-      <draggable :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved">
+      <draggable :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved" class="drag-zone">
         <template #item="{ element, index }">
           <div :key="index">
             <v-card class="mb-3" style="background: #f7f2f9;" @click="selectCard(element)">
@@ -162,5 +162,9 @@ export default defineComponent({
   padding: 20px 10px;
   border-radius: 5px;
   min-height: 300px;
+}
+.drag-zone {
+  min-height: 200px;
+  padding-bottom: 20px;
 }
 </style>
