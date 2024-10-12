@@ -27,24 +27,26 @@
 
 <script>
 import { apiUrl } from '@/lib/getApi.js';
+import { ref } from 'vue';
+import { useRoute } from 'vue-router';
+
 export default {
-  data() {
-    return {
-      dialog: false,
-      cardName: '',
-      cardDescription: '',
-      cardDueDate: new Date().toISOString().split('T')[0],
-      cardStatus: 'backlog', // Default status set to 'backlog'
-    }
-  },
-  methods: {
-    async addCard() {
-      const groupId = this.$route.params.groupId;
-      const boardId = this.$route.params.boardId; 
+  setup(props, { emit }) {
+    const dialog = ref(false);
+    const cardName = ref('');
+    const cardDescription = ref('');
+    const cardDueDate = ref(new Date().toISOString().split('T')[0]);
+    const cardStatus = ref('backlog'); // Default status set to 'backlog'
+
+    const route = useRoute();
+
+    const addCard = async () => {
+      const groupId = route.params.groupId;
+      const boardId = route.params.boardId;
       const card = {
-        name: this.cardName,
-        description: this.cardDescription,
-        due_date: this.cardDueDate,
+        name: cardName.value,
+        description: cardDescription.value,
+        due_date: cardDueDate.value,
         created_at: new Date(),
         status: 'backlog', // Ensure status is always 'backlog'
       };
@@ -59,17 +61,28 @@ export default {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        this.cardName = "";
-        this.cardDescription = "";
-        this.$emit('cardAdded');
-        this.dialog = false;
+        cardName.value = "";
+        cardDescription.value = "";
+        emit('cardAdded');
+        dialog.value = false;
       } catch (error) {
         console.error('There was an error!', error);
       }
-    },
-    showDialog() {
-      this.dialog = true;
-    },
+    };
+
+    const showDialog = () => {
+      dialog.value = true;
+    };
+
+    return {
+      dialog,
+      cardName,
+      cardDescription,
+      cardDueDate,
+      cardStatus,
+      addCard,
+      showDialog,
+    };
   },
-}
+};
 </script>

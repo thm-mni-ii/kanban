@@ -21,49 +21,61 @@
 </template>
 
 <script>
-
-import { getColorFromId } from './colorHelper';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import {getColorFromId} from "@/colorHelper.js";
 
 export default {
-    data() {
-        return {
-            items: [],
-            mockData: [],
-            groupSelected: null,
-            selectedGroupMembers: []
-        };
-    },
-    computed: {
-        isStart() {
-            return this.$route.path === '/';
-        }
-    },
-    created() {
-        fetch('/groups.json')
-            .then(response => response.json())
-            .then(data => {
-                this.items = data;
-            });
+  setup() {
+    const items = ref([]);
+    const mockData = ref([]);
+    const groupSelected = ref(null);
+    const selectedGroupMembers = ref([]);
 
-        fetch('/MOCK_DATA.json')
-            .then(response => response.json())
-            .then(data => {
-                this.mockData = data;
-            });
-    },
-    methods: {
-        selectGroup(groupId) {
-            this.groupSelected = groupId;
-            const group = this.items.find(item => item.group === groupId);
-            this.selectedGroupMembers = this.mockData.filter(member => group.members.includes(member.id));
-        },
-        getColorFromId,
+    const router = useRouter();
+    const route = useRoute();
 
-        onGroupCardClick(groupId) {
-            this.$router.push({ name: 'Boards', params: { groupId: groupId } });
-        }
-    },
-}
+    const isStart = computed(() => {
+      return route.path === '/';
+    });
+
+    onMounted(() => {
+      fetch('/groups.json')
+          .then(response => response.json())
+          .then(data => {
+            items.value = data;
+          });
+
+      fetch('/MOCK_DATA.json')
+          .then(response => response.json())
+          .then(data => {
+            mockData.value = data;
+          });
+    });
+
+    function selectGroup(groupId) {
+      groupSelected.value = groupId;
+      const group = items.value.find(item => item.group === groupId);
+      selectedGroupMembers.value = mockData.value.filter(member => group.members.includes(member.id));
+    }
+
+    function onGroupCardClick(groupId) {
+      router.push({ name: 'Boards', params: { groupId: groupId } });
+    }
+
+    return {
+      items,
+      mockData,
+      groupSelected,
+      selectedGroupMembers,
+      isStart,
+      selectGroup,
+      getColorFromId,
+      onGroupCardClick
+    };
+  }
+};
+
 </script>
 
 <style scoped></style>

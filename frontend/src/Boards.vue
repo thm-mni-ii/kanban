@@ -46,59 +46,76 @@
 
 <script>
 import { apiUrl } from '@/lib/getApi.js';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+
 export default {
-    data() {
-        return {
-            boards: [],
-            boardName: '',
-            dialog: false,
-        };
-    },
-    created() {
-        this.loadBoards();
-    },
-    methods: {
-        home(){
-            this.$router.push('/')
-        },
-        async loadBoards() {
-            try {
-                const groupId = this.$route.params.groupId;
-                const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                this.boards = data;
-            } catch (error) {
-                console.error('There was an error!', error);
-            }
-        },
-        async addBoard() {
-            const groupId = this.$route.params.groupId;
-            try {
-                const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: this.boardName }),
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                this.boardName = "";
-                this.dialog = false;
-                this.loadBoards();
-            } catch (error) {
-                console.error('There was an error!', error);
-            }
-        },
-        goToApp(board) {
-            this.$router.push(`/groups/${this.$route.params.groupId}/boards/${board.board_id}`);
-        },
-    },
-}
+  setup() {
+    const boards = ref([]);
+    const boardName = ref('');
+    const dialog = ref(false);
+
+    const router = useRouter();
+    const route = useRoute();
+
+    const home = () => {
+      router.push('/');
+    };
+
+    const loadBoards = async () => {
+      try {
+        const groupId = route.params.groupId;
+        const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        boards.value = data;
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    };
+
+    const addBoard = async () => {
+      const groupId = route.params.groupId;
+      try {
+        const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: boardName.value }),
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        boardName.value = '';
+        dialog.value = false;
+        await loadBoards();
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    };
+
+    const goToApp = (board) => {
+      router.push(`/groups/${route.params.groupId}/boards/${board.board_id}`);
+    };
+
+    onMounted(() => {
+      loadBoards();
+    });
+
+    return {
+      boards,
+      boardName,
+      dialog,
+      home,
+      loadBoards,
+      addBoard,
+      goToApp,
+    };
+  },
+};
 </script>
 
 <style scoped>

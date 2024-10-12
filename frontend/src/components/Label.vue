@@ -36,67 +36,76 @@
 
 
 <script>
+import { ref, onMounted, defineComponent } from 'vue';
+import { useRoute } from 'vue-router';
 import { apiUrl } from '@/lib/getApi.js';
-import { ref } from 'vue';
 import draggable from 'vuedraggable';
-export default {
+
+export default defineComponent({
   components: {
-    draggable
-  },
-  data() {
-    return {
-      cards: [],
-    }
+    draggable,
   },
   props: {
     sectionTitle: String,
     items: Array,
-    status: String
+    status: String,
   },
-  methods: {
-    async loadCards() {
+  setup(props, { emit }) {
+    const route = useRoute();
+    const cards = ref([]);
+
+    async function loadCards() {
       try {
-        const groupId = this.$route.params.groupId;
-        const boardId = this.$route.params.boardId;
-        const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`);
+        const groupId = route.params.groupId;
+        const boardId = route.params.boardId;
+        const response = await fetch(
+            `${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`
+        );
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        this.cards = data;
-        this.cards = this.cards.filter(card => card.status === this.status);
+        cards.value = data;
+        cards.value = cards.value.filter(
+            (card) => card.status === props.status
+        );
       } catch (error) {
         console.error('There was an error!', error);
       }
-    },
-    async deleteCard(index) {
-      const card = this.cards[index];
+    }
+
+    async function deleteCard(index) {
+      const card = cards.value[index];
       const id = card.kantask_id;
 
-      const groupId = this.$route.params.groupId;
-      const boardId = this.$route.params.boardId;
+      const groupId = route.params.groupId;
+      const boardId = route.params.boardId;
 
-      const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards${id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+          `${apiUrl}/groups/${groupId}/boards/${boardId}/cards${id}`,
+          {
+            method: 'DELETE',
+          }
+      );
       if (!response.ok) {
         throw new Error('Network response was not ok' + response.status);
       } else {
-        this.cards.splice(index, 1);
+        cards.value.splice(index, 1);
       }
-    },
-    async updateCardStatus(cardId, newStatus) {
+    }
+
+    async function updateCardStatus(cardId, newStatus) {
       try {
-        const groupId = this.$route.params.groupId;
-        const boardId = this.$route.params.boardId;
+        const groupId = route.params.groupId;
+        const boardId = route.params.boardId;
         const url = `${apiUrl}/groups/${groupId}/boards/${boardId}/cards${cardId}/status`;
 
         const response = await fetch(url, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ status: newStatus })
+          body: JSON.stringify({ status: newStatus }),
         });
 
         if (!response.ok) {
@@ -105,34 +114,45 @@ export default {
       } catch (error) {
         console.error('There was an error updating the card status!', error);
       }
-    },
-    onCardMoved(event) {
+    }
+
+    function onCardMoved(event) {
       if (event.added) {
         const movedCard = event.added.element;
         const cardId = movedCard ? movedCard.kantask_id : null;
-        const newStatus = this.status;
+        const newStatus = props.status;
 
         if (cardId && newStatus) {
-          this.updateCardStatus(cardId, newStatus);
+          updateCardStatus(cardId, newStatus);
         }
 
-        this.$emit('cardMoved', {
+        emit('cardMoved', {
           card: movedCard,
           cardId: cardId,
-          oldStatus: event.removed ? this.status : null,
-          newStatus: newStatus
+          oldStatus: event.removed ? props.status : null,
+          newStatus: newStatus,
         });
       }
-    },
-    selectCard(card) {
-      this.$emit('cardSelected', card);
-    },
-  },
+    }
 
-  created() {
-    this.loadCards();
-  }
-}
+    function selectCard(card) {
+      emit('cardSelected', card);
+    }
+
+    onMounted(() => {
+      loadCards();
+    });
+
+    return {
+      cards,
+      loadCards,
+      deleteCard,
+      updateCardStatus,
+      onCardMoved,
+      selectCard,
+    };
+  },
+});
 </script>
 
 <style scoped>

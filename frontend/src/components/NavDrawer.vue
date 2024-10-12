@@ -13,17 +13,30 @@
 </template>
 
 <script>
+import {useRoute, useRouter} from "vue-router";
+
 export default {
-  methods: {
-    gotoBoards() {
-      this.$router.push({ name: 'Boards' });
-    },
-    passRouter() {
-      return this.$route.params.groupId;
-    },  
-    goToHome() {
-      this.$router.push({ name: 'Start' });
-    },
-  }
-}
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+
+    function gotoBoards() {
+      router.push({ name: 'Boards' });
+    }
+
+    function passRouter() {
+      return route.params.groupId;
+    }
+
+    function goToHome() {
+      router.push({ name: 'Start' });
+    }
+
+    return {
+      gotoBoards,
+      passRouter,
+      goToHome,
+    };
+  },
+};
 </script>

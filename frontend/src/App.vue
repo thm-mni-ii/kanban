@@ -25,21 +25,18 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import NavDrawer from "@/components/NavDrawer.vue";
 import addCard from "@/components/addCard.vue";
 import Label from "@/components/Label.vue";
-import { ref } from 'vue';
 import { apiUrl } from '@/lib/getApi.js';
-
-
-
 
 export default {
   components: {
     Label,
     NavDrawer,
     addCard,
-
   },
   setup() {
     const backlogItems = ref([]);
@@ -48,27 +45,21 @@ export default {
     const doneItems = ref([]);
     const boardName = ref("Kanban Board");
     const selectedCard = ref(null);
+    const addCardRef = ref(null);
+    const backlogLabelRef = ref(null);
+    const route = useRoute();
 
-    return {
-      backlogItems,
-      workingItems,
-      reviewItems,
-      doneItems,
-      boardName,
-      selectedCard,
+    function showDialog() {
+      addCardRef.value.showDialog();
     }
-  },
-  methods: {
-    showDialog() {
-      this.$refs.addCard.showDialog();
-    },
-    reloadCards() {
-      this.$refs.backlogLabel.loadCards();
-    },
-    async updateCardStatus(card) {
 
-      const groupId = this.$route.params.groupId;
-      const boardId = this.$route.params.boardId;
+    function reloadCards() {
+      backlogLabelRef.value.loadCards();
+    }
+
+    async function updateCardStatus(card) {
+      const groupId = route.params.groupId;
+      const boardId = route.params.boardId;
 
       const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards${card.kantask_id}/status`, {
         method: 'PUT',
@@ -83,12 +74,28 @@ export default {
       } else {
         console.log('Card status updated successfully');
       }
-    },
-    selectCard(card) {
-      this.selectedCard = card;
-    },
+    }
+
+    function selectCard(card) {
+      selectedCard.value = card;
+    }
+
+    return {
+      backlogItems,
+      workingItems,
+      reviewItems,
+      doneItems,
+      boardName,
+      selectedCard,
+      showDialog,
+      reloadCards,
+      updateCardStatus,
+      selectCard,
+      addCardRef,
+      backlogLabelRef,
+    };
   },
-}
+};
 </script>
 
 <style>
