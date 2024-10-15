@@ -99,7 +99,7 @@ router
   .post(controller.postCardToBoardOfGroup);
 
 router
-  .route(`/:groupId/boards/:boardId/cards:id`)
+  .route(`/:groupId/boards/:boardId/cards/:id`)
   .get(controller.getSpecificCardOfBoardOfGroup)
   .put(controller.putSpecificCardToBoardOfGroup)
   .delete(controller.deleteSpecificCardOfBoardOfGroup);
@@ -109,7 +109,7 @@ router
   .get(controller.getLabelsOfBoardOfGroup)
   .post(controller.postLabelToBoardOfGroup);
 
-  router.route(`/:groupId/boards/:boardId/labels:id`)
+router.route(`/:groupId/boards/:boardId/labels/:id`)
   .get(controller.getSpecificLabelOfBoardOfGroup)
   .put(controller.putSpecificLabelToBoardOfGroup)
   .delete(controller.deleteSpecificLabelOfBoardOfGroup)
@@ -118,7 +118,7 @@ router.route(`/:groupId/boards/:boardId/cards:id/time_spent`)
  .get(controller.getSpecificCardTimeDetails)
  .put(controller.updateSpecificCardTime);
 
-router.route(`/:groupId/boards/:boardId/cards:id/status`)
+router.route(`/:groupId/boards/:boardId/cards/:id/status`)
  .put(controller.updateStatusOfCard);
 
 module.exports = router

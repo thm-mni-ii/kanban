@@ -10,13 +10,13 @@
           <v-icon>mdi-plus</v-icon>
           Add Card
         </v-btn>
-        <addCard ref="addCardRef" @cardAdded="reloadCards"/>
+        <AddCard ref="addCardRef" :group-id="groupId" :board-id="boardId" @cardAdded="reloadCards"/>
         <v-card class="mt-4" style="background: #f7f2f9;">
           <v-row>
-            <Label ref="backlogLabelRef" sectionTitle="Backlog" status="backlog" :items="backlogItems" @update:items="backlogItems = $event"  @cardSelected="selectCard" @cardStatusUpdated="updateCardStatus"/>
-            <Label ref="workingLabelRef" sectionTitle="Working on" status="working_on" :items="workingItems" @update:items="workingItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
-            <Label ref="reviewLabelRef" sectionTitle="Review" status="review" :items="reviewItems" @update:items="reviewItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
-            <Label ref="doneLabelRef" sectionTitle="Done" status="done" :items="doneItems" @update:items="doneItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus"/>
+            <Label ref="backlogLabelRef" sectionTitle="Backlog" status="backlog" :group-id="groupId" :board-id="boardId" :items="backlogItems" @update:items="backlogItems = $event"  @cardSelected="selectCard" @cardStatusUpdated="updateCardStatus" />
+            <Label ref="workingLabelRef" sectionTitle="Working on" status="working_on" :group-id="groupId" :board-id="boardId" :items="workingItems" @update:items="workingItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus" />
+            <Label ref="reviewLabelRef" sectionTitle="Review" status="review" :group-id="groupId" :board-id="boardId" :items="reviewItems" @update:items="reviewItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus" />
+            <Label ref="doneLabelRef" sectionTitle="Done" status="done" :group-id="groupId" :board-id="boardId" :items="doneItems" @update:items="doneItems = $event"  @cardSelected="selectCard"@cardStatusUpdated="updateCardStatus" />
           </v-row>
         </v-card>
       </v-container>
@@ -24,19 +24,19 @@
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import NavDrawer from "@/components/NavDrawer.vue";
-import addCard from "@/components/addCard.vue";
+import AddCard from "@/components/AddCard.vue";
 import Label from "@/components/Label.vue";
-import { apiUrl } from '@/lib/getApi.js';
+import {BoardService} from "@/lib/board.service";
 
 export default {
   components: {
     Label,
     NavDrawer,
-    addCard,
+    AddCard,
   },
   setup() {
     const backlogItems = ref([]);
@@ -48,26 +48,20 @@ export default {
     const addCardRef = ref(null);
     const backlogLabelRef = ref(null);
     const route = useRoute();
+    const groupId = route.params.groupId as string;
+    const boardId = route.params.boardId as string;
 
     function showDialog() {
       addCardRef.value.showDialog();
     }
 
     function reloadCards() {
+      console.log("reload")
       backlogLabelRef.value.loadCards();
     }
 
     async function updateCardStatus(card) {
-      const groupId = route.params.groupId;
-      const boardId = route.params.boardId;
-
-      const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards${card.kantask_id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: card.status }),
-      });
+      await BoardService.updateCardStatus(groupId, boardId, card.kantask_id, card.status)
 
       if (!response.ok) {
         console.error('Failed to update card status');
@@ -93,6 +87,8 @@ export default {
       selectCard,
       addCardRef,
       backlogLabelRef,
+      groupId,
+      boardId,
     };
   },
 };

@@ -2,31 +2,9 @@
   <v-col cols="3">
     <div class="style-box ml-2 mt-2 mb-2 mr-2">
       <h2 class="text-center mb-3">{{ sectionTitle }}</h2>
-      <draggable :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved" class="drag-zone">
+      <draggable :key="i" :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved" class="drag-zone" itemKey="index">
         <template #item="{ element, index }">
-          <div :key="index">
-            <v-card class="mb-3" style="background: #f7f2f9;" @click="selectCard(element)">
-              <v-card-text>
-                <v-row align="center"> <!-- Align items vertically in the center -->
-                  <v-col cols="10">
-                    <h2>{{ element.name }}</h2> <!-- Name of the card -->
-                  </v-col>
-                  <v-col cols="2" class="d-flex justify-end"> <!-- Flexbox for right alignment -->
-                    <span><h2>--:--:--</h2></span> <!-- Right aligned text -->
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12" class="d-flex justify-end">
-                    <v-btn icon="mdi-pencil" small density="compact">
-                    </v-btn>
-                    <v-btn icon small density="compact" @click.stop="deleteCard(index)" class="ml-2">
-                      <v-icon color="red">mdi-delete-outline</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </div>
+          <Card :group-id="groupId" :board-id="boardId" :content="element" @seleced="selectCard" @cardChanged="$emit('labelChanged'); loadCards()"></Card>
         </template>
       </draggable>
     </div>
@@ -35,31 +13,33 @@
 
 
 
-<script>
-import { ref, onMounted, defineComponent } from 'vue';
-import { useRoute } from 'vue-router';
+<script lang="ts">
+import { ref, onMounted } from 'vue';
 import { apiUrl } from '@/lib/getApi.js';
 import draggable from 'vuedraggable';
+import Card from "@/components/Card.vue";
+import {BoardService} from "@/lib/board.service.ts";
 
-export default defineComponent({
+export default {
   components: {
+    Card,
     draggable,
   },
   props: {
     sectionTitle: String,
     items: Array,
     status: String,
+    groupId: String,
+    boardId: String,
   },
   setup(props, { emit }) {
-    const route = useRoute();
     const cards = ref([]);
+    const i = ref(0);
 
     async function loadCards() {
       try {
-        const groupId = route.params.groupId;
-        const boardId = route.params.boardId;
         const response = await fetch(
-            `${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`
+            `${apiUrl}/groups/${props.groupId}/boards/${props.boardId}/cards/`
         );
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -69,6 +49,7 @@ export default defineComponent({
         cards.value = cards.value.filter(
             (card) => card.status === props.status
         );
+        i.value++
       } catch (error) {
         console.error('There was an error!', error);
       }
@@ -76,41 +57,18 @@ export default defineComponent({
 
     async function deleteCard(index) {
       const card = cards.value[index];
-      const id = card.kantask_id;
 
-      const groupId = route.params.groupId;
-      const boardId = route.params.boardId;
-
-      const response = await fetch(
-          `${apiUrl}/groups/${groupId}/boards/${boardId}/cards${id}`,
-          {
-            method: 'DELETE',
-          }
-      );
-      if (!response.ok) {
-        throw new Error('Network response was not ok' + response.status);
-      } else {
+      try {
+        await BoardService.deleteCard(props.groupId, props.boardId, card)
         cards.value.splice(index, 1);
+      } catch (e) {
+        console.error('There was an error deleting the card!', e);
       }
     }
 
     async function updateCardStatus(cardId, newStatus) {
       try {
-        const groupId = route.params.groupId;
-        const boardId = route.params.boardId;
-        const url = `${apiUrl}/groups/${groupId}/boards/${boardId}/cards${cardId}/status`;
-
-        const response = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ status: newStatus }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+        await BoardService.updateCardStatus(props.groupId, props.boardId, cardId, newStatus)
       } catch (error) {
         console.error('There was an error updating the card status!', error);
       }
@@ -150,9 +108,12 @@ export default defineComponent({
       updateCardStatus,
       onCardMoved,
       selectCard,
+      groupId: props.groupId,
+      boardId: props.boardId,
+      i,
     };
   },
-});
+};
 </script>
 
 <style scoped>
