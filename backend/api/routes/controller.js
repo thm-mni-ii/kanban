@@ -390,7 +390,7 @@ const getTasksDoneByInPercent = (req, res) => {
     JOIN kantask k ON b.board_id = k.board_id
     GROUP BY b.group_id;
     `
-    pool.query(query, values, (error, results)  =>{
+    pool.query(query, (error, results)  =>{
         if (error) {
             console.error('Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe', error);
             return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe' });
@@ -411,7 +411,7 @@ const getTaskamountPerLabel = (req, res) => {
     JOIN kantasklabel ktl ON l.label_id = ktl.label_id
     GROUP BY l.label_id, l.name;
     `
-    pool.query(query, values, (error, results) => {
+    pool.query(query, (error, results) => {
         if (error) {
             console.error('Fehler beim Ermitteln der eledigten Aufgaben pro Label', error);
             return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben pro Label' });
@@ -453,7 +453,7 @@ const getLatestDoneTime = (req, res) => {
     FROM kantask 
     WHERE done_time = (SELECT MAX(done_time) FROM kantask WHERE done_time IS NOT NULL);
     `
-    pool.query(query, values, (error, results) => {
+    pool.query(query, (error, results) => {
         if (error) {
             console.error('Fehler beim Ermitteln der letzten erledigten Aufgabe', error);
             return res.status(500).json({ error: 'Fehler beim Ermitteln der letzten erledigten Aufgabe' });
@@ -477,7 +477,7 @@ const getTasksDoneByDate = (req, res) => {
     ORDER BY group_id,
     day;
     `
-    pool.query(query, values, (error, results) => {
+    pool.query(query, (error, results) => {
         if (error) {
             console.error('Fehler beim Ermitteln der Erlidigten Aufgaben pro Tag', error);
             return res.status(500).json({ error: 'Fehler beim Ermitteln der Erlidigten Aufgaben pro Tag' });

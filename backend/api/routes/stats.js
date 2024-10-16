@@ -17,6 +17,6 @@ router.route(`/tasks/by/member/:goupId`).get(controller.getMembersPerGroup);
 
 router.route(`/latest/done/task`).get(controller.getLatestDoneTime);
 
-router.route(`/tasks/by/member/`).get(controller.getTasksDoneByDate);
+router.route(`/tasks/by/member`).get(controller.getTasksDoneByDate);
 
 module.exports = router
