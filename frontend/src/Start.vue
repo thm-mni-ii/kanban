@@ -18,11 +18,7 @@
           </li>
         </ul>
       </div>
-      <!--Beispieldatensatz für den BarChart-->
-      <BarChart :data="{ labels: [ 'Red', 'Blue', 'Yellow', 'Green', 'Purple',
-      'Orange', 'FakeFarbe', 'FakeFarbe', ], datasets: [ { label: '# of Votes',
-      data: [12, 19, 3, 5, 2, 3, 100, 1], borderWidth: 1, }, ], }"
-      />
+      <BarChart v-if="chartData" :data="chartData" :options="chartOptions" />
     </v-container>
     <router-view v-if="!isStart"></router-view>
   </v-app>
@@ -46,10 +42,18 @@ export default {
 
   data() {
     return {
-      items: [],
-      mockData: [],
-      groupSelected: null,
-      selectedGroupMembers: [],
+      items: [],               // Gruppen-Items
+      mockData: [],            // Dummy-Daten für Gruppenmitglieder
+      groupSelected: null,     // Ausgewählte Gruppe
+      selectedGroupMembers: [],// Mitglieder der ausgewählten Gruppe
+      chartData: null,         // Daten für das Diagramm
+      chartOptions: {          // Diagramm-Optionen
+        scales: {
+          y: {
+            beginAtZero: true,  // Y-Achse beginnt bei 0
+          },
+        },
+      },
     };
   },
   computed: {
@@ -58,6 +62,9 @@ export default {
     },
   },
   created() {
+    // API-Daten werden geladen, sobald die Komponente erstellt wird
+    this.fetchChartData();
+
     fetch("/groups.json")
       .then((response) => response.json())
       .then((data) => {
@@ -70,6 +77,7 @@ export default {
         this.mockData = data;
       });
   },
+
   methods: {
     selectGroup(groupId) {
       this.groupSelected = groupId;
@@ -83,6 +91,34 @@ export default {
     onGroupCardClick(groupId) {
       this.$router.push({ name: "Boards", params: { groupId: groupId } });
     },
+    async fetchChartData() {
+      try {
+        const response = await fetch('http://localhost:3000/stats/taskspergroup');
+        if (!response.ok) {
+          throw new Error('Fehler beim Abrufen der Daten');
+        }
+        const data = await response.json();
+        this.chartData = this.formatChartData(data);  // Formatiere die Daten für das Diagramm
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    formatChartData(data) {
+      // Daten für das Diagramm formatieren
+      return {
+        labels: data.map(item => `Group ${item.group_id}`),  // Verwende die group_id als Label
+        datasets: [
+          {
+            label: 'Tasks per Group',
+            data: data.map(item => item.task_count),  // Verwende task_count für die Daten
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Balkenfarbe
+            borderColor: 'rgba(75, 192, 192, 1)',       // Rahmenfarbe
+            borderWidth: 1,  // Rahmendicke
+          },
+        ],
+      };
+    },
+
   },
 };
 </script>

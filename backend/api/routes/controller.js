@@ -327,7 +327,7 @@ const getTasksPerGroup = (req, res) => {
 const getTasksDoneByGroup = (req, res) => {
     const groupId = req.params.goupId;
 
-    const values = [groupId]; 
+    const values = [groupId];
 
     const query = `
     SELECT  b.group_id,  
@@ -339,17 +339,18 @@ const getTasksDoneByGroup = (req, res) => {
     GROUP BY  b.group_id;
     `
 
-    pool.query(query, values, (error, results) => {
+    pool.query(query, values, (error, result) => {
         if (error) {
             console.error('Fehler beim Ermitteln der erledigiten Aufgaben:', error);
             return res.status(500).json({ error: 'Fehler beim Ermitteln der erledigiten Aufgaben:' });
         }
 
-        if (results.rows.length === 0) {
-            return res.status(500).json({ error: 'Keine Daten' });
+        let returnCode = 200;
+        if(result.rows.length === 0) {
+            returnCode = 204
         }
 
-        res.status(200).json(results);
+        res.status(returnCode).json(result.rows);
     });
 }
 
@@ -389,7 +390,7 @@ const getTasksDoneByInPercent = (req, res) => {
     JOIN kantask k ON b.board_id = k.board_id
     GROUP BY b.group_id;
     `
-    pool.query(query, values, (error, results) => {
+    pool.query(query, values, (error, results)  =>{
         if (error) {
             console.error('Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe', error);
             return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe' });
