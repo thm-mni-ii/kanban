@@ -18,7 +18,10 @@
           </li>
         </ul>
       </div>
+      <!-- Diagramm für Tasks per Group -->
       <BarChart v-if="chartData" :data="chartData" :options="chartOptions" />
+      <!-- Diagramm für Tasks Done in Percent -->
+      <BarChart v-if="donePercentChartData" :data="donePercentChartData" :options="chartOptions" />
     </v-container>
     <router-view v-if="!isStart"></router-view>
   </v-app>
@@ -42,6 +45,7 @@ export default {
 
   data() {
     return {
+      donePercentChartData: null,  // Daten für das "Done Percent"-Diagramm
       items: [],               // Gruppen-Items
       mockData: [],            // Dummy-Daten für Gruppenmitglieder
       groupSelected: null,     // Ausgewählte Gruppe
@@ -63,7 +67,8 @@ export default {
   },
   created() {
     // API-Daten werden geladen, sobald die Komponente erstellt wird
-    this.fetchChartData();
+    this.fetchChartData(); // API-Abfrage für "Tasks per Group"
+    this.fetchDonePercentData();  // API-Abfrage für "Tasks Done in Percent"
 
     fetch("/groups.json")
       .then((response) => response.json())
@@ -83,13 +88,13 @@ export default {
       this.groupSelected = groupId;
       const group = this.items.find((item) => item.group === groupId);
       this.selectedGroupMembers = this.mockData.filter((member) =>
-        group.members.includes(member.id)
+          group.members.includes(member.id)
       );
     },
     getColorFromId,
 
     onGroupCardClick(groupId) {
-      this.$router.push({ name: "Boards", params: { groupId: groupId } });
+      this.$router.push({name: "Boards", params: {groupId: groupId}});
     },
     async fetchChartData() {
       try {
@@ -119,8 +124,51 @@ export default {
       };
     },
 
+    async fetchDonePercentData() {
+      try {
+        const response = await fetch('http://localhost:3000/stats/tasks/done/in/percent');
+        if (!response.ok) {
+          throw new Error('Fehler beim Abrufen der Daten');
+        }
+        const data = await response.json();
+
+        // Überprüfe, ob die Daten korrekt geladen wurden
+        console.log("Rohdaten von der Done Percent API:", data);
+
+        // Prüfe, ob die Antwort ein Array ist, ansonsten setze ein leeres Array
+        const dataArray = Array.isArray(data) ? data : [];
+
+        // Wenn es gültige Daten gibt, formatiere sie und weise sie der Chart-Variable zu
+        if (dataArray.length > 0) {
+          this.donePercentChartData = this.formatDonePercentData(dataArray);  // Formatiere die echten Daten
+        } else {
+          console.warn("Keine gültigen Daten erhalten.");
+        }
+
+        // Gib die formatierten Diagrammdaten in der Konsole aus
+        console.log("Formatiertes Done Percent Chart Data:", this.donePercentChartData);
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Daten:', error);
+      }
+    },
+
+// Formatierungsfunktion, um die Daten in ein Chart.js-kompatibles Format umzuwandeln
+    formatDonePercentData(data) {
+      return {
+        labels: data.map(item => `Group ${item.group_id}`),  // Verwende die group_id als Label
+        datasets: [
+          {
+            label: 'Tasks Done in Percent',
+            data: data.map(item => parseFloat(item.percent_tasks_done)),  // Konvertiere Strings zu Zahlen
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',  // Balkenfarbe
+            borderColor: 'rgba(54, 162, 235, 1)',        // Rahmenfarbe
+            borderWidth: 1,  // Rahmendicke
+          },
+        ],
+      };
+    },
   },
-};
+  };
 </script>
 
 <style scoped></style>
