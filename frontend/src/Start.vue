@@ -24,6 +24,21 @@
       <BarChart v-if="donePercentChartData" :data="donePercentChartData" :options="chartOptions" />
       <!-- Diagramm für Tasks per Label -->
       <BarChart v-if="taskPerLabelChartData" :data="taskPerLabelChartData" :options="chartOptions" />
+      <!-- Diagramm für Tasks by Member anzeigen -->
+      <BarChart v-if="tasksByMemberChartData" :data="tasksByMemberChartData" :options="chartOptions" />
+      <!-- Button, um die letzte erledigte Aufgabe zu laden -->
+      <v-btn color="primary" @click="toggleLatestDoneTask">
+        {{ latestDoneTask ? 'Hide' : 'Show' }} Latest Done Task
+      </v-btn>
+      <!-- Die neuesten erledigten Aufgabe -->
+      <div v-if="latestDoneTask">
+        <h2>Letzte erledigte Aufgabe:</h2>
+        <p><strong>Task id</strong> {{ latestDoneTask.kantask_id }}</p>
+        <p><strong>Name:</strong> {{ latestDoneTask.name }}</p>
+        <p><strong>Beschreibung:</strong> {{ latestDoneTask.description }}</p>
+        <p><strong>Fälligkeitsdatum:</strong> {{ latestDoneTask.due_date }}</p>
+        <p><strong>Erledigt am:</strong> {{ latestDoneTask.done_time }}</p>
+      </div>
     </v-container>
     <router-view v-if="!isStart"></router-view>
   </v-app>
@@ -49,6 +64,8 @@ export default {
     return {
       donePercentChartData: null,     // Daten für das "Done Percent"-Diagramm
       taskPerLabelChartData: null,    // Daten für das "Tasks per Label"-Diagramm
+      latestDoneTask: null,           // Daten für die letzte erledigte Aufgabe
+      tasksByMemberChartData: null,   // Daten für das "Tasks by Member"-Diagramm
       items: [],                      // Gruppen-Items
       mockData: [],                   // Dummy-Daten für Gruppenmitglieder
       groupSelected: null,            // Ausgewählte Gruppe
@@ -70,9 +87,11 @@ export default {
   },
   created() {
     // API-Daten werden geladen, sobald die Komponente erstellt wird
-    this.fetchChartData(); // API-Abfrage für "Tasks per Group"
-    this.fetchDonePercentData();  // API-Abfrage für "Tasks Done in Percent"
-    this.fetchTaskDataPerLabel();  // API-Abfrage für "Tasks per Label"
+    this.fetchChartData();              // API-Abfrage für "Tasks per Group"
+    this.fetchDonePercentData();        // API-Abfrage für "Tasks Done in Percent"
+    // this.fetchTaskDataPerLabel();       // API-Abfrage für "Tasks per Label"
+    // this.fetchLatestDoneTask();         // API-Abfrage für die neueste erledigte Aufgabe (wird wahrscheinlich nicht benötigt, da Daten erst nach button klick angezeigt werden
+    // this.fetchTasksByMember();          // Daten beim Laden der Seite abrufen
 
     fetch("/groups.json")
       .then((response) => response.json())
@@ -172,8 +191,10 @@ export default {
       };
     },
 
-/**
- * Benutzbar erst sobald es Daten für diese Tabelle gibt
+/*
+ // Benutzbar erst sobald es Daten für diese Tabelle gibt
+ // evtl muss noch bei der methode getTaskamountPerLabel im controller.js das results bei res.status in der gleichen Methode geändert werden
+ // Bei created() in start.vue muss auch this.fetchTaskDataPerLabel() auskommentiert werden, wenn man den code abschnitt wieder verwenden möchte
     // Methode zum Abrufen der Daten pro Label
     async fetchTaskDataPerLabel() {
       try {
@@ -221,8 +242,94 @@ export default {
         ],
       };
     },
-**/
+  */
 
+// Methode zum Abrufen der neuesten erledigten Aufgabe
+    async fetchLatestDoneTask() {
+      // Setze die Anzeige der Aufgabe zurück, um alte Daten zu entfernen, bevor neue geladen werden
+      this.latestDoneTask = null;
+
+      try {
+        const response = await fetch('http://localhost:3000/stats/latest/done/task');
+
+        if (!response.ok) {
+          throw new Error('Fehler beim Abrufen der Daten');
+        }
+
+        const data = await response.json();
+
+        // Überprüfe, ob die Daten korrekt geladen wurden
+        console.log("Rohdaten von der Latest Done Task API:", data);
+
+        // Da es sich nur um einen Eintrag handelt, können wir direkt die erste Zeile verwenden
+        if (data.length > 0) {
+          this.latestDoneTask = data[0];  // Speichere den neuesten Task
+        } else {
+          console.warn("Keine gültigen Daten erhalten.");
+        }
+
+        console.log("Letzte erledigte Aufgabe:", this.latestDoneTask);
+
+      } catch (error) {
+        console.error('Fehler beim Abrufen der neuesten erledigten Aufgabe:', error);
+      }
+    },
+    toggleLatestDoneTask() {
+      if (this.latestDoneTask) {
+        this.latestDoneTask = null;  // Verstecke die Aufgabe, wenn sie schon angezeigt wird
+      } else {
+        this.fetchLatestDoneTask();  // Lade die Aufgabe, wenn sie nicht angezeigt wird
+      }
+    },
+  /*
+   // Benutzbar erst sobald es Daten für diese Tabelle gibt
+   // evtl muss noch bei der methode getTasksDoneByDate im controller.js das results bei res.status in der gleichen Methode zu results.rows geändert werden
+   // Bei created() in start.vue muss auch this.fetchTasksByMember(); auskommentiert werden, wenn man den code abschnitt wieder verwenden möchte
+    async fetchTasksByMember() {
+      try {
+        const response = await fetch('http://localhost:3000/stats/tasks/by/member');
+
+        if (!response.ok) {
+          throw new Error('Fehler beim Abrufen der Daten');
+        }
+
+        const data = await response.json();
+
+        // Überprüfe, ob die Daten korrekt geladen wurden
+        console.log("Rohdaten von der Tasks by Member API:", data);
+
+        // Verarbeite die Daten in ein Chart.js-kompatibles Format
+        if (data.length > 0) {
+          this.tasksByMemberChartData = this.formatTasksByMemberData(data);
+        } else {
+          console.warn("Keine gültigen Daten erhalten.");
+        }
+
+        console.log("Tasks by Member Chart Data:", this.tasksByMemberChartData);
+
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Tasks by Member:', error);
+      }
+    },
+    formatTasksByMemberData(data) {
+      // Wir gruppieren die Daten nach dem Tag und der Gruppen-ID
+      const labels = data.map(item => `${item.group_id} - ${item.day}`);
+      const tasks = data.map(item => item.completed_tasks);
+
+      return {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Erledigte Aufgaben',
+            data: tasks,  // Anzahl der erledigten Aufgaben
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }
+        ]
+      };
+    }
+  */
   },
 };
 </script>
