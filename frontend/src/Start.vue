@@ -39,6 +39,18 @@
         <p><strong>Fälligkeitsdatum:</strong> {{ latestDoneTask.due_date }}</p>
         <p><strong>Erledigt am:</strong> {{ latestDoneTask.done_time }}</p>
       </div>
+      <!-- Diagramm für Tasks by Group, wenn Daten vorhanden sind -->
+      <BarChart v-if="chartVisible && tasksByGroupChartData" :data="tasksByGroupChartData" :options="chartOptions" />
+      <!-- Eingabefeld für die Gruppen-ID -->
+      <v-text-field
+          label="Group ID"
+          v-model="groupId"
+          type="number"
+          placeholder="Enter Group ID"
+          @keyup.enter="toggleChartVisibility"
+      />
+      <!-- Button, um das Diagramm anzuzeigen/auszublenden -->
+      <v-btn color="primary" @click="toggleChartVisibility"> {{ chartVisible ? 'Hide' : 'Show' }} Tasks for Group </v-btn>
     </v-container>
     <router-view v-if="!isStart"></router-view>
   </v-app>
@@ -66,6 +78,9 @@ export default {
       taskPerLabelChartData: null,    // Daten für das "Tasks per Label"-Diagramm
       latestDoneTask: null,           // Daten für die letzte erledigte Aufgabe
       tasksByMemberChartData: null,   // Daten für das "Tasks by Member"-Diagramm
+      tasksByGroupChartData: null,    // Daten für das "Tasks by Group"-Diagramm
+      groupId: '',                    // Dynamische Eingabe für die Gruppen-ID
+      chartVisible: false,            // Steuert, ob das Diagramm angezeigt wird oder nicht
       items: [],                      // Gruppen-Items
       mockData: [],                   // Dummy-Daten für Gruppenmitglieder
       groupSelected: null,            // Ausgewählte Gruppe
@@ -104,6 +119,15 @@ export default {
       .then((data) => {
         this.mockData = data;
       });
+  },
+
+  watch: {
+    // Beobachte Änderungen an der groupId und blende das Diagramm aus, wenn es angezeigt wird
+    groupId(newGroupId, oldGroupId) {
+      if (newGroupId !== oldGroupId && this.chartVisible) {
+        this.chartVisible = false;  // Diagramm ausblenden, wenn eine neue Gruppen-ID eingegeben wurde
+      }
+    }
   },
 
   methods: {
@@ -330,6 +354,63 @@ export default {
       };
     }
   */
+    async fetchTasksByGroup(groupId) {
+      try {
+        const response = await fetch(`http://localhost:3000/stats/tasks/by/group/${groupId}`);
+
+        if (!response.ok) {
+          throw new Error('Fehler beim Abrufen der Daten');
+        }
+
+        const data = await response.json();
+
+        // Überprüfe, ob die Daten korrekt geladen wurden
+        console.log(`Rohdaten von der Tasks by Group API (Group ID: ${groupId}):`, data);
+
+        // Verarbeite die Daten in ein Chart.js-kompatibles Format
+        if (data.length > 0) {
+          this.tasksByGroupChartData = this.formatTasksByGroupData(data);
+        } else {
+          console.warn("Keine gültigen Daten erhalten.");
+        }
+
+        console.log("Tasks by Group Chart Data:", this.tasksByGroupChartData);
+
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Tasks by Group:', error);
+      }
+    },
+    // Methode, um das Diagramm ein- oder auszublenden
+    toggleChartVisibility() {
+      if (!this.groupId) {  // Überprüfen, ob groupId vorhanden ist
+        console.warn('Bitte geben Sie eine gültige Gruppen-ID ein.');
+        return;
+      }
+
+      this.chartVisible = !this.chartVisible;  // Umschalten der Sichtbarkeit des Diagramms
+
+      if (this.chartVisible) {  // Nur wenn das Diagramm angezeigt wird, Daten laden
+        this.fetchTasksByGroup(this.groupId);
+      } else {
+        this.tasksByGroupChartData = null;  // Leere die Chart-Daten, wenn ausgeblendet wird
+        this.groupId = '';  // Leere das Eingabefeld, wenn das Diagramm ausgeblendet wird
+      }
+    },
+    formatTasksByGroupData(data) {
+      return {
+        labels: ['Completed Tasks', 'Pending Tasks'],  // Kategorien
+        datasets: [
+          {
+            label: `Group ${data[0].group_id} Tasks`,
+            data: [data[0].completed_tasks, data[0].pending_tasks],  // Erledigte und Anstehende Aufgaben
+            backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+            borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+            borderWidth: 1
+          }
+        ]
+      };
+    },
+
   },
 };
 </script>
