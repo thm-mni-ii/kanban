@@ -15,16 +15,16 @@ insert into board (board_id, group_id, name) values (8,8, 'Pre-emptive');
 insert into board (board_id, group_id, name) values (9,2, 'Programmable');
 insert into board (board_id, group_id, name) values (10,4, 'Mandatory');
 
-insert into kantask (kantask_id, board_id, name, description) values (1, 1, 'alliance', null);
-insert into kantask (kantask_id, board_id, name, description) values (2, 8, 'Right-sized', 'In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet.');
-insert into kantask (kantask_id, board_id, name, description) values (3, 1, 'benchmark', null);
-insert into kantask (kantask_id, board_id, name, description) values (4, 10, 'reciprocal', null);
-insert into kantask (kantask_id, board_id, name, description) values (5, 5, 'didactic', null);
-insert into kantask (kantask_id, board_id, name, description) values (6, 7, 'data-warehouse', 'Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui.');
-insert into kantask (kantask_id, board_id, name, description) values (7, 1, 'Realigned', null);
-insert into kantask (kantask_id, board_id, name, description) values (8, 3, 'solution', null);
-insert into kantask (kantask_id, board_id, name, description) values (9, 2, 'analyzer', 'In congue. Etiam justo. Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus. Nulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi.');
-insert into kantask (kantask_id, board_id, name, description) values (10, 7, 'solution-oriented', null);
+insert into kantask (kantask_id, board_id, name, done_time, description) values (1, 7, 'feugiat', null, 'quam nec dui luctus rutrum nulla tellus in sagittis dui vel nisl duis ac nibh fusce lacus purus');
+insert into kantask (kantask_id, board_id, name, done_time, description) values (2, 5, 'id', null, 'blandit nam nulla integer pede justo lacinia eget tincidunt eget tempus');
+insert into kantask (kantask_id, board_id, name, done_time, description) values (3, 7, 'nulla', '2025-03-16T23:44:37Z', 'consequat in consequat ut nulla sed accumsan felis ut at dolor quis odio consequat varius integer');
+insert into kantask (kantask_id, board_id, name, done_time, description) values (4, 1, 'amet', '2024-01-29T20:36:25Z', 'quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper');
+insert into kantask (kantask_id, board_id, name, done_time, description) values (5, 7, 'convallis', '2025-03-21T02:54:34Z', 'elementum in hac habitasse platea dictumst morbi');
+insert into kantask (kantask_id, board_id, name, done_time, description) values (6, 5, 'vel', '2024-10-01T22:16:08Z', 'eleifend donec ut dolor morbi');
+insert into kantask (kantask_id, board_id, name, done_time, description) values (7, 5, 'leo', '2024-07-04T14:42:35Z', 'curabitur gravida nisi at nibh');
+insert into kantask (kantask_id, board_id, name, done_time, description) values (8, 2, 'a', '2025-01-15T16:25:38Z', null);
+insert into kantask (kantask_id, board_id, name, done_time, description) values (9, 8, 'justo', '2025-08-30T22:32:45Z', 'augue luctus tincidunt nulla mollis molestie lorem quisque ut erat curabitur gravida nisi');
+insert into kantask (kantask_id, board_id, name, done_time, description) values (10, 4, 'penatibus', '2024-08-10T18:05:19Z', 'lacinia sapien quis libero nullam sit amet turpis elementum ligula vehicula consequat morbi a');
 
 insert into time_tracking (time_tracking_id, group_id, user_id, activity_start, activity_duration, title, description) values (1, 6, 16, '2024-07-16T23:08:10Z', null, 'Dynava', null);
 insert into time_tracking (time_tracking_id, group_id, user_id, activity_start, activity_duration, title, description) values (2, 8, 16, '2022-02-23T02:09:54Z', 3208, 'Voolith', null);
