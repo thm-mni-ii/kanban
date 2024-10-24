@@ -32,6 +32,11 @@
                         <v-col cols="12">
                             <v-text-field v-model="boardName" label="Board Name" required></v-text-field>
                         </v-col>
+                        <v-col cols="12" v-if="timeTracking">
+                            <!-- Optional year amd hours for time tracking -->
+                              <v-text-field v-model="year" label="Year" required></v-text-field>
+                              <v-text-field v-model="hours" label="Hours" required></v-text-field>
+                        </v-col>
                     </v-row>
                 </v-container>
             </v-card-text>
@@ -62,9 +67,17 @@ export default {
         return {
             boards: [],
             boardName: '',
+            year: '',
+            hours: '',
             dialog: false,
             buttonsActivated: false,
         };
+    },
+    computed: {
+      // Check if it is user not group route
+      timeTracking() {
+        return this.$route.path.includes('/users');
+      }
     },
     created() {
         this.loadBoards();
@@ -78,10 +91,20 @@ export default {
         },
         async loadBoards() {
             try {
-                const groupId = this.$route.params.groupId;
-                const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`);
+              const groupId = this.$route.params.groupId;
+              const userId = this.$route.params.userId;
+              let apiRoute = '';
+
+              // Determine whether it's a group or user route
+              if (this.timeTracking) {
+                apiRoute = `${apiUrl}/users/${userId}/boards/`;
+              } else {
+                apiRoute = `${apiUrl}/groups/${groupId}/boards/`;
+              }
+
+              const response = await fetch(apiRoute);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                  throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
                 this.boards = data;
@@ -90,19 +113,40 @@ export default {
             }
         },
         async addBoard() {
-            const groupId = this.$route.params.groupId;
-            try {
-                const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: this.boardName }),
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+          const groupId = this.$route.params.groupId;
+          const userId = this.$route.params.userId;
+          let apiRoute = '';
+
+          // Determine the correct API route for adding a board
+          if (this.timeTracking) {
+            apiRoute = `${apiUrl}/users/${userId}/boards/`;
+          } else {
+            apiRoute = `${apiUrl}/groups/${groupId}/boards/`;
+          }
+
+          try {
+            const requestBody = {
+              name: this.boardName,
+            };
+            if (this.timeTracking) {
+              requestBody.year = this.year;
+              requestBody.hours = this.hours;
+            }
+
+            const response = await fetch(apiRoute, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ name: this.boardName }),
+            });
+
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
                 this.boardName = "";
+                this.year = "";
+                this.hours= "";
                 this.dialog = false;
                 this.loadBoards();
             } catch (error) {
