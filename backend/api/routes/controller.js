@@ -773,8 +773,58 @@ async function deleteTaskTrackingEntry(req, res) {
   }
 }
 
+/*
+ *  timekeeping for student assistants
+ */
 
+const postTimekeepingBoardByUser= (req, res) => {
+  //const userId = req.params.userId;
+  const name = req.body.name;  // request body includes name of board
+  const year = req.body.year;
+  const hours = req.body.hours;
 
+  // validation of input data
+  if (!name || !year || !hours) {
+    return res.status(400).json({error: 'Name, Jahr und Stundenangabe sind erforderlich'});
+  }
+  const query = 'INSERT INTO timekeeping_board (name, year, hours) VALUES ($1, $2, $3) RETURNING *;';
+  const values = [name, year, hours];
+
+  pool.query(query, values, (error, results) => {
+    if (error) {
+      console.error('Fehler beim Einfügen des Timekeeping Boards:', error);
+      return res.status(500).json({error: 'Fehler beim Einfügen des Boards'});
+    }
+
+    res.status(201).json(results.rows[0]);  // return new board
+  });
+}
+
+const postCardToTimekeepingBoardOfUser= (req, res) => {
+  const boardId = req.params.boardId;
+  const { name, description, start, duration, month } = req.body;
+
+  // validation of input data
+  if (!name || !start || !duration || !month) {
+    return res.status(400).json({ error: 'Titel, Start, Dauer und Monat sind erforderlich' });
+  }
+
+  const query = `
+        INSERT INTO time_entry (board_id, name, description, start, duration, month) 
+        VALUES ($1, $2, $3, $4, $5, $6) 
+        RETURNING *;
+    `;
+  const values = [boardId, name, description, start, duration, month];
+
+  pool.query(query, values, (error, results) => {
+    if (error) {
+      console.error('Fehler beim Einfügen des Zeiteintags:', error);
+      return res.status(500).json({ error: 'Fehler beim Einfügen des Zeiteintrags' });
+    }
+
+    res.status(201).json(results.rows[0]);  // return new card
+  });
+};
 
 module.exports = {
   getGroups,
@@ -817,5 +867,6 @@ module.exports = {
   getTaskEntriesByTime,
   createTaskEntry,
   deleteTaskTrackingEntry,
-
+  postTimekeepingBoardByUser,
+  postCardToTimekeepingBoardOfUser
 };

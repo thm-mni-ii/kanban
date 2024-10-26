@@ -37,6 +37,10 @@ router.put('/:id', controller.updateTimeEntry);
 
 router.delete('/:id', controller.deleteTimeEntry);
 
+// timekeeping for student assistants
+
+router.post('/users/:userid/boards', controller.postTimekeepingBoardByUser)
+router.post('users/:userid/boards/boardid/cards', controller.postCardToTimekeepingBoardOfUser)
 // TODO: test it
 
 module.exports = router;
