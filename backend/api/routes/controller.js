@@ -421,7 +421,7 @@ const getTaskamountPerLabel = (req, res) => {
             return res.status(500).json({ error: 'Keine Daten' });
         }
 
-        res.status(200).json(results);
+        res.status(200).json(results.rows);
     });
 
 }

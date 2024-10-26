@@ -24,24 +24,22 @@
       <BarChart v-if="donePercentChartData" :data="donePercentChartData" :options="chartOptions" />
       <!-- Diagramm für Tasks per Label -->
       <BarChart v-if="taskPerLabelChartData" :data="taskPerLabelChartData" :options="chartOptions" />
-      <!-- Diagramm für Tasks by Member anzeigen -->
+      <!-- Diagramm für Tasks by Member -->
       <BarChart v-if="tasksByMemberChartData" :data="tasksByMemberChartData" :options="chartOptions" />
-      <!-- Button, um die letzte erledigte Aufgabe zu laden -->
-      <v-btn color="primary" @click="toggleLatestDoneTask">
-        {{ latestDoneTask ? 'Hide' : 'Show' }} Latest Done Task
-      </v-btn>
-      <!-- Die neuesten erledigten Aufgabe -->
+      <!-- Button, um die latest done task zu laden -->
+      <v-btn color="primary" @click="toggleLatestDoneTask">{{ latestDoneTask ? 'Hide' : 'Show' }} Latest Done Task</v-btn>
+      <!-- Die latest done task -->
       <div v-if="latestDoneTask">
-        <h2>Letzte erledigte Aufgabe:</h2>
+        <h2>Zuletzt erledigte Aufgabe:</h2>
         <p><strong>Task id</strong> {{ latestDoneTask.kantask_id }}</p>
         <p><strong>Name:</strong> {{ latestDoneTask.name }}</p>
         <p><strong>Beschreibung:</strong> {{ latestDoneTask.description }}</p>
         <p><strong>Fälligkeitsdatum:</strong> {{ latestDoneTask.due_date }}</p>
         <p><strong>Erledigt am:</strong> {{ latestDoneTask.done_time }}</p>
       </div>
-      <!-- Diagramm für Tasks by Group, wenn Daten vorhanden sind -->
+      <!-- Diagramm für Tasks by Group -->
       <BarChart v-if="chartVisible && tasksByGroupChartData" :data="tasksByGroupChartData" :options="chartOptions" />
-      <!-- Eingabefeld für die Gruppen-ID -->
+      <!-- Eingabefeld für Task by Group -->
       <v-text-field
           label="Group ID"
           v-model="groupId"
@@ -49,8 +47,22 @@
           placeholder="Enter Group ID"
           @keyup.enter="toggleChartVisibility"
       />
-      <!-- Button, um das Diagramm anzuzeigen/auszublenden -->
+      <!-- Button, um das Diagramm Task by Group anzuzeigen/auszublenden -->
       <v-btn color="primary" @click="toggleChartVisibility"> {{ chartVisible ? 'Hide' : 'Show' }} Tasks for Group </v-btn>
+
+      <!-- Diagramm für Tasks per Member -->
+      <!-- <BarChart v-if="memberChartVisible && tasksPerMemberChartData" :data="tasksPerMemberChartData" :options="chartOptions"/> -->
+      <!-- Eingabefeld für Tasks per Member -->
+      <!-- <v-text-field
+          label="Group ID"
+          v-model="memberGroupId"
+          type="number"
+          placeholder="Enter Group ID"
+          @keyup.enter="toggleMemberChartVisibility"
+      />
+      -->
+      <!-- Button, um das Diagramm Tasks per Member anzuzeigen/auszublenden -->
+      <!-- <v-btn color="primary" @click="toggleMemberChartVisibility">{{ memberChartVisible ? 'Hide' : 'Show' }} Tasks per Member</v-btn> -->
     </v-container>
     <router-view v-if="!isStart"></router-view>
   </v-app>
@@ -81,6 +93,9 @@ export default {
       tasksByGroupChartData: null,    // Daten für das "Tasks by Group"-Diagramm
       groupId: '',                    // Dynamische Eingabe für die Gruppen-ID
       chartVisible: false,            // Steuert, ob das Diagramm angezeigt wird oder nicht
+      memberGroupId: '',              // Überprüfen, ob man das nicht mit groupID ersetzten kann. Eingabe für die Gruppen-ID der Mitglieder
+      tasksPerMemberChartData: null,  // Daten für das "Tasks per Member"-Diagramm
+      memberChartVisible: false,      // Steuert, ob das Diagramm angezeigt wird oder nicht
       items: [],                      // Gruppen-Items
       mockData: [],                   // Dummy-Daten für Gruppenmitglieder
       groupSelected: null,            // Ausgewählte Gruppe
@@ -104,8 +119,8 @@ export default {
     // API-Daten werden geladen, sobald die Komponente erstellt wird
     this.fetchChartData();              // API-Abfrage für "Tasks per Group"
     this.fetchDonePercentData();        // API-Abfrage für "Tasks Done in Percent"
-    // this.fetchTaskDataPerLabel();       // API-Abfrage für "Tasks per Label"
-    // this.fetchLatestDoneTask();         // API-Abfrage für die neueste erledigte Aufgabe (wird wahrscheinlich nicht benötigt, da Daten erst nach button klick angezeigt werden
+    this.fetchTaskDataPerLabel();       // API-Abfrage für "Tasks per Label"
+    // this.fetchLatestDoneTask();         // API-Abfrage für die neueste erledigte Aufgabe (wird wahrscheinlich nicht benötigt, da Daten erst nach button klick angezeigt werden)
     // this.fetchTasksByMember();          // Daten beim Laden der Seite abrufen
 
     fetch("/groups.json")
@@ -215,7 +230,7 @@ export default {
       };
     },
 
-/*
+
  // Benutzbar erst sobald es Daten für diese Tabelle gibt
  // evtl muss noch bei der methode getTaskamountPerLabel im controller.js das results bei res.status in der gleichen Methode geändert werden
  // Bei created() in start.vue muss auch this.fetchTaskDataPerLabel() auskommentiert werden, wenn man den code abschnitt wieder verwenden möchte
@@ -266,7 +281,7 @@ export default {
         ],
       };
     },
-  */
+
 
 // Methode zum Abrufen der neuesten erledigten Aufgabe
     async fetchLatestDoneTask() {
@@ -381,6 +396,7 @@ export default {
       }
     },
     // Methode, um das Diagramm ein- oder auszublenden
+    // ---Wichtig--- Methode so bearbeiten, dass mit einem klick auf den button das Diagramm direkt auktualieisrt wird, sobald eine neue zahl eingegeben wird
     toggleChartVisibility() {
       if (!this.groupId) {  // Überprüfen, ob groupId vorhanden ist
         console.warn('Bitte geben Sie eine gültige Gruppen-ID ein.');
@@ -410,7 +426,64 @@ export default {
         ]
       };
     },
+/*
+    // Benutzbar erst sobald es Daten für diese Tabelle gibt
+    // evtl muss noch bei der methode getTasksPerMember im controller.js das results bei res.status in der gleichen Methode zu results.rows geändert werden
+    // Bei Templet in start.vue muss auch das Diagramm und der Button auskommentiert werden, wenn man den code abschnitt wieder verwenden möchte
+    async fetchTasksPerMember(groupId) {
+      try {
+        const response = await fetch(`http://localhost:3000/stats/tasks/by/member/${groupId}`);
+        if (!response.ok) {
+          throw new Error('Fehler beim Abrufen der Daten');
+        }
 
+        const data = await response.json();
+
+        // Überprüfe, ob die Daten korrekt geladen wurden
+        console.log("Rohdaten von der Tasks by Member API:", data);
+
+        // Daten für das Diagramm formatieren
+        if (data.length > 0) {
+          this.tasksPerMemberChartData = this.formatTasksPerMemberData(data);
+        } else {
+          console.warn("Keine gültigen Daten erhalten.");
+        }
+
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Tasks per Member:', error);
+      }
+    },
+    // Methode, um das Diagramm ein- oder auszublenden
+    toggleMemberChartVisibility() {
+      if (!this.memberGroupId) {  // Überprüfen, ob memberGroupId vorhanden ist
+        console.warn('Bitte geben Sie eine gültige Gruppen-ID ein.');
+        return;
+      }
+
+      this.memberChartVisible = !this.memberChartVisible;  // Umschalten der Sichtbarkeit des Diagramms
+
+      if (this.memberChartVisible) {  // Nur wenn das Diagramm angezeigt wird, Daten laden
+        this.fetchTasksPerMember(this.memberGroupId);
+      } else {
+        this.tasksPerMemberChartData = null;  // Leere die Chart-Daten, wenn ausgeblendet wird
+        this.memberGroupId = '';  // Leere das Eingabefeld, wenn das Diagramm ausgeblendet wird
+      }
+    },
+    formatTasksPerMemberData(data) {
+      return {
+        labels: data.map(item => `User ${item.user_id}`),  // User-ID als Label
+        datasets: [
+          {
+            label: 'Tasks per Member',
+            data: data.map(item => item.task_count),  // Anzahl der Aufgaben
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',  // Balkenfarbe
+            borderColor: 'rgba(153, 102, 255, 1)',       // Rahmenfarbe
+            borderWidth: 1
+          }
+        ]
+      };
+    },
+*/
   },
 };
 </script>
