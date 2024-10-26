@@ -24,12 +24,11 @@
                   <Label
                       v-for="month in months"
                       :key="month"
-                      ref="monthLabel"
+                      ref="month + 'Label'"
                       :sectionTitle="month.charAt(0).toUpperCase() + month.slice(1)"
                       :status="month"
                       :items="monthItems[month]"
                       @update:items="monthItems[month] = $event"
-                      @cardMoved="handleCardMoved"
                   />
                 </v-row>
               </v-card>
@@ -56,6 +55,12 @@ export default {
     addTimeCard,
   },
   setup() {
+
+    const monthNames = [
+      'january', 'february', 'march', 'april', 'may', 'june',
+      'july', 'august', 'september', 'october', 'november', 'december'
+    ];
+
     const monthItems = {
       january: [],
       february: [],
@@ -71,18 +76,19 @@ export default {
       december:[],
     };
 
-    const boardName = ref("Kanban Board");
+    const boardName = ref("Time Tracking");
 
     const quarters = [
-      ['januar', 'february', 'march'],
+      ['january', 'february', 'march'],
       ['april', 'may', 'june'],
-      ['juli', 'august', 'september'],
+      ['july', 'august', 'september'],
       ['october', 'november', 'december'],
     ];
 
 
 
     return {
+      monthNames,
       monthItems,
       boardName,
       quarters
@@ -92,22 +98,13 @@ export default {
     showDialog() {
       this.$refs.addTimeCard.showDialog();
     },
-    reloadCardsByMonth(month) {
-      switch (month) {
-        case 'january':
-          this.$refs.janLabel.loadCards();
-          break;
-        case 'working_on':
-          this.$refs.febLabel.loadCards();
-          break;
-        case 'review':
-          this.$refs.marLabel.loadCards();
-          break;
-        case 'done':
-          this.$refs.junLabel.loadCards();
-          break;
-        default:
-          console.error('Invalid status');
+    reloadCardsByMonth(monthNumber) {
+      const monthName = this.monthNames[monthNumber - 1];
+
+      if (this.$refs[`${monthName}Label`]) {
+        this.$refs[`${monthName}Label`].loadCards();
+      } else {
+        console.error('Invalid month reference:', monthName);
       }
     },
   },

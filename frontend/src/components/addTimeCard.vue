@@ -79,7 +79,6 @@ export default {
       const card = {
         date: this.date,
         start: this.start,
-        end: this.end,
         time: this.calculatedTime,
         description: this.cardDescription,
       };
@@ -96,7 +95,7 @@ export default {
           throw new Error('Network response was not ok');
         }
         this.resetForm();
-        this.$emit('addedMonth',this.date.getMonth+1);
+        this.$emit('addedMonth',this.date.getMonth()+1);
         this.dialog = false;
       } catch (error) {
         console.error('There was an error!', error);
@@ -118,11 +117,7 @@ export default {
       const endTime = this.parseTime(this.end);
       const calculatedTime = (endTime - startTime) / (1000 * 60 * 60); // Berechnung in Stunden
 
-      if (calculatedTime > 0) {
-        this.calculatedTime = calculatedTime.toFixed(2); // Zeit auf zwei Dezimalstellen
-      } else {
-        this.calculatedTime = '0.00'; // Setze auf 0, wenn ungültig
-      }
+      this.calculatedTime = calculatedTime > 0 ? calculatedTime : 0;
     },
     resetForm() {
       this.start = new Date(new Date().getTime() - 90 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

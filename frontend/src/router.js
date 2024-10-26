@@ -28,7 +28,7 @@ const routes = [
     //props: true
   },
   {
-    path: '/users/:userId/boards/board:id',
+    path: '/users/:userId/boards/boardId',
     name: 'Board-Time-Tracking',
     component:TimeTrackingBoard
   }

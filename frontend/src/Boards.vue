@@ -138,7 +138,7 @@ export default {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ name: this.boardName }),
+              body: JSON.stringify(requestBody),
             });
 
             if (!response.ok) {
@@ -154,7 +154,16 @@ export default {
             }
         },
         goToApp(board) {
+          if (this.timeTracking) {
+            this.$router.push({
+              name: 'Board-Time-Tracking',
+              params: {
+                userId: this.$route.params.userId,
+                boardId: board.timekeeping_board_id
+              }});
+          } else {
             this.$router.push(`/groups/${this.$route.params.groupId}/boards/${board.board_id}`);
+          }
         },
     },
 }
