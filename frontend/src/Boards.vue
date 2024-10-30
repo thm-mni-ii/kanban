@@ -1,6 +1,7 @@
 <template>
 
-    <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
+  <NavDrawer />
+  <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
         <h1>Meine Boards</h1>
     </v-container>
     <div class="d-flex  flex-column align-items-center justify-center" style=" margin: 10% auto;">
@@ -42,78 +43,70 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
-    <div>
-        <v-switch label="Buttons" v-model="buttonsActivated"
-         class="primary"
-        ></v-switch>
-        <v-container class="d-flex justify-center">
-        <v-btn @click="loadBoards" v-if="buttonsActivated">Load Boards</v-btn>
-        <v-btn @click="goToApp" v-if="buttonsActivated">Go to App</v-btn>
-        <v-btn @click="home" v-if="buttonsActivated">Home</v-btn>
-        </v-container>
-
-    </div>
 </template>
 
 <script>
 import { apiUrl } from '@/lib/getApi.js';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { BoardService } from "@/lib/board.service.ts";
+import NavDrawer from "@/components/NavDrawer.vue";
+
 export default {
-    data() {
-        return {
-            boards: [],
-            boardName: '',
-            dialog: false,
-            buttonsActivated: false,
-        };
-    },
-    created() {
-        this.loadBoards();
-    },
-    methods: {
-        home(){
-            this.$router.push('/')
-        },
-        async showsBoards(){
-            console.log(this.boards);
-        },
-        async loadBoards() {
-            try {
-                const groupId = this.$route.params.groupId;
-                const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                this.boards = data;
-            } catch (error) {
-                console.error('There was an error!', error);
-            }
-        },
-        async addBoard() {
-            const groupId = this.$route.params.groupId;
-            try {
-                const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: this.boardName }),
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                this.boardName = "";
-                this.dialog = false;
-                this.loadBoards();
-            } catch (error) {
-                console.error('There was an error!', error);
-            }
-        },
-        goToApp(board) {
-            this.$router.push(`/groups/${this.$route.params.groupId}/boards/${board.board_id}`);
-        },
-    },
-}
+  components: {NavDrawer},
+  setup() {
+    const boards = ref([]);
+    const boardName = ref('');
+    const dialog = ref(false);
+
+    const router = useRouter();
+    const route = useRoute();
+
+    const home = () => {
+      router.push('/');
+    };
+
+    const loadBoards = async () => {
+      try {
+        const groupId = route.params.groupId;
+        const data = await BoardService.getBoards(groupId);
+        boards.value = data;
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    };
+
+    const addBoard = async () => {
+      const groupId = route.params.groupId;
+      try {
+        await BoardService.createBoard(groupId, boardName.value)
+        boardName.value = '';
+        dialog.value = false;
+        await loadBoards();
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    };
+
+    const goToApp = (board) => {
+      router.push(`/groups/${route.params.groupId}/boards/${board.board_id}`);
+    };
+
+    onMounted(() => {
+      loadBoards();
+    });
+
+    return {
+      boards,
+      boardName,
+      dialog,
+      home,
+      loadBoards,
+      addBoard,
+      goToApp,
+    };
+  },
+};
 </script>
 
 <style scoped>

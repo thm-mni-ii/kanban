@@ -1,56 +1,19 @@
-interface GroupDetails{
-    id: number;
-    courseId: number;
-    name: string;
-    membership: number;
-    visible: boolean;
-}
-
-interface GroupInput{
-    name: string;
-    membership: number;
-    visible: boolean;
-}
-
-interface MembershipData{
-    userId: number;
-    courseId: number;
-    groupId: number;
-}
-
-interface ParticipantData {
-    user: {
-        prename: string;
-        surname: string;
-        email: string;
-        username: string;
-        globalRole: GlobalRole;
-        alias?: string;
-        id: number;
-    };
-    courseRole: CourseRole;
-}
-
-enum GlobalRole {
-    ADMIN = 0,
-    MODERATOR = 1,
-    USER = 2
-}
-
-enum CourseRole {
-    DOCENT = 0,
-    TUTOR = 1,
-    STUDENT = 2
-}
-
-const apiUrl = process.env.FBS_API_URL ?? 'https://feedback.mni.thm.de/api/v1';
-
-const fetchWithToken = (url: string, token: string, init: RequestInit = {}) => fetch(url, {...init, headers: {'Authorization': `Bearer ${token}`, ...init.headers ?? {}}})
-
+"use strict";
+var GlobalRole;
+(function (GlobalRole) {
+    GlobalRole[GlobalRole["ADMIN"] = 0] = "ADMIN";
+    GlobalRole[GlobalRole["MODERATOR"] = 1] = "MODERATOR";
+    GlobalRole[GlobalRole["USER"] = 2] = "USER";
+})(GlobalRole || (GlobalRole = {}));
+var CourseRole;
+(function (CourseRole) {
+    CourseRole[CourseRole["DOCENT"] = 0] = "DOCENT";
+    CourseRole[CourseRole["TUTOR"] = 1] = "TUTOR";
+    CourseRole[CourseRole["STUDENT"] = 2] = "STUDENT";
+})(CourseRole || (CourseRole = {}));
 /**
  * Group Creation
  */
-
 /**
  * Returns the list of groups for a specific course.
  *
@@ -60,23 +23,23 @@ const fetchWithToken = (url: string, token: string, init: RequestInit = {}) => f
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function getGroupList(cid: number, token: string, visible?: boolean) {
+async function getGroupList(cid, visible) {
     try {
-        let url = `${apiUrl}/courses/${cid}/groups`
-        if (visible!== undefined){
+        let url = `https://feedback.mni.thm.de/api/v1/courses/${cid}/groups`;
+        if (visible !== undefined) {
             url += `?visible = ${visible}`;
         }
-        const response = await fetchWithToken(url, token);
-        if (!response.ok){
+        const response = await fetch(url);
+        if (!response.ok) {
             throw new Error(response.statusText);
         }
-        return await response.json() as GroupDetails[];
-    } catch (error) {
+        return await response.json();
+    }
+    catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
-
 /**
  * Creates a group for a specific course.
  *
@@ -86,41 +49,45 @@ async function getGroupList(cid: number, token: string, visible?: boolean) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function createGroup(cid: number, postData: GroupInput){
+async function createGroup(cid, postData) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups`, {
             method: 'POST',
             body: JSON.stringify(postData),
-            headers: {'Content-Type': 'application/json'}
+            headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(response.statusText);
         }
-        return await response.json() as GroupDetails;
-    } catch (error) {
+        return await response.json();
+    }
+    catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
-
 /**
  * Returns a specific group for a specific course.
  *
  * @param cid - The course id
  * @param gid - The group id
- * @param token - The token to authenticate with
  * @returns the group with the id 'gid' for the course with the id 'cid'
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function getGroup(cid: number, gid: number, token: string) {
-    const response = await fetchWithToken(`${apiUrl}/courses/${cid}/groups/${gid}`, token);
-    if (!response.ok){
-        throw new Error(response.statusText);
+async function getGroup(cid, gid) {
+    try {
+        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`);
+        if (!response.ok) {
+            throw new Error(response.statusText);
+        }
+        return await response.json();
     }
-    return await response.json() as GroupDetails;
+    catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
 }
-
 /**
  * Updates a specific group for a specific course.
  *
@@ -131,23 +98,23 @@ async function getGroup(cid: number, gid: number, token: string) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function updateGroup(cid: number, gid: number, postData: GroupInput){
+async function updateGroup(cid, gid, postData) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`, {
             method: 'PUT',
             body: JSON.stringify(postData),
-            headers: {'Content-Type': 'application/json'}
+            headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(response.statusText);
         }
-        return await response.json() as GroupDetails;
-    } catch (error) {
+        return await response.json();
+    }
+    catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
-
 /**
  * Deletes a specific group for a specific course.
  *
@@ -156,24 +123,23 @@ async function updateGroup(cid: number, gid: number, postData: GroupInput){
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function deleteGroup(cid: number, gid: number) {
+async function deleteGroup(cid, gid) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`, {
             method: 'DELETE',
         });
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(response.statusText);
         }
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
-
 /**
  * Group Registration
  */
-
 /**
  * Adds a user to a group.
  *
@@ -184,21 +150,21 @@ async function deleteGroup(cid: number, gid: number) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function addUserToGroup(cid: number, gid: number, uid: number){
+async function addUserToGroup(cid, gid, uid) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
             method: 'PUT',
         });
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(response.statusText);
         }
-        return await response.json() as MembershipData;
-    } catch (error) {
+        return await response.json();
+    }
+    catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
-
 /**
  * Removes a user from a group.
  *
@@ -208,20 +174,20 @@ async function addUserToGroup(cid: number, gid: number, uid: number){
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function removeUserFromGroup(cid: number, gid: number,  uid: number) {
+async function removeUserFromGroup(cid, gid, uid) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
             method: 'DELETE',
         });
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(response.statusText);
         }
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
-
 /**
  * Removes all users from a group.
  *
@@ -230,37 +196,41 @@ async function removeUserFromGroup(cid: number, gid: number,  uid: number) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function removeAllUsersFromGroup(cid: number, gid: number) {
+async function removeAllUsersFromGroup(cid, gid) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users`, {
             method: 'DELETE',
         });
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(response.statusText);
         }
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
-
 /**
  * Returns the list of groups of a specific user.
  *
  * @param uid - The user id
- * @param token - The token to use when authenticating with the Feedbacksystem
  * @returns list of groups of the user with the id 'uid'
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-export async function getUserGroups(uid: number, token: string) {
-    const response = await fetchWithToken(`${apiUrl}/users/${uid}/groups`, token);
-    if (!response.ok){
-        throw new Error(response.statusText);
+async function getUserGroups(uid) {
+    try {
+        const response = await fetch(`https://feedback.mni.thm.de/api/v1/users/${uid}/groups`);
+        if (!response.ok) {
+            throw new Error(response.statusText);
+        }
+        return await response.json();
     }
-    return await response.json() as GroupDetails[];
+    catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
 }
-
 /**
  * Returns all users of a specific group.
  *
@@ -270,17 +240,17 @@ export async function getUserGroups(uid: number, token: string) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function getGroupMembers(cid: number, gid: number){
+async function getGroupMembers(cid, gid) {
     try {
         const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/participants`);
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(response.statusText);
         }
-        return await response.json() as ParticipantData[];
-    } catch (error) {
+        return await response.json();
+    }
+    catch (error) {
         console.error('Error:', error);
         throw error;
     }
 }
-
-
+//# sourceMappingURL=groupService.js.map
