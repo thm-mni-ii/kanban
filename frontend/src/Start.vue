@@ -1,14 +1,17 @@
 <template>
   <v-app>
     <v-container v-if="isStart">
+      <v-container class="d-flex justify-center my-container mb-4" style="background-color:  #80BA27;" w-auto>
+        <h1>Meine Gruppen</h1>
+      </v-container>
       <v-card
           v-for="(item, index) in items"
           :key="index"
           class="mb-4"
-          :style="{ backgroundColor: getColorFromId(item.group) }"
-          @click="onGroupCardClick(item.group)"
+          :style="{ backgroundColor: getColorFromId(item.id) }"
+          @click="onGroupCardClick(item.id)"
       >
-        <v-card-title> GruppeID: {{ item.group }} </v-card-title>
+        <v-card-title> {{ item.name }} </v-card-title>
       </v-card>
       <div v-if="groupSelected">
         Ausgewählte Gruppe: {{ groupSelected }}
@@ -19,7 +22,7 @@
         </ul>
       </div>
       <!--Beispieldatensatz für den BarChart-->
-      <BarChart :data="chartData" :options="options" />
+      <!--BarChart :data="chartData" :options="options" /-->
     </v-container>
     <router-view v-if="!isStart"></router-view>
   </v-app>
@@ -30,6 +33,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import BarChart from './components/BarChart.vue';
 import { getColorFromId } from '@/colorHelper.js';
+import {GroupService} from "@/lib/group.service";
 
 export default {
   components: { BarChart },
@@ -43,6 +47,12 @@ export default {
     // Router and route
     const router = useRouter();
     const route = useRoute();
+
+    // Set Token
+    const token = new URLSearchParams(location.search).get("token");
+    if (token) {
+      sessionStorage.setItem("token", token);
+    }
 
     // Computed property
     const isStart = computed(() => {
@@ -80,16 +90,9 @@ export default {
 
     // Lifecycle hook
     onMounted(() => {
-      fetch('/groups.json')
-          .then((response) => response.json())
+      GroupService.getMyGroups()
           .then((data) => {
             items.value = data;
-          });
-
-      fetch('/MOCK_DATA.json')
-          .then((response) => response.json())
-          .then((data) => {
-            mockData.value = data;
           });
     });
 

@@ -1,6 +1,7 @@
 <template>
 
-    <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
+  <NavDrawer />
+  <v-container class="d-flex justify-center my-container" style="background-color:  #80BA27;" w-auto>
         <h1>Meine Boards</h1>
     </v-container>
     <div class="d-flex  flex-column align-items-center justify-center" style=" margin: 10% auto;">
@@ -48,8 +49,11 @@
 import { apiUrl } from '@/lib/getApi.js';
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { BoardService } from "@/lib/board.service.ts";
+import NavDrawer from "@/components/NavDrawer.vue";
 
 export default {
+  components: {NavDrawer},
   setup() {
     const boards = ref([]);
     const boardName = ref('');
@@ -65,11 +69,7 @@ export default {
     const loadBoards = async () => {
       try {
         const groupId = route.params.groupId;
-        const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
+        const data = await BoardService.getBoards(groupId);
         boards.value = data;
       } catch (error) {
         console.error('There was an error!', error);
@@ -79,16 +79,7 @@ export default {
     const addBoard = async () => {
       const groupId = route.params.groupId;
       try {
-        const response = await fetch(`${apiUrl}/groups/${groupId}/boards/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name: boardName.value }),
-        });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+        await BoardService.createBoard(groupId, boardName.value)
         boardName.value = '';
         dialog.value = false;
         await loadBoards();

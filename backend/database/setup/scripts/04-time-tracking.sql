@@ -5,16 +5,16 @@ CREATE TABLE IF NOT EXISTS time_tracking (
     activity_start TIMESTAMP WITHOUT TIME ZONE NOT NULL, -- UTC
     activity_duration BIGINT, -- duration in SECONDS
     title TEXT,
-    description TEXT,
-    UNIQUE(group_id, user_id, activity_start)
+    description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS task_tracking (
     time_tracking_id INTEGER REFERENCES time_tracking(time_tracking_ID) ON DELETE CASCADE,
     kantask_id INTEGER REFERENCES kantask(kantask_id) ON DELETE CASCADE,
     PRIMARY KEY (kantask_id, time_tracking_id)
-
 );
+
+ALTER TABLE kantask ADD COLUMN time_spent INT NOT NULL DEFAULT 0;
 
 /* This Trigger prevents users from group A doing tasks from group B */
 CREATE OR REPLACE FUNCTION check_group_match()

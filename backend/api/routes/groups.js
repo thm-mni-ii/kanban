@@ -114,7 +114,7 @@ router.route(`/:groupId/boards/:boardId/labels/:id`)
   .put(controller.putSpecificLabelToBoardOfGroup)
   .delete(controller.deleteSpecificLabelOfBoardOfGroup)
 
-router.route(`/:groupId/boards/:boardId/cards:id/time_spent`)
+router.route(`/:groupId/boards/:boardId/cards/:id/time_spent`)
  .get(controller.getSpecificCardTimeDetails)
  .put(controller.updateSpecificCardTime);
 

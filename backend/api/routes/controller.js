@@ -1,11 +1,10 @@
 const pool = require('../db');
 const { get } = require('./groups');
+const {getUserGroups} = require("../services/groupService");
 
-const getGroups = (req, res) => {
-  pool.query("SELECT * FROM groups", (error, results) => {
-    if (error) throw error;
-    res.status(200).json(results.rows);
-  })
+const getGroups = async (req, res) => {
+  const groups = await getUserGroups(res.locals.user.id, res.locals.token)
+  res.json(groups);
 };
 
 const postGroup = (req, res) => {
@@ -545,7 +544,8 @@ const getTasksDoneByDate = (req, res) => {
 }
 
 async function createTimeTracking(req, res) {
-  const { group_id, user_id, activity_start, activity_duration, title, description } = req.body;
+  const user_id = res.locals.user.id;
+  const { group_id, activity_start, activity_duration, title, description } = req.body;
 
   try {
     const client = await pool.connect();

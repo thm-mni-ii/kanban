@@ -38,13 +38,7 @@ export default {
 
     async function loadCards() {
       try {
-        const response = await fetch(
-            `${apiUrl}/groups/${props.groupId}/boards/${props.boardId}/cards/`
-        );
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
+        const data = await BoardService.getCards(props.groupId, props.boardId);
         cards.value = data;
         cards.value = cards.value.filter(
             (card) => card.status === props.status

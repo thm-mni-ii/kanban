@@ -18,4 +18,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Run app
-CMD [ "node", "expressAPI.js" ]
+CMD [ "npm", "run", "preview", "--", "--host", "0.0.0.0" ]

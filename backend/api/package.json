@@ -4,11 +4,20 @@
   "description": "the express.js api to connect frontend and backend",
   "main": "expressAPI.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "sven roman reinhard",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2"
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jose": "^5.9.4",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.0",
+    "@types/node": "^22.7.5",
+    "typescript": "^5.6.3"
   }
 }

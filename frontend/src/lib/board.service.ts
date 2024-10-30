@@ -1,9 +1,22 @@
-import {Card, CardStatus, NewCard} from "@/lib/types";
+import {Card, CardStatus, NewCard, NewTimeTrack} from "@/lib/types";
 import {ApiService} from "@/lib/api.service";
+import {TimeTrackingService} from "@/lib/timetracking.service";
 
 export type Identifier = number|string;
 
 export class BoardService extends ApiService {
+    public static getBoards(groupId: Identifier) {
+        return ApiService.fetchApiJson(`/groups/${groupId}/boards/`)
+    }
+
+    public static createBoard(groupId: Identifier, name: string) {
+        return ApiService.postApiJson(`/groups/${groupId}/boards/`, {name})
+    }
+
+    public static getCards(groupId: Identifier, boardId: Identifier): Promise<Card> {
+        return ApiService.fetchApiJson(`/groups/${groupId}/boards/${boardId}/cards/`);
+    }
+
     public static createCard(groupId: Identifier, boardId: Identifier, card: NewCard): Promise<Card> {
         return ApiService.postApiJson(`/groups/${groupId}/boards/${boardId}/cards/`, card);
     }
@@ -18,5 +31,10 @@ export class BoardService extends ApiService {
 
     public static deleteCard(groupId: Identifier, boardId: Identifier, card: Card): Promise<void> {
         return ApiService.fetchApiJson(`/groups/${groupId}/boards/${boardId}/cards/${card.kantask_id}`, {method: "DELETE"});
+    }
+
+    public static async trackTime(groupId: Identifier, boardId: Identifier, cardId: Identifier, timeTrack: NewTimeTrack) {
+        await TimeTrackingService.createTimeTracker(timeTrack)
+        await ApiService.postApiJson(`/groups/${groupId}/boards/${boardId}/cards/${cardId}/time_spent`, {time_spent: timeTrack.activity_duration}, "PUT")
     }
 }

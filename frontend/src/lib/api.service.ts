@@ -1,8 +1,10 @@
 export const apiUrl = import.meta.env.VITE_APP_API_URL;
 
 export class ApiService {
-    protected static fetchApi(url: string, init?: RequestInit): Promise<Response> {
+    protected static fetchApi(url: string, init?: RequestInit = {}): Promise<Response> {
         url = apiUrl + url
+        init.headers = {...(sessionStorage.getItem("token") ? {"Authorization": `Bearer ${sessionStorage.getItem("token")}`} : {}), ...init.headers}
+
         return fetch(url, init);
     }
 

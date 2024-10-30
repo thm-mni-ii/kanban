@@ -53,7 +53,7 @@ export default {
         description: cardDescription.value,
         due_date: cardDueDate.value,
         created_at: cardDueDate.value,
-        status: props.card?.status,
+        status: cardStatus.value,
       };
       try {
         await (isEdit ? BoardService.updateCard : BoardService.createCard)(props.groupId, props.boardId, card);
