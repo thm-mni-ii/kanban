@@ -93,7 +93,7 @@ export default {
       tasksByGroupChartData: null,    // Daten für das "Tasks by Group"-Diagramm
       groupId: '',                    // Dynamische Eingabe für die Gruppen-ID
       chartVisible: false,            // Steuert, ob das Diagramm angezeigt wird oder nicht
-      memberGroupId: '',              // Überprüfen, ob man das nicht mit groupID ersetzten kann. Eingabe für die Gruppen-ID der Mitglieder
+      memberGroupId: '',              // Eingabe für die Gruppen-ID der Mitglieder
       tasksPerMemberChartData: null,  // Daten für das "Tasks per Member"-Diagramm
       memberChartVisible: false,      // Steuert, ob das Diagramm angezeigt wird oder nicht
       items: [],                      // Gruppen-Items
@@ -101,13 +101,34 @@ export default {
       groupSelected: null,            // Ausgewählte Gruppe
       selectedGroupMembers: [],       // Mitglieder der ausgewählten Gruppe
       chartData: null,                // Daten für das Diagramm
-      chartOptions: {                 // Diagramm-Optionen
+
+      // Optionen für alle Diagramme, einschließlich spezifischer Optionen für Liniendiagramme
+      chartOptions: {
         scales: {
           y: {
             beginAtZero: true,        // Y-Achse beginnt bei 0
+            title: {
+              display: true,
+              text: 'Completed Tasks', // Beschriftung der Y-Achse
+            }
           },
+          x: {
+            title: {
+              display: true,
+            }
+          }
         },
-      },
+        plugins: {
+          legend: {
+            display: true,            // Legende anzeigen
+            position: 'top',          // Legende oben rechts platzieren
+            align: 'end',             // Legende am rechten Rand
+            labels: {
+              usePointStyle: true,    // Punkte neben Texten in der Legende
+            }
+          }
+        }
+      }
     };
   },
   computed: {
@@ -348,21 +369,38 @@ export default {
       }
     },
     formatTasksByMemberData(data) {
-      // Wir gruppieren die Daten nach dem Tag und der Gruppen-ID
-      const labels = data.map(item => `${item.group_id} - ${item.day}`);
-      const tasks = data.map(item => item.completed_tasks);
+      // Gruppiere Daten nach `group_id`
+      const groupedData = data.reduce((acc, item) => {
+        const groupId = item.group_id;
+        if (!acc[groupId]) acc[groupId] = [];
+        acc[groupId].push({ date: item.day, task_count: item.completed_tasks });
+        return acc;
+      }, {});
+
+      // Generiere Labels (x-Achse) anhand der Datumswerte und sortiere diese
+      const labels = [...new Set(data.map(item => item.day))].sort();
+
+      // Erstelle Datasets für jede Gruppe mit einer eigenen Farbe
+      const datasets = Object.keys(groupedData).map((groupId, index) => {
+        const color = `hsl(${(index * 70) % 360}, 70%, 50%)`; // Unterschiedliche Farben für Gruppen
+        return {
+          label:`Group ${groupId}`,
+          data: labels.map(labelDate => {
+            const dataPoint = groupedData[groupId].find(point => point.date === labelDate);
+            return dataPoint ? dataPoint.task_count : 0; // 0 setzen, wenn keine Daten für das Datum vorhanden sind
+          }),
+          borderColor: color,
+          backgroundColor: color,
+          fill: false, // Keine Füllung unterhalb der Linie
+          tension: 0.1, // Leichte Krümmung der Linie
+          pointRadius: 4, // Größere Punkte
+          pointHoverRadius: 6, // Größere Hoverpunkte
+        };
+      });
 
       return {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Erledigte Aufgaben',
-            data: tasks,  // Anzahl der erledigten Aufgaben
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-          }
-        ]
+        labels, // x-Achse: Datumswerte
+        datasets // Daten: eine Linie für jede Gruppe
       };
     },
 
