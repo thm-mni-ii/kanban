@@ -382,7 +382,7 @@ export default {
 
       // Erstelle Datasets für jede Gruppe mit einer eigenen Farbe
       const datasets = Object.keys(groupedData).map((groupId, index) => {
-        const color = `hsl(${(index * 70) % 360}, 70%, 50%)`; // Unterschiedliche Farben für Gruppen
+        const color = `hsl(${(index * 65) % 360}, 70%, 50%)`; // Unterschiedliche Farben für Gruppen
         return {
           label:`Group ${groupId}`,
           data: labels.map(labelDate => {

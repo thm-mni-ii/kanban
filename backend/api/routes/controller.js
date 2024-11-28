@@ -470,13 +470,14 @@ const getLatestDoneTime = (req, res) => {
 
 const getTasksDoneByDate = (req, res) => {
     const query = `
-        SELECT b.group_id, DATE(k.done_time) AS day, COUNT(*) AS completed_tasks
+        SELECT b.group_id, TO_CHAR(k.done_time, 'DD.MM.YYYY') AS day, COUNT(*) AS completed_tasks
         FROM kantask k
         JOIN board b ON k.board_id = b.board_id
         WHERE k.done_time IS NOT NULL
-        GROUP BY b.group_id, DATE(k.done_time)
+        GROUP BY b.group_id, TO_CHAR(k.done_time, 'DD.MM.YYYY')
         ORDER BY b.group_id,
         day;
+
     `
     pool.query(query, (error, results) => {
         if (error) {
