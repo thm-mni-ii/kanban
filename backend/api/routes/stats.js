@@ -13,7 +13,7 @@ router.route(`/tasks/done/in/percent`).get(controller.getTasksDoneByInPercent);
 
 router.route(`/tasks/per/label`).get(controller.getTaskamountPerLabel);
 
-router.route(`/tasks/by/member/:goupId`).get(controller.getMembersPerGroup);
+router.route(`/tasks/by/members/:goupId`).get(controller.getMembersPerGroup);
 
 router.route(`/latest/done/task`).get(controller.getLatestDoneTime);
 

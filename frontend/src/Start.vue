@@ -121,7 +121,7 @@ export default {
     this.fetchDonePercentData();        // API-Abfrage für "Tasks Done in Percent"
     this.fetchTaskDataPerLabel();       // API-Abfrage für "Tasks per Label"
     // this.fetchLatestDoneTask();         // API-Abfrage für die neueste erledigte Aufgabe (wird wahrscheinlich nicht benötigt, da Daten erst nach button klick angezeigt werden)
-    // this.fetchTasksByMember();          // Daten beim Laden der Seite abrufen
+    this.fetchTasksByMember();          // Daten beim Laden der Seite abrufen
 
     fetch("/groups.json")
       .then((response) => response.json())
@@ -186,6 +186,7 @@ export default {
       };
     },
 
+    // Methode zum Abrufen der erledigten Aufgaben in Prozent
     async fetchDonePercentData() {
       try {
         const response = await fetch('http://localhost:3000/stats/tasks/done/in/percent');
@@ -230,10 +231,6 @@ export default {
       };
     },
 
-
- // Benutzbar erst sobald es Daten für diese Tabelle gibt
- // evtl muss noch bei der methode getTaskamountPerLabel im controller.js das results bei res.status in der gleichen Methode geändert werden
- // Bei created() in start.vue muss auch this.fetchTaskDataPerLabel() auskommentiert werden, wenn man den code abschnitt wieder verwenden möchte
     // Methode zum Abrufen der Daten pro Label
     async fetchTaskDataPerLabel() {
       try {
@@ -320,10 +317,10 @@ export default {
         this.fetchLatestDoneTask();  // Lade die Aufgabe, wenn sie nicht angezeigt wird
       }
     },
-  /*
-   // Benutzbar erst sobald es Daten für diese Tabelle gibt
-   // evtl muss noch bei der methode getTasksDoneByDate im controller.js das results bei res.status in der gleichen Methode zu results.rows geändert werden
-   // Bei created() in start.vue muss auch this.fetchTasksByMember(); auskommentiert werden, wenn man den code abschnitt wieder verwenden möchte
+
+
+
+   // Methode zum anzeigen der erledigten Aufgaben angezeigt nach Datum und sortiert nach Gruppen
     async fetchTasksByMember() {
       try {
         const response = await fetch('http://localhost:3000/stats/tasks/by/member');
@@ -367,8 +364,8 @@ export default {
           }
         ]
       };
-    }
-  */
+    },
+
     async fetchTasksByGroup(groupId) {
       try {
         const response = await fetch(`http://localhost:3000/stats/tasks/by/group/${groupId}`);

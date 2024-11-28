@@ -432,7 +432,7 @@ const getMembersPerGroup = (req, res) => {
     FROM assignee
     GROUP BY group_id;
     `
-    pool.query(query, values, (error, results) => {
+    pool.query(query, (error, results) => {
         if (error) {
             console.error('Fehler beim Ermitteln der Mitglieder pro Gruppe', error);
             return res.status(500).json({ error: 'Fehler beim Ermitteln der Mitglieder pro Gruppe' });
@@ -470,12 +470,13 @@ const getLatestDoneTime = (req, res) => {
 
 const getTasksDoneByDate = (req, res) => {
     const query = `
-    SELECT group_id, DATE(done_time) AS day, COUNT(*) AS completed_tasks
-    FROM kantask
-    WHERE done_time IS NOT NULL
-    GROUP BY group_id, DATE(done_time)
-    ORDER BY group_id,
-    day;
+        SELECT b.group_id, DATE(k.done_time) AS day, COUNT(*) AS completed_tasks
+        FROM kantask k
+        JOIN board b ON k.board_id = b.board_id
+        WHERE k.done_time IS NOT NULL
+        GROUP BY b.group_id, DATE(k.done_time)
+        ORDER BY b.group_id,
+        day;
     `
     pool.query(query, (error, results) => {
         if (error) {
@@ -487,7 +488,7 @@ const getTasksDoneByDate = (req, res) => {
             return res.status(500).json({ error: 'Keine Daten' });
         }
 
-        res.status(200).json(results);
+        res.status(200).json(results.rows);
     });
 
 }
