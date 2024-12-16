@@ -1,25 +1,21 @@
+import { createApp } from 'vue';
+
+import App from './App.vue';
+import store from './store/index.js';
+import router from './router/index.js';
+
+import ExportButton from './components/ExportButton.vue';
+import NavigationTabs from './components/NavigationTabs.vue';
 
 
-import { createApp } from 'vue'
-import App from './App.vue'
-import Board from './Boards.vue'
-import Start from './Start.vue'
-import route from './router.js'
+const app = createApp(App);
 
-//Vuetify
-import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-const vuetify = createVuetify({
-  components,
-  directives,
-})
+app.component('export-button', ExportButton);
+app.component('navigation-tabs', NavigationTabs);
+
+app.use(store);
+app.use(router);
 
 
 
-createApp(Start)
-  .use(vuetify)
-  .use(route)
-  .mount('#app')
+app.mount('#app');
