@@ -1,4 +1,5 @@
 <template>
+    <base-card>
     <div class="add-edit-time">
         <h2> {{ isEditing ? "Eintrag bearbeiten" : "Neuen Eintrag hinzufügen" }}</h2>
         <form @submit.prevent="saveEntry">
@@ -50,6 +51,7 @@
 
         </form>
     </div>
+</base-card>
 </template>
 
 

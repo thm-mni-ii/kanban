@@ -1,23 +1,59 @@
 
 <template>
+    <base-card>
     <div class="time-card">
+        <!-------------------------------------------Header-Area------------------------------------------------------------->
         <div class="time-card-header">
-            <h3>{{ formattedDate }}</h3>
-            <p>{{ formattedTime }}</p>
+            <h3> {{ formattedDate }}</h3>
+            <p><strong>{{ formattedTime }}</strong></p>
         </div>
+        <!-------------------------------------------Body-Area---------------------------------------------------------------->
         <div class="time-card-body">
-            <p>{{ description || "<Optionale Beschreibung>" }}</p>
-            <p><strong>{{ hours }} Stunden </strong></p>    
+            <template v-if="!isEditing">
+                <p>{{ description || "Optionale Beschreibung" }}</p>
+                <p><strong>{{ hours }} Stunden</strong></p>
+            </template>
+
+            <template v-else>
+                <form @submit.prevent="saveChanges">
+                    <label>
+                        Datum:
+                        <input type="date" v-model="editDate"/>
+                    </label>
+                    <label>
+                        Startzeit:
+                        <input type="time" v-model="editStartTime"/>
+                    </label>
+                    <label>
+                        Endzeit:
+                        <input type="time" v-model="editEndTime"/>
+                    </label>
+                    <label>
+                        Beschreibung:
+                        <imput type="text" v-model="editDescription"/>
+                    </label>
+                    <label>
+                        Stunden:
+                        <input type="number" v-model="editHours" min="0" step="0.5"/>
+                    </label>
+                </form>
+            </template>
         </div>
+        <!--------------------------------------------Actions-Area-------------------------------------------------------->
         <div class="time-card-actions">
-            <button @click="editEntry" title="Bearbeiten">
-                ✏️
-            </button>
-            <button @click="deleteEntry" title="Löschen">
-                🗑️
-            </button>
+            <template v-if="!isEditing">
+                <button @click="toggleEdit" title="Bearbeiten">✏️</button>
+                <button @click="deleteEntry" title="Löschen">🗑️</button>
+            </template>
+            <template v-else>
+                <button type="submit" @click="saveChanges" title="Speichern">💾</button>
+                <button @click="cancelEdit" title="Abbrechen">❌</button>
+
+            </template>
         </div>
     </div>
+    
+    </base-card>
 </template>
 
 
@@ -47,9 +83,20 @@ export default {
         },
     },
 
+    data() {
+        return {
+            isEditing: false,
+            editDate: this.date,
+            editStartTime: this.startTime,
+            editEndTime: this.endTime,
+            editDescription: this.description,
+            editHours: this.hours
+        };
+    },
+
     computed: {
         formattedDate(){
-            return new Date(this.date).toLocaleString("de - DE",{
+            return new Date(this.date).toLocaleString("de-DE",{
                 weekday: "short",
                 year:    "numeric",
                 month:   "long",
@@ -62,12 +109,30 @@ export default {
 
     },
     methods: {
-        editEntry(){
-            this.$emit("edit"); 
+
+        togglEdit(){
+            this.isEditing = true;
         },
-        deleteEntry(){
-            this.$emit("delete");
+
+        saveChanges(){
+            this.$emit('edit', {
+                date: this.editDate,
+                startTime: this.editStartTime,
+                endTime: this.editEndTime,
+                description:this.description,
+                hours: this.hours,
+            });
+            this.isEditing = false;
         }, 
+
+        cancelEdit(){
+            this.isEditing = false;
+            this.editDate = this.date;
+            editStartTime = this.startTime;
+            editEndTime = this.endTime;
+            editDescription = this.description;
+            editHours = this.hours;
+        },
     },
 };
 </script>

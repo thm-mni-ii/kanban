@@ -80,15 +80,21 @@ export default {
       });
     },
 
-    viewTitle() {
+    methods: {
+
+      viewTitle() {
       const titles = {
         day: "Tagesübersicht",
         week: "Wochenübersicht",
         month: "Monatsübersicht",
         year: "Jahresübersicht",
       };
-      return this.titles[this.view] || "Übersicht";
+      return titles[this.view] || "Übersicht";
     },
+  },
+    
+
+   
 
 },
 
