@@ -90,9 +90,8 @@ export default {
             this.$emit("save",newEntry);                    // Trigger 'save' event with the new entry
         },
 
-        cancelEdit(){
+        cancelEdit(){   
             this.$emit("cancel");                           // Trigger 'cancel' event
-
         }
     }
     
