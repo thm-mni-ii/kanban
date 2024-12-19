@@ -8,14 +8,14 @@
             v-for="entry in filteredEntries"
             :key="entry.id"
             :date="entry.date"
-            :start-time="entry.startTime"
-            :end-time="entry.endTime"
+            :startTime="entry.startTime"
+            :endTime="entry.endTime"
             :hours="entry.hours"
             :description="entry.description"
             @edit="editEntry(entry)"
             @delete="deleteEntry(entry)"
             />
-        </div>
+        </div>  
         <p v-else>Keine Einträge für andere Ansichten</p>
     </div>
 </template>
@@ -93,9 +93,6 @@ export default {
     },
   },
     
-
-   
-
 },
 
   methods: {

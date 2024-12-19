@@ -11,6 +11,7 @@
             @save="saveEntry"
             @cancel="cancelEdit"
         />
+       
         <button @click="createNewEntry">Neuer Eintrag</button>
     </div>
 </template>
@@ -26,7 +27,7 @@ export default {
 
     components: {
         TimeOverview,
-        AddEditTime
+        AddEditTime,
     },
 
     data(){
@@ -61,8 +62,9 @@ export default {
 
         },
 
-        cancel(){
-            this.showForm = false;              // close form
+        cancelEdit(){
+            this.showForm = false; 
+            this.currentEntry = null;             // close form
         },
 
         createNewEntry(){
