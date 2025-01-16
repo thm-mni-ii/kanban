@@ -1,100 +1,70 @@
 <template>
     <base-card>
-    <div class="add-edit-time">
+      <div class="add-edit-time">
         <h2> {{ isEditing ? "Eintrag bearbeiten" : "Neuen Eintrag hinzufügen" }}</h2>
         <form @submit.prevent="saveEntry">
-        
-         <!------------------------------ Date--------------------------------------->
-         <div>
-            <label for ="date">Datum:</label>
-            <input
-                type="date"
-                id="date"
-                v-model="localDate"
-                required
-            />
-         </div>
-         <!----------------------------StartTime------------------------------------->
-         <div>
+          <!-- Date -->
+          <div>
+            <label for="date">Datum:</label>
+            <input type="date" id="date" v-model="localDate" required />
+          </div>
+          <!-- Start Time -->
+          <div>
             <label for="startTime">Startzeit:</label>
-            <input
-                type="time"
-                id="startTime"
-                v-model="startTime"
-                required
-            />
-         </div>
-         <!---------------------------EndTime---------------------------------------->
-         <div>
+            <input type="time" id="startTime" v-model="localStartTime" required />
+          </div>
+          <!-- End Time -->
+          <div>
             <label for="endTime">Endzeit:</label>
-            <input
-                type="time"
-                id="endTime"
-                v-model="endTime"
-                required
-            />
-         </div>
-         <!--------------------------Description------------------------------------->
-         <div>
+            <input type="time" id="endTime" v-model="localEndTime" required />
+          </div>
+          <!-- Description -->
+          <div>
             <label for="description">Beschreibung (optional):</label>
-            <textarea
-                id="description"
-                v-model="localDescription"
-                placeholder="Beschreibung hinzufügen"
-            ></textarea>
-         </div>
-         <!-----------------------------Buttons-------------------------------------->
-         <div class="buttons">
+            <textarea id="description" v-model="localDescription" placeholder="Beschreibung hinzufügen"></textarea>
+          </div>
+          <!-- Buttons -->
+          <div class="buttons">
             <button type="submit">Speichern</button>
-            <button type="button" @click="cancelEdit">Abbrechen</button>
-         </div>
-
+            <button type="button" @click="$emit('cancel')">Abbrechen</button>
+          </div>
         </form>
-    </div>
-</base-card>
-</template>
-
-
-
-<script>
-
-export default {
-    name: "AddEditTime",
-    props: {
-        entry: {
-            type: Object,
-            default: null
-        },
-    },
+      </div>
+    </base-card>
+  </template>
+  
+  <script>
+  export default {
+    props: ["entry"], // Optional prop for editing existing entries
     computed: {
-        isEditing(){
-            return !!this.entry;
-        }
+      isEditing() {
+        return !!this.entry;
+      },
     },
-    data(){
-        return {
-            localDate: this.entry?.date || "",              // initialize date
-            localStartTime: this.entry?.startTime || "",    // initialize start-time
-            localEndTime: this.entry?.endTime || "",        // initialize end-time
-            localDescription: this.entry?.description || "",// initalize description
-        }
+    data() {
+      return {
+        localDate: this.entry?.date || "",
+        localStartTime: this.entry?.startTime || "",
+        localEndTime: this.entry?.endTime || "",
+        localDescription: this.entry?.description || "",
+      };
     },
     methods: {
-        saveEntry(){
-            const newEntry= {
-                date: this.localDate,
-                startTime: this.localStartTime,
-                endTime: this.localEndTime,
-                description: this.localDescription
-            };
-            this.$emit("save",newEntry);                    // Trigger 'save' event with the new entry
-        },
-
-        cancelEdit(){   
-            this.$emit("cancel");                           // Trigger 'cancel' event
-        }
-    }
-    
-};
-
-</script>
+      saveEntry() {
+        this.$emit("add-entry", {
+          date: this.localDate,
+          startTime: this.localStartTime,
+          endTime: this.localEndTime,
+          description: this.localDescription,
+        });
+  
+        // Reset form fields after saving
+        this.localDate = "";
+        this.localStartTime = "";
+        this.localEndTime = "";
+        this.localDescription = "";
+      },
+    },
+  };
+  </script>
+  

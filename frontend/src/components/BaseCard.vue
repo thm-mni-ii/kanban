@@ -11,13 +11,13 @@
 <script>
 export default {
     mounted(){
-        console.log(this.$slots.header)
+        console.log("Header slot content",this.$slots.header);
+        console.log("footer slot content", this.$slots.footer);
     }
 };
 </script>
 
 <style scoped>
-
 header {
   display: flex;
   justify-content: space-between;

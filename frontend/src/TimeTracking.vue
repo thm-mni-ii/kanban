@@ -1,81 +1,69 @@
 <template>
     <div>
-        <TimeOverview
-            :entries="timeEntries"
-            @edit="editEntry"
-            @delete="deleteEntry"
-        />
-        <AddEditTime
-            v-if="showForm"
-            :entry="currentEntry"
-            @save="saveEntry"
-            @cancel="cancelEdit"
-        />
-       
-        <button @click="createNewEntry">Neuer Eintrag</button>
+      
+      <!-- Add/Edit Form -->
+      <add-edit-time
+        v-if="isAdding"
+        @add-entry="addEntry"
+        @cancel="isAdding = false"
+      />
+  
+      <!-- List of Time Cards -->
+      <time-card
+        v-for="(entry, index) in entries"
+        :key="index"
+        :date="entry.date"
+        :startTime="entry.startTime"
+        :endTime="entry.endTime"
+        :description="entry.description"
+        @edit="editEntry($event, index)"
+        @delete="deleteEntry(index)"
+      />
+
+      <!-- Add New Entry Button -->
+      <button @click="isAdding = true">Neuen Eintrag hinzufügen</button>
     </div>
-</template>
-
-
-
-
-<script>
-import TimeOverview from './components/TimeOverview.vue';
-import AddEditTime from './components/AddEditTime.vue';
-
-export default {
-
-    components: {
-        TimeOverview,
-        AddEditTime,
+  </template>
+  
+  <script>
+  import AddEditTime from "./components/AddEditTime.vue";
+  import TimeCard from "./components/TimeCard.vue";
+  
+  export default {
+    components: { AddEditTime, TimeCard },
+    data() {
+      return {
+        entries: [
+          {
+            date: "2024-12-15",
+            startTime: "08:00",
+            endTime: "12:45",
+            description: "Meeting",
+          },
+          {
+            date: "2024-12-16",
+            startTime: "13:00",
+            endTime: "17:00",
+            description: "Project Work",
+          },
+        ],
+        isAdding: false, // Control visibility of AddEditTime form
+      };
     },
-
-    data(){
-        return {
-            showForm: false,
-            currentEntry: null,
-            timeEntries: [
-                {id: 1, date: "2024-12-15", startTime:"08:00", endTime: "12:45", description: "Meeting"},
-                {id: 2, date: "2024-12-16", startTime: "13:00", endTime: "17:00", description: "Projektarbeit" },
-            ],
-        };
-    },
-
     methods: {
+      addEntry(newEntry) {
+        this.entries.push(newEntry); // Add the new entry to the array
+        this.isAdding = false; // Hide the form
+      },
 
-        editEntry(entry){
-            this.currentEntry = entry;          // Edit entry
-            this.showForm = true;               
-        },
+      editEntry(updatedEntry, index){
+        this.entries.splice(index,1,updatedEntry);  // Remove the entry at the given index
 
-        deleteEntry(entry){
-            this.timeEntries = this.timeEntries.filter((e) => e.id !== entry.id);
-        },
-
-        saveEntry(newEntry){
-            if(this.currentEntry){
-                Object.assign(this.currentEntry, newEntry)
-            }else {
-                this.timeEntries.push({id: Date.now(), ...newEntry}) // ...newEntry copies properties from newEntry in a new Object     
-            }                                                        //Date.now(): Returns the current time in milliseconds since 1970
-            this.showForm = false;               // close form
-
-        },
-
-        cancelEdit(){
-            this.showForm = false; 
-            this.currentEntry = null;             // close form
-        },
-
-        createNewEntry(){
-            this.currentEntry = null;           // Edit entry
-            this.showForm = true;
-        }
-        
+      },
+      deleteEntry(index) {
+        this.entries.splice(index, 1); // Remove the entry at the given index
+      },
     },
-};
-
-
-
-
-</script>
+  };
+  </script>
+  
