@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Start from './Start.vue'
 import App from './App.vue'
 import Boards from './Boards.vue'
+import Statistics from "@/Statistics.vue";
 
 const routes = [
   {
@@ -19,6 +20,11 @@ const routes = [
     name: 'Boards',
     component: Boards,
     props: true,
+  },
+  {
+    path: '/statistics',
+    name: 'Statistics',
+    component: Statistics,
   },
 ]
 

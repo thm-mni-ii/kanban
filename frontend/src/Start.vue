@@ -18,6 +18,10 @@
           </li>
         </ul>
       </div>
+      <v-container>
+        <!-- Button zur Navigation -->
+        <v-btn color="primary" @click="goToStatistics">Zu den Statistiken</v-btn>
+      </v-container>
       <!-- Diagramm für Tasks per Group -->
       <BarChart v-if="chartData" :data="chartData" :options="chartOptions" />
       <!-- Diagramm für Tasks Done in Percent -->
@@ -174,6 +178,11 @@ export default {
           group.members.includes(member.id)
       );
     },
+
+    goToStatistics() {
+      this.$router.push({ name: 'Statistics' }); // Navigation zur Statistik-Seite
+    },
+
     getColorFromId,
 
     onGroupCardClick(groupId) {
