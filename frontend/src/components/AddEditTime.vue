@@ -35,6 +35,7 @@
   
   <script>
   export default {
+    name: "AddEditTime",
     props: ["entry"], // Optional prop for editing existing entries
     computed: {
       isEditing() {
@@ -57,13 +58,15 @@
           endTime: this.localEndTime,
           description: this.localDescription,
         });
-  
+        this.resetForm();
+      },
         // Reset form fields after saving
+        resetForm(){
         this.localDate = "";
         this.localStartTime = "";
         this.localEndTime = "";
         this.localDescription = "";
-      },
+        }
     },
   };
   </script>
