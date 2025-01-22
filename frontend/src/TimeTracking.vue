@@ -17,37 +17,30 @@
   </div>
 </template>
 
+
 <script>
 import AddEditTime from "./components/AddEditTime.vue";
-
 import TimeOverview from "./components/TimeOverview.vue";
 import { useTimeTrackingStore } from "./store/timeTracking";
+import { ref } from "vue";
 
 export default {
-  components: { AddEditTime, TimeOverview, useTimeTrackingStore},
-  data() {
+  components: { AddEditTime, TimeOverview},
+
+  setup() {
+    const store = useTimeTrackingStore();
+
+    const addEntry = (entry) => store.addEntry(entry);
+    const entries = store.entries;
+
     return {
-      isAdding: false, // Steuerung des Add/Edit Formulars
-    };
-  },
-  computed: {
-    entries() {
-      return TimeTracking.entries;
+      store,
+      entries,
+      addEntry,
+      isAdding: ref(false),
     }
-  },
-  methods: {
-    addEntry(newEntry) {
-      this.entries.push(newEntry); // Neuen Eintrag einfügen
-      this.isAdding = false; // Formular ausblenden
-    },
+  }
 
-    editEntry(updatedEntry, index){
-      this.entries.splice(index,1,updatedEntry);  // Eintrag aktualisieren
-
-    },
-    deleteEntry(index) {
-      this.entries.splice(index, 1); // Eintrag löschen
-    },
-  },
+ 
 };
 </script>

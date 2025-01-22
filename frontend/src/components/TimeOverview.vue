@@ -3,15 +3,15 @@
     <h2>Übersicht : {{ store.currentView }}</h2>
 
     <!--Ansicht wechsen-->
-    <label for="view-select">Ansicht:</label>
-    <select v-model="selectedView" @change="changeView">
-      <option value="week">Wochenansicht</option>
-      <option value="month">Monatsansicht</option>
-      <option value="year">Jahresansicht</option>
-    </select>
+  <select id="view-select" v-model="store.currentView">
+    <option value="Woche">Wochenansicht</option>
+    <option value="Monat">Monatsansicht</option>
+    <option value="Jahr">Jahresansicht</option>
+  </select>
+
 
     <!--Dynamische Ansicht der Anzeige -->
-    <div v-if="selectedView ==='week'">
+    <div v-if="store.currentView ==='Woche'">
       <h4>Wochenübersicht</h4>
       <table>
         <thead>
@@ -22,17 +22,15 @@
         <tbody>
           <tr>
             <td v-for="day in daysOfWeek" :key="day">
-              <div v-for="entry in getEntriesForDay(day)" :key="entry.date">
+              <!-- Karten für jeden Tag-->
+              <div v-for="entry in groupedEntriesByDay[day]" :key="entry.date">
                 <time-card
                 :date="entry.date"
                 :start-time="entry.startTime"
                 :end-time="entry.endTime"
                 :description="entry.description"
+                @delete="removeEntry(entry.id)"
                 />
-
-              </div>
-              <div v-for="entry in getEntriesForDay(day)" :key="entry.id">
-                <TimeCard :entry="entry" @delete="store.removeEntry(entry.id)" />
               </div>
             </td>
           </tr>
@@ -40,12 +38,12 @@
       </table>
     </div>
 
-  <div v-else-if="selectedView === 'month'">
+  <div v-else-if="store.currentView === 'Monat'">
     <h4>Monatsübersicht</h4>
     <p> Monatliche Ansicht muss noch implementiert werden</p>
   </div>
 
-  <div v-else-if="selectedView === 'year'">
+  <div v-else-if="store.currentView === 'Jahr'">
     <h4>Jahresübersicht</h4>
     <p> Jahresübersicht muss noch implementiert werden</p>
   </div>
@@ -56,29 +54,33 @@
 
 
 <script>
-import {ref, computed} from 'vue';
 import { useTimeTrackingStore } from '@/store/timeTracking';
 import TimeCard from './TimeCard.vue';
+import { computed } from 'vue';
 
 export default {
   components: {TimeCard},
 
-  props: {
-    entries: {
-      type: Array,
-      required: true
-    }
-  },
+  setup() {
 
-  setup(props) {
+    const store = useTimeTrackingStore();
     
     const daysOfWeek = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag','Sonntag'];
 
+    const groupedEntriesByDay = computed(() => store.groupedEntriesByDay);
+
+    //Gruppierte Einträge nach Tagen
     const getEntriesForDay = (day) => {
-      return props.entries.filter((entry) => entry.day === day);
+      return store.entries.filter((entry) => entry.day === day);
     };
 
-    return {daysOfWeek,getEntriesForDay};
+    return {
+      store,
+      daysOfWeek,
+      groupedEntriesByDay,
+      getEntriesForDay,
+      removeEntry: store.removeEntry,
+    };
   },
 };
 </script>
