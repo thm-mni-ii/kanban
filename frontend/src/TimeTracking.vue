@@ -8,17 +8,9 @@
       @cancel="isAdding = false"
     />
 
-    <!-- List of Time Cards -->
-    <time-card
-      v-for="(entry, index) in entries"
-      :key="index"
-      :date="entry.date"
-      :startTime="entry.startTime"
-      :endTime="entry.endTime"
-      :description="entry.description"
-      @edit="editEntry($event, index)"
-      @delete="deleteEntry(index)"
-    />
+    <!-- Time Overview Table -->
+     <time-overview :entries="entries" />
+   
 
     <!-- Add New Entry Button -->
     <button @click="isAdding = true">Neuen Eintrag hinzufügen</button>
@@ -27,41 +19,34 @@
 
 <script>
 import AddEditTime from "./components/AddEditTime.vue";
-import TimeCard from "./components/TimeCard.vue";
+
+import TimeOverview from "./components/TimeOverview.vue";
+import { useTimeTrackingStore } from "./store/timeTracking";
 
 export default {
-  components: { AddEditTime, TimeCard },
+  components: { AddEditTime, TimeOverview, useTimeTrackingStore},
   data() {
     return {
-      entries: [
-        {
-          date: "2024-12-15",
-          startTime: "08:00",
-          endTime: "12:45",
-          description: "Meeting",
-        },
-        {
-          date: "2024-12-16",
-          startTime: "13:00",
-          endTime: "17:00",
-          description: "Project Work",
-        },
-      ],
-      isAdding: false, // Control visibility of AddEditTime form
+      isAdding: false, // Steuerung des Add/Edit Formulars
     };
+  },
+  computed: {
+    entries() {
+      return TimeTracking.entries;
+    }
   },
   methods: {
     addEntry(newEntry) {
-      this.entries.push(newEntry); // Add the new entry to the array
-      this.isAdding = false; // Hide the form
+      this.entries.push(newEntry); // Neuen Eintrag einfügen
+      this.isAdding = false; // Formular ausblenden
     },
 
     editEntry(updatedEntry, index){
-      this.entries.splice(index,1,updatedEntry);  // Remove the entry at the given index
+      this.entries.splice(index,1,updatedEntry);  // Eintrag aktualisieren
 
     },
     deleteEntry(index) {
-      this.entries.splice(index, 1); // Remove the entry at the given index
+      this.entries.splice(index, 1); // Eintrag löschen
     },
   },
 };
