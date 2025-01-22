@@ -34,7 +34,11 @@
   </template>
   
   <script>
+import { useTimeTrackingStore } from '@/store/timeTracking';
+
+
   export default {
+
     name: "AddEditTime",
     props: ["entry"], // Optional prop for editing existing entries
     computed: {
@@ -50,16 +54,24 @@
         localDescription: this.entry?.description || "",
       };
     },
+
     methods: {
       saveEntry() {
-        this.$emit("add-entry", {
+        const store = useTimeTrackingStore();
+        
+        const newEntry = {
           date: this.localDate,
           startTime: this.localStartTime,
           endTime: this.localEndTime,
           description: this.localDescription,
-        });
-        this.resetForm();
+          id: Date.now(),
+      };
+
+      store.addEntry(newEntry);
+      this.resetForm();
+      this.$emit("cancel");
       },
+
         // Reset form fields after saving
         resetForm(){
         this.localDate = "";
