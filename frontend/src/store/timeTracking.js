@@ -59,7 +59,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
     editEntry(updatedEntry){
       const index = this.entries.findIndex(entry => entry.id === updatedEntry.id);
       if(index !== -1){
-        this.entries[index] = {...updatedEntry};
+        this.entries = [...this.entries.slice(0, index), updatedEntry, ...this.entries.slice(index + 1)];
       }
     },
     removeEntry(entryId) {

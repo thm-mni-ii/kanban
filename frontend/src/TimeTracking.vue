@@ -51,6 +51,7 @@ export default {
       entries,
       isAdding,
       selectedEntry,
+      isEditing,
       startEditing,
       addEntry,
       editEntry,
