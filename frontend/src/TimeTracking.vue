@@ -4,8 +4,9 @@
     <!-- Add/Edit Form -->
     <add-edit-time
       v-if="isAdding"
-      @add-entry="addEntry"
-      @cancel="isAdding = false"
+      :entry ="selectedEntry"
+      @edit-entry="editEntry"
+      @cancel="isAdding = false; selectedEntry = null"
     />
 
     <!-- Time Overview Table -->
@@ -13,7 +14,7 @@
    
 
     <!-- Add New Entry Button -->
-    <button @click="isAdding = true">Neuen Eintrag hinzufügen</button>
+    <button @click="isAdding = true; selectedEntry = null">Neuen Eintrag hinzufügen</button>
   </div>
 </template>
 
@@ -22,7 +23,7 @@
 import AddEditTime from "./components/AddEditTime.vue";
 import TimeOverview from "./components/TimeOverview.vue";
 import { useTimeTrackingStore } from "./store/timeTracking";
-import { ref } from "vue";
+import { computed,ref } from "vue";
 
 export default {
   components: { AddEditTime, TimeOverview},
@@ -30,14 +31,30 @@ export default {
   setup() {
     const store = useTimeTrackingStore();
 
+    const entries = computed(() => store.entries);
     const addEntry = (entry) => store.addEntry(entry);
-    const entries = store.entries;
+    const editEntry = (updatedEntry) => {
+      store.editEntry(updatedEntry);
+    }
+    const selectedEntry = ref(null);
+    const isEditing = computed(() => selectedEntry.value !== null);
+    const isAdding = ref(false);
+
+    const startEditing = (entry) => {
+      selectedEntry.value = {...entry};
+      isAdding.value = true;
+    }
+   
 
     return {
       store,
       entries,
+      isAdding,
+      selectedEntry,
+      startEditing,
       addEntry,
-      isAdding: ref(false),
+      editEntry,
+      
     }
   }
 
