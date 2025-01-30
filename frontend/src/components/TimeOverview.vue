@@ -10,33 +10,37 @@
   </select>
 
 
-    <!--Dynamische Ansicht der Anzeige -->
-    <div v-if="store.currentView ==='Woche'">
-      <h4>Wochenübersicht</h4>
-      <table>
-        <thead>
-          <tr>
-            <th v-for="day in daysOfWeek" :key="day">{{ day }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td v-for="day in daysOfWeek" :key="day">
-              <!-- Karten für jeden Tag-->
-              <div v-for="entry in groupedEntriesByDay[day]" :key="entry.date">
-                <time-card
+   <!--Dynamische Ansicht der Anzeige -->
+<div v-if="store.currentView ==='Woche'">
+  <h4>Wochenübersicht</h4>
+
+  <!-- Neuer Wrapper um die Tabelle hinzufügen -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th v-for="day in daysOfWeek" :key="day">{{ day }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td v-for="day in daysOfWeek" :key="day">
+            <!-- Karten für jeden Tag-->
+            <div v-for="entry in groupedEntriesByDay[day]" :key="entry.date">
+              <time-card
                 :date="entry.date"
                 :start-time="entry.startTime"
                 :end-time="entry.endTime"
                 :description="entry.description"
                 @delete="removeEntry(entry.id)"
-                />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              />
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
   <div v-else-if="store.currentView === 'Monat'">
     <h4>Monatsübersicht</h4>
@@ -90,14 +94,22 @@ export default {
 
  <style scoped>
 
- table {
+ .table-container {
   width: 100%;
+  overflow: auto;
+  white-space: nowrap;
+ }
+
+ table {
+  width: 150%;
+  min-width: 1000px;
   border-collapse: collapse;
  }
 
  th,td {
   border: 1px solid #ddd;
   padding: 10px;
+  min-width: 150px;
   vertical-align: top;
  }
 

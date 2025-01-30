@@ -15,31 +15,35 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
 
 
     groupedEntriesByDay: (state) => {
-      // Gruppiert Einträge nach Datum
-      const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+      const days = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
       return days.reduce((acc, day) => {
-        acc[day] = state.entries.filter((entry) => entry.day === day);
+        acc[day] = state.entries.filter((entry) => {
+          const entryDate = new Date(entry.date);
+          const entryDay = entryDate.toLocaleDateString("de-DE", { weekday: "long" }); 
+          return entryDay === day;
+        });
         return acc;
       }, {});
     },
+    
 
 
     groupedEntriesByWeek: (state) => {
-        const getWeekNumber = (dateString) => {
-            const date = new Date(dateString);
-            const firstDayOfYear = new Date(date.getFullYear(), 0 , 1);
-            const pastDaysOfYear = (date - firstDayOfYear + 86400000) / 86400000;
-            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() +1) / 7);
-        };
-
-        return state.entries.reduce((weeks, entry) => {
-            const weekNumber = getWeekNumber(entry.date);
-            if(!weeks[weekNumber].push(entry));
-            return weeks;
-        }, {});
+      const getWeekNumber = (dateString) => {
+        const date = new Date(dateString);
+        const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+        const pastDaysOfYear = (date - firstDayOfYear + 86400000) / 86400000;
+        return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+      };
+    
+      return state.entries.reduce((weeks, entry) => {
+        const weekNumber = getWeekNumber(entry.date);
+        if (!weeks[weekNumber]) weeks[weekNumber] = []; // ✅ Korrektur der Initialisierung
+        weeks[weekNumber].push(entry);
+        return weeks;
+      }, {});
     },
-
-
+    
 
     filteredEntries: (state) => (filter) => {
         return state.entries.filter((entry) => entry.date.includes(filter));
@@ -50,7 +54,13 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
     addEntry(entry) {
       // Fügt einen neuen Eintrag hinzu
       entry.hours = this.calculateHours(entry.startTime, entry.endTime);
-      this.entries.push(entry);
+      this.entries = [...this.entries,entry];
+    },
+    editEntry(updatedEntry){
+      const index = this.entries.findIndex(entry => entry.id === updatedEntry.id);
+      if(index !== -1){
+        this.entries[index] = {...updatedEntry};
+      }
     },
     removeEntry(entryId) {
       // Entfernt einen Eintrag nach seiner ID
