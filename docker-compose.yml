@@ -21,7 +21,7 @@ services:
 
   
   kandb:
-    image: postgres:alpine
+    image: postgres:16-alpine
     restart: always
     container_name: kandb
     command: -c 'max_connections=200'
