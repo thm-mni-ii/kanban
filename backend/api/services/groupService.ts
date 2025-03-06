@@ -254,11 +254,16 @@ async function removeAllUsersFromGroup(cid: number, gid: number) {
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
 export async function getUserGroups(uid: number, token: string) {
-    const response = await fetchWithToken(`${apiUrl}/users/${uid}/groups`, token);
-    if (!response.ok){
-        throw new Error(response.statusText);
+    try {
+        const response = await fetchWithToken(`${apiUrl}/users/${uid}/groups`, token);
+        if (!response.ok){
+            throw new Error(response.statusText);
+        }
+        
+        return await response.json() as GroupDetails[];
+    } catch(error) {
+        console.error("Error during fetch", error)
     }
-    return await response.json() as GroupDetails[];
 }
 
 /**

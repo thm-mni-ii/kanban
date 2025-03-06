@@ -1,36 +1,22 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import axios from 'axios';
+import { ref } from 'vue';
 
 export const useGroupStore = defineStore('groupStore', () => {
-  const groups = ref([]);  // Store group data
-  const loading = ref(false);
-  const error = ref(null);
+  // State: Groups array
+  const groups = ref([
+    { groupId: 1, groupName: 'Developers' },
+    { groupId: 2, groupName: 'Designers' },
+  ]);
 
-  // Fetch groups from API
-  const fetchGroups = async () => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      // TODO: make this api call get group api of the feedback system
-      const response = await axios.get('https://api.example.com/groups'); // Replace with your API URL
-      groups.value = response.data; // Assuming API returns an array of { id, name }
-    } catch (err) {
-      error.value = err.message || 'Failed to fetch groups';
-    } finally {
-      loading.value = false;
-    }
+  // Action: Add a new group
+  const addGroup = (groupId, groupName) => {
+    groups.value.push({ groupId, groupName });
   };
 
-  // Computed property to return groups
-  const groupList = computed(() => groups.value);
-
-  return {
-    groups,
-    loading,
-    error,
-    fetchGroups,
-    groupList,
+  // Action: Get a group by ID
+  const getGroupById = (id) => {
+    return groups.value.find(group => group.groupId === id);
   };
+
+  return { groups, addGroup, getGroupById };
 });

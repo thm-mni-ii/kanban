@@ -1,3 +1,8 @@
+<script setup>
+import GroupSelector from '@/components/GroupSelector.vue';
+
+</script>
+
 <template>
   <base-card>
     <div class="add-edit-time">
@@ -6,18 +11,15 @@
         <!-- Title -->
         <div>
           <label for="title">Titel:</label>
-          <input type="datetime-local" id="startTime" v-model="localStartTime" required />
+          <input type="text" id="title" v-model="localStartTime" required />
         </div>
-
+        
         <!-- TODO: Group selection, see useGroupStore.js -->
         <div>
-          <h2>Ausgewählte Gruppe: {{ selectedGroup }}</h2>
-          <GroupSelector v-model="selectedGroup" />
-          <p v-if="selectedGroup.id">
-            Selected Group: {{ selectedGroup.name }} (ID: {{ selectedGroup.id }})
-          </p>
+          <h1>Group Management</h1>
+              <GroupSelector />
         </div>
-
+          
 
         <!-- Start Time -->
         <div>
@@ -43,6 +45,7 @@
     </div>
   </base-card>
 </template>
+
 
 <script>
 import { useTimeTrackingStore } from '@/store/timeTracking';

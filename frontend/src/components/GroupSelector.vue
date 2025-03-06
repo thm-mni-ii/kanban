@@ -1,52 +1,43 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useGroupStore } from '@/stores/useGroupStore';
+import { ref } from 'vue';
+import { useGroupStore } from '@/store/useGroupStore';
 
-const props = defineProps({
-  modelValue: Object, // Expecting { id, name }
-});
-
-const emit = defineEmits(['update:modelValue']);
-
+console.log("Setup Group Selector");
 const groupStore = useGroupStore();
-const selectedGroupId = ref(props.modelValue?.id || '');
+console.log('Groups in store:', groupStore.groups);
+const selectedGroup = ref(null);
 
-// Fetch groups on mount
-onMounted(() => {
-  groupStore.fetchGroups();
-});
 
-// Computed property for dropdown options
-const groupOptions = computed(() => groupStore.groups);
-
-// Watch for changes in selected ID & update v-model
-watch(selectedGroupId, (newId) => {
-  const selectedGroup = groupOptions.value.find((g) => g.id === newId);
-  emit('update:modelValue', selectedGroup || { id: '', name: '' });
-});
+// Function to handle selection change
+const handleSelection = () => {
+  console.log('Selected Group:', selectedGroup.value);
+};
 </script>
 
 <template>
   <div>
-    <label for="group-selector">Select a Group:</label>
-    <select
-      id="group-selector"
-      v-model="selectedGroupId"
-      :disabled="groupStore.loading || groupStore.error"
-    >
-      <option value="" disabled>Select a group...</option>
-      <option v-for="group in groupOptions" :key="group.id" :value="group.id">
-        {{ group.name }}
+    <label for="groupSelector">Select a Group:</label>
+    <select id="groupSelector" v-model="selectedGroup" @change="handleSelection">
+      <option disabled value="">-- Choose a Group --</option>
+      <option v-for="group in groupStore.groups" :key="group.groupId" :value="group.groupId">
+        {{ group.groupName }}
       </option>
     </select>
 
-    <p v-if="groupStore.loading">Loading groups...</p>
-    <p v-else-if="groupStore.error" class="error">{{ groupStore.error }}</p>
+    <p v-if="selectedGroup">
+      Selected Group: {{ groupStore.getGroupById(selectedGroup)?.groupName }}
+    </p>
   </div>
 </template>
 
 <style scoped>
-.error {
-  color: red;
+label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+select {
+  padding: 5px;
+  font-size: 1rem;
 }
 </style>
