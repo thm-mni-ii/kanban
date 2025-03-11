@@ -5,7 +5,8 @@ import GroupSelector from '@/components/GroupSelector.vue';
 const selectedGroup = ref(null); // Holds the selected group
 
 const onGroupChange = (group) => {
-  console.log('Group changed:', group);
+  // TODO: remove console.log when component is finished
+  console.log('Group changed:', selectedGroup.value);
 };
 
 
