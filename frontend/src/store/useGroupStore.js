@@ -2,21 +2,20 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useGroupStore = defineStore('groupStore', () => {
-  // State: Groups array
+  // State: Gruppenliste und ausgewählte Gruppe
   const groups = ref([
-    { groupId: 1, groupName: 'Developers' },
-    { groupId: 2, groupName: 'Designers' },
+    { groupId: 1, groupName: 'Entwicklung' },
+    { groupId: 2, groupName: 'Design' },
+    { groupId: 3, groupName: 'Marketing' },
+    { groupId: 4, groupName: 'Support' },
   ]);
+  const selectedGroup = ref(null); // Speichert die aktuell ausgewählte Gruppe
 
-  // Action: Add a new group
-  const addGroup = (groupId, groupName) => {
-    groups.value.push({ groupId, groupName });
+
+  // Setter: Setzt die ausgewählte Gruppe
+  const setSelectedGroup = (group) => {
+    selectedGroup.value = group;
   };
 
-  // Action: Get a group by ID
-  const getGroupById = (id) => {
-    return groups.value.find(group => group.groupId === id);
-  };
-
-  return { groups, addGroup, getGroupById };
+  return { groups, selectedGroup, setSelectedGroup };
 });

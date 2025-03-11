@@ -1,5 +1,13 @@
 <script setup>
+import { ref } from 'vue';
 import GroupSelector from '@/components/GroupSelector.vue';
+
+const selectedGroup = ref(null); // Holds the selected group
+
+const onGroupChange = (group) => {
+  console.log('Group changed:', group);
+};
+
 
 </script>
 
@@ -16,8 +24,7 @@ import GroupSelector from '@/components/GroupSelector.vue';
         
         <!-- TODO: Group selection, see useGroupStore.js -->
         <div>
-          <h1>Group Management</h1>
-              <GroupSelector />
+          <GroupSelector v-model="selectedGroup" @change="onGroupChange"  />
         </div>
           
 
