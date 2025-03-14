@@ -57,13 +57,13 @@ export default {
   computed: {
     isEditing() {
       return !!this.entry; // Prüft, ob ein bestehender Eintrag bearbeitet wird
-    },
+    }
   },
   data() {
     return {
       localTitle: this.entry?.title || "",
       localGroup: this.entry?.group || -1,
-      localStartTime: this.entry?.startTime || new Date().toISOString(),
+      localStartTime: this.entry?.startTime || this.initStartDate(),
       localDuration: this.entry?.durationTime || "00:00",
       localDescription: this.entry?.description || "",
     };
@@ -73,13 +73,15 @@ export default {
       const store = useTimeTrackingStore(); // Zugriff auf den Store
 
       // Neuer Eintrag mit allen Daten
+      const entry_id = this.entry?.id || Date.now();
       const updatedEntry = {
-        id: this.entry?.id || Date.now(),
-        startTime: this.localStartTime,
-        groupId: this.localGroup,
-        durationTime: this.localDuration,
+        group_id: this.localGroup,
+        activity_start: this.localStartTime,
+        activity_duration: this.localDuration,
+        title: this.localTitle,
         description: this.localDescription,
       };
+      
       if(this.isEditing){
         // Bestehenden Eintrag bearbeiten
         store.editEntry(updatedEntry);
@@ -105,6 +107,20 @@ export default {
       this.localDuration = "";
       this.localDescription = "";
     },
+
+    initStartDate() {
+      const now = new Date();
+
+      // Format date and time components with leading zeros
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      // Combine into the correct format YYYY-MM-DDTHH:MM
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
   },
 };
 </script>

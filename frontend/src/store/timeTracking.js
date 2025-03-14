@@ -4,6 +4,8 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
   state: () => ({
     entries: [], // Alle Zeiteinträge
     currentView: 'Woche', // Aktive Ansicht: 'Woche', 'Monat', 'Jahr'
+    error: null,
+    loading: false,
   }),
 
   getters: {
@@ -11,7 +13,6 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       // Berechnet die Gesamtstunden basierend auf den Einträgen
       return state.entries.reduce((sum, entry) => sum + entry.hours, 0);
     },
-
 
 
     groupedEntriesByDay: (state) => {
@@ -26,7 +27,6 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       }, {});
     },
     
-
 
     groupedEntriesByWeek: (state) => {
       const getWeekNumber = (dateString) => {
@@ -51,10 +51,41 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
   },
 
   actions: {
-    addEntry(entry) {
-      // Fügt einen neuen Eintrag hinzu
-      console.log(entry);
+    async addEntry(entry) {
+      // TODO: Get the correct token
+      const bearerToken = localStorage.getItem("token")? localStorage.getItem("token"):import.meta.env.VITE_KANBAN_TOKEN;
+
+      // make time utc
+      if(entry.activity_start) {
+        entry.activity_start = new Date(entry.activity_start).toUTCString();
+      }
+
+      try {
+        // TODO: Call the kanban api instead of localhost
+        const response = await fetch("http://localhost:3000/time/", {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(entry)
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to fetch groups');
+        }
+  
+        const data = await response.json();
+        // todo fetch time entries
+  
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+      
       this.entries = [...this.entries,entry];
+      console.log(this.entries)
     },
     editEntry(updatedEntry){
       const index = this.entries.findIndex(entry => entry.id === updatedEntry.id);
