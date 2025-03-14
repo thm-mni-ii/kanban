@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-export const useGroupStore = defineStore('groupStore', () => {
+export const userGroupStore = defineStore('groupStore', () => {
   // State: Gruppenliste und ausgewählte Gruppe
   const groups = ref([]);
-  const selectedGroup = ref(null); // Speichert die aktuell ausgewählte Gruppe
   const loading = ref(false);
   const error = ref(null);
 
@@ -12,17 +11,13 @@ export const useGroupStore = defineStore('groupStore', () => {
   const bearerToken = localStorage.getItem("token")? localStorage.getItem("token"):import.meta.env.VITE_API_TOKEN; // Replace with actual token
   const userId = localStorage.getItem("userid")? localStorage.getItem("userid"):import.meta.env.VITE_USER_ID
 
-  // Setter: Setzt die ausgewählte Gruppe
-  const setSelectedGroup = (group) => {
-    selectedGroup.value = group;
-  };
-
   // Fetch groups from API
   const fetchGroups = async () => {
     loading.value = true;
     error.value = null;
 
     try {
+      // TODO: Call the kanban api instead of the feedback system api
       const response = await fetch(`https://feedback.mni.thm.de/api/v1/users/${userId}/groups`, {
         method: 'GET',
         headers: {
@@ -45,13 +40,14 @@ export const useGroupStore = defineStore('groupStore', () => {
     }
   };
 
-  // Refresh groups when select input is clicked/tapped
-  const refreshGroups = () => {
-    fetchGroups();
-  };
 
   // Automatically fetch groups when store is initialized
   fetchGroups();
 
-  return { groups, selectedGroup, setSelectedGroup, fetchGroups };
+  // Add a method to find a group by id
+  const findGroupById = (id) => {
+    return groups.value.find(group => group.id === id);
+  }
+
+  return { groups, fetchGroups, loading, error, findGroupById};
 });

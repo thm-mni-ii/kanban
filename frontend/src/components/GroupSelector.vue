@@ -1,40 +1,35 @@
-<script setup>
-import { ref } from 'vue';
-import { useGroupStore } from '@/store/useGroupStore';
-import { defineProps, defineEmits } from 'vue';
-
-
-const groupStore = useGroupStore();
-
-// Accept v-model binding as `modelValue`
-const props = defineProps({
-  modelValue: Object, // Expecting an object (the selected group)
-});
-
-// register the events that this component emits
-const emit = defineEmits(['update:modelValue', 'change']);
-
-
-// Function to handle selection change
-const handleSelection = (event) => {
-  // update the seleced group
-
-  const selectedGroup = groupStore.groups.find(g => g.id == event.target.value);
-
-  // emit custom events
-  emit('update:modelValue', selectedGroup); // For v-model
-  emit('change', selectedGroup); // Custom change event
-};
-</script>
-
 <template>
-  <div>
-    <label for="groupSelector">Select a Group:</label>
-    <select id="groupSelector" :value="modelValue?.id" @change="handleSelection">
-      <option disabled value="">-- Choose a Group --</option>
-      <option v-for="group in groupStore.groups" :key="group.id" :value=group.id>
+    <select v-model="groupId" @change="emitModelValue" :disabled="userHasNoGroups">
+      <option v-if="!userHasNoGroups" disabled value=-1>-- wähle eine Gruppe aus --</option>
+      <option v-else disabled value=-1>-- Sie sind in keiner Gruppe --</option>
+      <option v-for="group in groupStore.groups" :value="group.id">
         {{ group.name }}
       </option>
     </select>
-  </div>
 </template>
+
+<script>
+import { userGroupStore } from '@/store/userGroupStore';
+export default {
+  name: 'GroupSelector',
+  props: ['modelValue'],
+  emits: ['update:modelValue'],
+  data() {
+    return {
+      groupStore: userGroupStore(),
+      groupId: -1,
+    }
+  },
+  computed: {
+    userHasNoGroups() {
+      return this.groupStore.groups.length == 0;
+    }
+  },
+  methods: {
+    emitModelValue() {
+      this.$emit('update:modelValue', this.groupId);
+    }
+  }
+}
+
+</script>

@@ -11,15 +11,6 @@
   </footer>
 </template>
 
-<script>
-export default {
-    mounted(){
-        console.log("Header slot content",this.$slots.header);
-        console.log("footer slot content", this.$slots.footer);
-    }
-};
-</script>
-
 <style scoped>
 .base-card {
   display: block;

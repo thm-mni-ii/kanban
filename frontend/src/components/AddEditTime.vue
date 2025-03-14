@@ -1,17 +1,3 @@
-<script setup>
-import { ref } from 'vue';
-import GroupSelector from '@/components/GroupSelector.vue';
-
-const selectedGroup = ref(null); // Holds the selected group
-
-const onGroupChange = (group) => {
-  // TODO: remove console.log when component is finished
-  console.log('Group changed:', selectedGroup.value);
-};
-
-
-</script>
-
 <template>
   <base-card>
     <div class="add-edit-time">
@@ -20,12 +6,13 @@ const onGroupChange = (group) => {
         <!-- Title -->
         <div>
           <label for="title">Titel:</label>
-          <input type="text" id="title" v-model="localStartTime" required />
+          <input type="text" id="title" v-model="localTitle" required />
         </div>
         
-        <!-- TODO: Group selection, see useGroupStore.js -->
+        <!-- Group -->
         <div>
-          <GroupSelector v-model="selectedGroup" @change="onGroupChange"  />
+          <label for="group">Gruppe:</label>
+          <GroupSelector id="group" v-model="localGroup"/>
         </div>
           
 
@@ -36,8 +23,8 @@ const onGroupChange = (group) => {
         </div>
         <!-- End Time -->
         <div>
-          <label for="endTime">Dauer:</label>
-          <input type="time" id="endTime" v-model="localEndTime" required />
+          <label for="durationTime">Dauer:</label>
+          <input type="time" id="durationTime" v-model="localDuration" required />
         </div>
         <!-- Description -->
         <div>
@@ -57,12 +44,16 @@ const onGroupChange = (group) => {
 
 <script>
 import { useTimeTrackingStore } from '@/store/timeTracking';
+import GroupSelector from './GroupSelector.vue';
 
 
 export default {
   name: "AddEditTime",
   props: ["entry"], // Optional prop for editing existing entries
-  emits: ["add-entry", "cancel","edit-entry"],
+  emits: ["add-entry", "cancel", "edit-entry"],
+  components: {
+    GroupSelector
+  },
   computed: {
     isEditing() {
       return !!this.entry; // Prüft, ob ein bestehender Eintrag bearbeitet wird
@@ -70,9 +61,10 @@ export default {
   },
   data() {
     return {
-      localDate: this.entry?.date || "",
-      localStartTime: this.entry?.startTime || "",
-      localEndTime: this.entry?.endTime || "",
+      localTitle: this.entry?.title || "",
+      localGroup: this.entry?.group || -1,
+      localStartTime: this.entry?.startTime || new Date().toISOString(),
+      localDuration: this.entry?.durationTime || "00:00",
       localDescription: this.entry?.description || "",
     };
   },
@@ -83,23 +75,11 @@ export default {
       // Neuer Eintrag mit allen Daten
       const updatedEntry = {
         id: this.entry?.id || Date.now(),
-        date: this.localDate,
         startTime: this.localStartTime,
-        endTime: this.localEndTime,
+        groupId: this.localGroup,
+        durationTime: this.localDuration,
         description: this.localDescription,
       };
-      // TODO: adapt timetracking data to match api
-      const timeTracking = {
-        time_tracking_id: this.entry?.id || Date.now(),
-        group_id: 42,
-        user_id: 101,
-        activity_start: "2025-02-26T09:00:00Z",
-        activity_duration: 120, // Dauer in Minuten
-        title: "Daily Stand-up",
-        description: "Tägliches Team-Meeting zur Abstimmung der Aufgaben"
-      };
-
-
       if(this.isEditing){
         // Bestehenden Eintrag bearbeiten
         store.editEntry(updatedEntry);
@@ -116,33 +96,13 @@ export default {
       this.$emit("cancel");
     },
 
-    // combines the start date and time fields to 
-    combineDateTime() {
-      // Ensure both fields have values
-      if (!this.localDate || !this.localStartTime) {
-        console.warn('Bitte sowohl Datum als auch Zeit angeben.');
-        return;
-      }
-      
-      // If time input is "HH:mm" (5 characters), append seconds as ":00"
-      let timeString = this.localStartTime;
-      if (this.localStartTime.length === 5) {
-        timeString += ':00';
-      }
-      
-      // Combine date and time with a space separator
-      this.combinedTimestamp = `${this.localDate} ${timeString}`;
-      
-      console.log('Kombinierter Timestamp:', this.combinedTimestamp);
-      return this.combinedTimestamp;
-    },
-
 
     // Reset form fields after saving
     resetForm() {
-      this.localDate = "";
+      this.localTitle = ""
+      this.localGroup = -1
       this.localStartTime = "";
-      this.localEndTime = "";
+      this.localDuration = "";
       this.localDescription = "";
     },
   },

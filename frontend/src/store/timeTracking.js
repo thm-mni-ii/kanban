@@ -53,7 +53,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
   actions: {
     addEntry(entry) {
       // Fügt einen neuen Eintrag hinzu
-      entry.hours = this.calculateHours(entry.startTime, entry.endTime);
+      console.log(entry);
       this.entries = [...this.entries,entry];
     },
     editEntry(updatedEntry){
@@ -69,12 +69,6 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
     changeView(view) {
       // Ändert die aktuelle Ansicht
       this.currentView = view;
-    },
-    calculateHours(startTime, endTime) {
-        const [startHour, startMinute] = startTime.split(":").map(Number);
-        const [endHour, endMinute] = endTime.split(":").map(Number);
-        const totalHours = (endHour + endMinute / 60) - (startHour + startMinute / 60);
-        return Math.max(0, totalHours.toFixed(2));
     }
   },
 });

@@ -364,7 +364,7 @@ const getTasksPerGroup = (req, res) => {
 
   pool.query(query, null, (err, res) => {
     if (err) {
-      console.log("Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe");
+      console.error("Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe");
       return res.status(500).json({ error: 'Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe' });
     }
 
