@@ -640,22 +640,28 @@ const getTimeEntriesByGroupUser = async (req, res) => {
 
 const getTimeEntriesByUser = async (req, res) => {
   const userid = req.params.id;
+  const true_user = res.locals.user.id;
 
-  try {
-    const client = await pool.connect();
-    const query = 'SELECT * FROM time_tracking WHERE user_id = $1;';
-    const values = [userid];
-    const result = await client.query(query, values);
-    client.release();
-
-    if (result.rows.length === 0) {
-      res.status(404).json({ error: 'Time entry not found' });
-    } else {
-      res.json(result.rows);
+  if (userid == true_user) {
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM time_tracking WHERE user_id = $1;';
+      const values = [userid];
+      const result = await client.query(query, values);
+      client.release();
+      
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Time entry not found' });
+      } else {
+        res.json(result.rows);
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching time entry' });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error fetching time entry' });
+  } else {
+    console.error(`User ${true_user} tried to fetch time entries of user ${userid}`);
+    res.status(401).json({ error: 'Unauthorized' });
   }
 }
 

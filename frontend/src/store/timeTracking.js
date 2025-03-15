@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
+import axios from 'axios';
 
 export const useTimeTrackingStore = defineStore('timeTracking', {
   state: () => ({
+    //TODO: get timeetries from backend
     entries: [], // Alle Zeiteinträge
     currentView: 'Woche', // Aktive Ansicht: 'Woche', 'Monat', 'Jahr'
     error: null,
@@ -19,7 +21,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       const days = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
       return days.reduce((acc, day) => {
         acc[day] = state.entries.filter((entry) => {
-          const entryDate = new Date(entry.date);
+          const entryDate = new Date(entry.activity_start);
           const entryDay = entryDate.toLocaleDateString("de-DE", { weekday: "long" }); 
           return entryDay === day;
         });
@@ -82,11 +84,10 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
         this.error = err.message;
       } finally {
         this.loading = false;
+        this.fetchEntries();
       }
-      
-      this.entries = [...this.entries,entry];
-      console.log(this.entries)
     },
+    // TODO: edit entries
     editEntry(updatedEntry){
       const index = this.entries.findIndex(entry => entry.id === updatedEntry.id);
       if(index !== -1){
@@ -100,6 +101,29 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
     changeView(view) {
       // Ändert die aktuelle Ansicht
       this.currentView = view;
+    },
+    async fetchEntries() {
+      // TODO: Get the correct token
+      const bearerToken = localStorage.getItem("token") ? localStorage.getItem("token") : import.meta.env.VITE_KANBAN_TOKEN;
+      const userId = localStorage.getItem("userid") ? localStorage.getItem("userid") : import.meta.env.VITE_USER_ID;
+
+      try {
+        // TODO: Call the kanban API instead of localhost
+        const response = await axios.get(`http://localhost:3000/time/user/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
+            'Content-Type': 'application/json',
+          }
+        });
+
+        // Axios automatically parses JSON, no need for response.json()
+        this.entries = response.data;
+      } catch (err) {
+        this.error = err.message;
+        console.error(this.error);
+      } finally {
+        this.loading = false;
+      }
     }
-  },
+  }
 });

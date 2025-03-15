@@ -28,10 +28,13 @@
             <!-- Karten für jeden Tag-->
             <div v-for="entry in groupedEntriesByDay[day]" :key="entry.date">
               <time-card
-                :date="entry.date"
-                :start-time="entry.startTime"
-                :end-time="entry.endTime"
+              
+                :title="entry.title"
+                :group_id="entry.group_id"
+                :activity_start="entry.activity_start"
+                :activity_duration="entry.activity_duration"
                 :description="entry.description"
+                :time_tracking_id="entry.time_tracking_id"
                 @delete="removeEntry(entry.id)"
               />
             </div>
@@ -62,12 +65,15 @@ import { useTimeTrackingStore } from '@/store/timeTracking';
 import TimeCard from './TimeCard.vue';
 import { computed } from 'vue';
 
+
+
 export default {
   components: {TimeCard},
 
   setup() {
 
     const store = useTimeTrackingStore();
+    store.fetchEntries();
     
     const daysOfWeek = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag','Sonntag'];
 
