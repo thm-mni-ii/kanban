@@ -34,18 +34,21 @@
 
             <template v-else>
                 <form @submit.prevent="saveChanges">
-                    <label>Datum:
-                        <input type="date" v-model="editDate" />
-                    </label>
-                    <label>Startzeit:
-                        <input type="time" v-model="editStartTime" />
-                    </label>
-                    <label>Endzeit:
-                        <input type="time" v-model="editEndTime" />
-                    </label>
-                    <label>Beschreibung:
-                        <input type="text" v-model="editDescription" />
-                    </label>
+                    <div>
+                        <label>
+                            <input type="datetime-local" v-model="editStart" />
+                        </label>
+                    </div>
+                    <div>
+                        <label>Dauer:
+                            <input type="time" v-model="editEndTime" />
+                        </label>
+                    </div>
+                    <div>
+                        <label>Beschreibung:
+                            <textarea type="text" v-model="editDescription"></textarea>
+                        </label>
+                    </div>
                 </form>
             </template>
         </div>
@@ -65,6 +68,7 @@
 </template>
 
 <script>
+import { useTimeTrackingStore } from '@/store/timeTracking';
 export default {
     name: "TimeCard",
     props: {
@@ -85,6 +89,9 @@ export default {
         };
     },
     computed: {
+        editStart() {
+            return this.getFormattedDate(this.activity_start);
+        },
         formattedStartDate() {
             return new Date(this.activity_start).toLocaleString("de-DE", {
                 weekday: "short",
@@ -139,12 +146,26 @@ export default {
             this.isEditing = true;
         },
         saveChanges() {
+            const store = useTimeTrackingStore();
             this.$emit("edit", {
                 date: this.editDate,
                 startTime: this.editStartTime,
                 endTime: this.editEndTime,
                 description: this.editDescription,
             });
+            const activity = {
+              time_tracking_id: this.time_tracking_id,
+              group_id: this.group_id,
+              activity_start: new Date(this.editStart).toUTCString(),
+              activity_duration: this.editEndTime.slice(0,5), // in minutes
+              title: this.title,
+              description: this.editDescription
+            }
+            console.log(activity);
+            store.updateActivityLocally(this.time_tracking_id, activity);
+            store.editEntry(activity);
+
+            // leave editing mode
             this.isEditing = false;
         },
         deleteChanges() {
@@ -159,6 +180,12 @@ export default {
         },
         getFormattedTime(date) {
             return date.toLocaleTimeString("de-DE").slice(0,5);
+        },
+        getFormattedDate(date) {
+            const now = new Date(date);
+            const pad = (n) => String(n).padStart(2, '0');
+            const formatted = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            return formatted;
         }
 
     },
@@ -173,4 +200,4 @@ export default {
 }
 
 
-</style>>
+</style>

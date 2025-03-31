@@ -81,6 +81,7 @@ export default {
         title: this.localTitle,
         description: this.localDescription,
       };
+      console.log(updatedEntry);
       
       if(this.isEditing){
         // Bestehenden Eintrag bearbeiten

@@ -3,7 +3,6 @@ import axios from 'axios';
 
 export const useTimeTrackingStore = defineStore('timeTracking', {
   state: () => ({
-    //TODO: get timeetries from backend
     entries: [], // Alle Zeiteinträge
     currentView: 'Woche', // Aktive Ansicht: 'Woche', 'Monat', 'Jahr'
     error: null,
@@ -54,7 +53,6 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
 
   actions: {
     async addEntry(entry) {
-      // TODO: Get the correct token
       const bearerToken = localStorage.getItem("token")? localStorage.getItem("token"):import.meta.env.VITE_KANBAN_TOKEN;
 
       // make time utc
@@ -87,11 +85,51 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
         this.fetchEntries();
       }
     },
-    // TODO: edit entries
-    editEntry(updatedEntry){
-      const index = this.entries.findIndex(entry => entry.id === updatedEntry.id);
-      if(index !== -1){
-        this.entries = [...this.entries.slice(0, index), updatedEntry, ...this.entries.slice(index + 1)];
+    updateActivityLocally(id, updatedData) {
+      // get index of entry with the id in question, returns -1 if entry with the id was not found
+      const index = this.entries.findIndex(
+        entry => entry.time_tracking_id === id
+      )
+
+      // proceed if entry was found eg. index is not -1
+      if (index !== -1) {
+        // merge the data of the entry at the found index, to ensure only changed fields get updated
+        this.entries[index] = {
+          ...this.entries[index],
+          ...updatedData
+        }
+      } else {
+        // if no entry with a matching id was found eg. index == 0 print a warning. 
+        console.warn(`Activity with id ${id} not found`)
+      }
+    },
+    async editEntry(entry){
+      const bearerToken = localStorage.getItem("token") ? localStorage.getItem("token") : import.meta.env.VITE_KANBAN_TOKEN;
+      const userId = localStorage.getItem("userid") ? localStorage.getItem("userid") : import.meta.env.VITE_USER_ID;
+      const entryId = entry.time_tracking_id;
+
+      // make time utc
+      if(entry.activity_start) {
+        entry.activity_start = new Date(entry.activity_start).toUTCString();
+      }
+
+      try {
+        // TODO: Call the kanban API instead of localhost
+        const response = await axios.put(`http://localhost:3000/time/${entryId}`, entry,{
+          headers: {
+            'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
+            'Content-Type': 'application/json',
+          }
+        });
+
+        // Axios automatically parses JSON, no need for response.json()
+        this.fetchEntries();
+      } catch (err) {
+        this.error = err.message;
+        console.error(this.error);
+        console.log(JSON.stringify(entry));
+      } finally {
+        this.loading = false;
       }
     },
     removeEntry(entryId) {
@@ -103,7 +141,6 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       this.currentView = view;
     },
     async fetchEntries() {
-      // TODO: Get the correct token
       const bearerToken = localStorage.getItem("token") ? localStorage.getItem("token") : import.meta.env.VITE_KANBAN_TOKEN;
       const userId = localStorage.getItem("userid") ? localStorage.getItem("userid") : import.meta.env.VITE_USER_ID;
 

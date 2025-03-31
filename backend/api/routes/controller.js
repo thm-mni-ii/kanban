@@ -7,10 +7,6 @@ const getGroups = async (req, res) => {
   res.json(groups);
 };
 
-const postGroup = (req, res) => {
-  // TODO: Implement logic to insert new group into database
-};
-
 const getBoardsByGroup = (req, res) => {
   const groupId = req.params.groupId;
   const query = 'SELECT * FROM board WHERE group_id = $1;';
