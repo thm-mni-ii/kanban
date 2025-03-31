@@ -663,18 +663,20 @@ const getTimeEntriesByUser = async (req, res) => {
 
 const updateTimeEntry = async (req, res) => {
   const time_tracking_id = req.params.id;
+  const true_user = res.locals.user.id;
   const { activity_start, activity_duration, title, description } = req.body;
 
+  // ensure that the user edits it's own entry
   try {
     const client = await pool.connect();
 
     // Update the time entry
-    const updateQuery = 'UPDATE time_tracking SET activity_start = $1, activity_duration = $2, title = $3, description = $4 WHERE time_tracking_id = $5 RETURNING *;';
-    const updateValues = [activity_start, activity_duration, title, description, time_tracking_id];
+    const updateQuery = 'UPDATE time_tracking SET activity_start = $1, activity_duration = $2, title = $3, description = $4 WHERE time_tracking_id = $5 AND user_id = $6 RETURNING *;';
+    const updateValues = [activity_start, activity_duration, title, description, time_tracking_id, true_user];
     const updateResult = await client.query(updateQuery, updateValues);
 
     if (updateResult.rowCount === 0) {
-      res.status(404).json({ error: 'Time entry not found' });
+      res.status(404).json({ error: 'Time entry not found, or belongs to another user' });
     } else {
       res.json(updateResult.rows);
     }
@@ -688,17 +690,18 @@ const updateTimeEntry = async (req, res) => {
 
 const deleteTimeEntry = async (req, res) => {
   const time_tracking_id = req.params.id;
+  const true_user = res.locals.user.id;
 
   try {
     const client = await pool.connect();
-    const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 RETURNING *;';
-    const deleteValues = [time_tracking_id];
+    const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 AND user_id = $2 RETURNING *;';
+    const deleteValues = [time_tracking_id, true_user];
 
     // Delete the time entry
     const deleteResult = await client.query(deleteQuery, deleteValues);
 
     if (deleteResult.rowCount === 0) {
-      res.status(404).json({ error: 'Time entry not found' });
+      res.status(404).json({ error: 'Time entry not found, or belongs to a different user' });
     } else {
       res.json(deleteResult.rows);
     }
@@ -706,7 +709,7 @@ const deleteTimeEntry = async (req, res) => {
     client.release();
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error deleting time entry', values: deleteValues });
+    res.status(500).json({ error: `Error deleting time entry ${time_tracking_id} by user ${true_user}`});
   }
 
 }
@@ -835,7 +838,6 @@ async function deleteTaskTrackingEntry(req, res) {
 
 module.exports = {
   getGroups,
-  postGroup,
   getBoardsByGroup,
   postBoardByGroup,
   getSpecificBoardOfGroup,

@@ -122,19 +122,35 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
           }
         });
 
-        // Axios automatically parses JSON, no need for response.json()
+        // fetch data, when update was successful
         this.fetchEntries();
       } catch (err) {
         this.error = err.message;
         console.error(this.error);
-        console.log(JSON.stringify(entry));
       } finally {
         this.loading = false;
       }
     },
-    removeEntry(entryId) {
+    async removeEntry(entryId) {
       // Entfernt einen Eintrag nach seiner ID
-      this.entries = this.entries.filter((entry) => entry.id !== entryId);
+      const bearerToken = localStorage.getItem("token") ? localStorage.getItem("token") : import.meta.env.VITE_KANBAN_TOKEN;
+      try {
+        // TODO: Call the kanban API instead of localhost
+        const response = await axios.delete(`http://localhost:3000/time/${entryId}`,{
+          headers: {
+            'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
+            'Content-Type': 'application/json',
+          }
+        });
+
+        // fetch data when delete was successful
+        this.fetchEntries();
+      } catch (err) {
+        this.error = err.message;
+        console.error(this.error);
+      } finally {
+        this.loading = false;
+      }
     },
     changeView(view) {
       // Ändert die aktuelle Ansicht

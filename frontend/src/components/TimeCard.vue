@@ -57,7 +57,7 @@
         
             <template v-if="!isEditing">
                 <button @click="toggleEdit" title="Bearbeiten">✏️</button>
-                <button @click="deleteChanges" title="Löschen">🗑️</button>
+                <button @click="deleteEntry" title="Löschen">🗑️</button>
             </template>
             <template v-else>
                 <button @click="saveChanges" title="Speichern">💾</button>
@@ -168,8 +168,10 @@ export default {
             // leave editing mode
             this.isEditing = false;
         },
-        deleteChanges() {
+        deleteEntry() {
             this.$emit("delete");
+            const store = useTimeTrackingStore();
+            store.removeEntry(this.time_tracking_id);
         },
         cancelEdit() {
             this.editDate = this.date;
