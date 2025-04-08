@@ -107,7 +107,7 @@ export default {
  }
 
  table {
-  width: 150%;
+  width: 100%;
   min-width: 1000px;
   border-collapse: collapse;
  }

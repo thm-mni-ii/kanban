@@ -17,7 +17,6 @@ export const userGroupStore = defineStore('groupStore', () => {
     error.value = null;
 
     try {
-      // TODO: Call the kanban api instead of the feedback system api
       const response = await fetch(`https://feedback.mni.thm.de/api/v1/users/${userId}/groups`, {
         method: 'GET',
         headers: {

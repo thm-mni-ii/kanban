@@ -54,6 +54,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
   actions: {
     async addEntry(entry) {
       const bearerToken = localStorage.getItem("token")? localStorage.getItem("token"):import.meta.env.VITE_KANBAN_TOKEN;
+      const baseURL = import.meta.env.VITE_APP_API_URL;
 
       // make time utc
       if(entry.activity_start) {
@@ -61,8 +62,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       }
 
       try {
-        // TODO: Call the kanban api instead of localhost
-        const response = await fetch("http://localhost:3000/time/", {
+        const response = await fetch(baseURL+"/time/", {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
@@ -107,6 +107,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       const bearerToken = localStorage.getItem("token") ? localStorage.getItem("token") : import.meta.env.VITE_KANBAN_TOKEN;
       const userId = localStorage.getItem("userid") ? localStorage.getItem("userid") : import.meta.env.VITE_USER_ID;
       const entryId = entry.time_tracking_id;
+      const baseURL = import.meta.env.VITE_APP_API_URL;
 
       // make time utc
       if(entry.activity_start) {
@@ -114,8 +115,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       }
 
       try {
-        // TODO: Call the kanban API instead of localhost
-        const response = await axios.put(`http://localhost:3000/time/${entryId}`, entry,{
+        const response = await axios.put(`${baseURL}/time/${entryId}`, entry,{
           headers: {
             'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
             'Content-Type': 'application/json',
@@ -134,9 +134,9 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
     async removeEntry(entryId) {
       // Entfernt einen Eintrag nach seiner ID
       const bearerToken = localStorage.getItem("token") ? localStorage.getItem("token") : import.meta.env.VITE_KANBAN_TOKEN;
+      const baseURL = import.meta.env.VITE_APP_API_URL;
       try {
-        // TODO: Call the kanban API instead of localhost
-        const response = await axios.delete(`http://localhost:3000/time/${entryId}`,{
+        const response = await axios.delete(`${baseURL}/time/${entryId}`,{
           headers: {
             'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
             'Content-Type': 'application/json',
@@ -159,10 +159,10 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
     async fetchEntries() {
       const bearerToken = localStorage.getItem("token") ? localStorage.getItem("token") : import.meta.env.VITE_KANBAN_TOKEN;
       const userId = localStorage.getItem("userid") ? localStorage.getItem("userid") : import.meta.env.VITE_USER_ID;
+      const baseURL = import.meta.env.VITE_APP_API_URL;
 
       try {
-        // TODO: Call the kanban API instead of localhost
-        const response = await axios.get(`http://localhost:3000/time/user/${userId}`, {
+        const response = await axios.get(`${baseURL}/time/user/${userId}`, {
           headers: {
             'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
             'Content-Type': 'application/json',

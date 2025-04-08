@@ -8,13 +8,13 @@
       @edit-entry="editEntry"
       @cancel="isAdding = false; selectedEntry = null"
     />
-
+    <!-- Add New Entry Button -->
+    <button @click="isAdding = true; selectedEntry = null">Neuen Eintrag hinzufügen</button>
+    
     <!-- Time Overview Table -->
      <time-overview :entries="entries" />
    
 
-    <!-- Add New Entry Button -->
-    <button @click="isAdding = true; selectedEntry = null">Neuen Eintrag hinzufügen</button>
   </div>
 </template>
 
