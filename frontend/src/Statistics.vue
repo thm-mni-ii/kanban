@@ -8,13 +8,15 @@
           v-model="selectedGroup"
           :items="groupOptions"
           label="Gruppe auswählen"
+          @update:modelValue="handleGroupChange"
       />
 
       <!-- Diagramme für alle Gruppen -->
-      <BarChart v-if="chartData" :data="chartData" :options="chartOptions" />
-      <BarChart v-if="donePercentChartData" :data="donePercentChartData" :options="chartOptions" />
-      <BarChart v-if="taskPerLabelChartData" :data="taskPerLabelChartData" :options="chartOptions" />
-      <BarChart v-if="tasksByMemberChartData" :data="tasksByMemberChartData" :options="chartOptions" />
+      <BarChart v-if="chartData" :data="chartData" :options="chartOptions" :key="'groupChart-' + selectedGroup"/>
+      <BarChart v-if="donePercentChartData" :data="donePercentChartData" :options="chartOptions" :key="'doneChart-' + selectedGroup" />
+      <BarChart v-if="tasksByMemberChartData" :data="tasksByMemberChartData" :options="chartOptions" :key="'memberChart-' + selectedGroup"/>
+      <BarChart v-if="doneVsPendingChartData" :data="doneVsPendingChartData" :options="chartOptions" :key="'doneVsPending-' + selectedGroup"/>
+      <BarChart v-if="taskPerLabelChartData" :data="taskPerLabelChartData" :options="chartOptions" :key="'labelChart-' + selectedGroup"/>
       <div v-if="latestDoneTask">
         <h2>Zuletzt erledigte Aufgabe:</h2>
         <p><strong>Task id</strong> {{ latestDoneTask.kantask_id }}</p>
@@ -28,6 +30,7 @@
 </template>
 
 <script>
+import { nextTick } from 'vue';
 import BarChart from "./components/BarChart.vue";
 
 export default {
@@ -35,13 +38,14 @@ export default {
 
   data() {
     return {
-      selectedGroup: 'all',
-      groupOptions: ['all'],
-      chartData: null,
-      donePercentChartData: null,
-      taskPerLabelChartData: null,
-      latestDoneTask: null,
-      tasksByMemberChartData: null,
+      selectedGroup:            'all',
+      groupOptions:             ['all'],
+      chartData:                null,
+      donePercentChartData:     null,
+      doneVsPendingChartData:   null,
+      taskPerLabelChartData:    null,
+      latestDoneTask:           null,
+      tasksByMemberChartData:   null,
       chartOptions: {
         scales: {
           y: {
@@ -71,14 +75,6 @@ export default {
     };
   },
 
-  watch: {
-    selectedGroup(newVal, oldVal) {
-      console.log("Gruppe geändert von:", oldVal, "zu:", newVal);
-      this.fetchDonePercentData(); // Diagrammdaten neu abrufen
-      console.log("Aktuelle Daten für donePercentChartData:", this.donePercentChartData);
-    },
-  },
-
   methods: {
     async fetchGroups() {
       try {
@@ -92,15 +88,31 @@ export default {
 
     async fetchAllStatistics() {
       try {
-        const response = await fetch('http://localhost:3000/stats/taskspergroup');
-        const data = await response.json();
-        this.chartData = this.formatChartData(data);
+        if (this.selectedGroup !== "all") return;
+
+        this.fetchTasksPerGroup();
         this.fetchDonePercentData();
         this.fetchTaskDataPerLabel();
         this.fetchTasksByMember();
         this.fetchLatestDoneTask();
+
       } catch (error) {
-        console.error('Fehler beim Abrufen aller Statistiken:', error);
+        console.error('Fehler beim Initial-Abruf aller Statistiken:', error);
+      }
+    },
+
+    async fetchTasksPerGroup() {
+      try {
+        const response = await fetch('http://localhost:3000/stats/taskspergroup');
+        const data = await response.json();
+
+        const filteredData = this.selectedGroup === "all"
+            ? data
+            : data.filter(item => item.group_id === parseInt(this.selectedGroup));
+
+        this.chartData = this.formatChartData(filteredData);
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Tasks per Group:', error);
       }
     },
 
@@ -123,13 +135,16 @@ export default {
       try {
         const response = await fetch('http://localhost:3000/stats/tasks/done/in/percent');
         const data = await response.json();
+        console.log("Originaldaten vom Server:", data);
 
         // Filtere die Daten basierend auf der Auswahl
         const filteredData = this.selectedGroup === "all"
             ? data // Alle Daten anzeigen
             : data.filter(item => item.group_id === parseInt(this.selectedGroup)); // Nach Gruppe filtern
+        console.log("Gefilterte Daten:", filteredData);
 
         this.donePercentChartData = this.formatDonePercentData(filteredData);
+        console.log("Neue Chartdaten:", this.donePercentChartData);
       } catch (error) {
         console.error('Fehler beim Abrufen der Daten:', error);
       }
@@ -161,6 +176,41 @@ export default {
       }
     },
 
+    async fetchDoneVsPendingTasks() {
+      try {
+        // Skip wenn "all" ausgewählt ist, weil API nur einzelne Gruppen unterstützt
+        if (this.selectedGroup === "all") {
+          this.doneVsPendingChartData = null;
+          return;
+        }
+
+        const response = await fetch(`http://localhost:3000/stats/tasks/by/group/${this.selectedGroup}`);
+        const data = await response.json();
+
+        if (data.length === 0) {
+          this.doneVsPendingChartData = null;
+          return;
+        }
+
+        const item = data[0];
+        this.doneVsPendingChartData = {
+          labels: ['Erledigt', 'Offen'],
+          datasets: [
+            {
+              label: `Gruppe ${item.group_id}`,
+              data: [item.completed_tasks, item.pending_tasks],
+              backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(255, 99, 132, 0.5)'],
+              borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+              borderWidth: 1
+            }
+          ]
+        };
+      } catch (error) {
+        console.error('Fehler beim Abrufen der erledigten vs. offenen Aufgaben:', error);
+      }
+    },
+
+
     formatTaskDataPerLabel(data) {
       return {
         labels: data.map(item => item.label_name),
@@ -180,7 +230,12 @@ export default {
       try {
         const response = await fetch('http://localhost:3000/stats/tasks/by/member');
         const data = await response.json();
-        this.tasksByMemberChartData = this.formatTasksByMemberData(data);
+
+        const filteredData = this.selectedGroup === "all"
+          ? data
+          : data.filter(item => item.group_id === parseInt(this.selectedGroup));
+
+        this.tasksByMemberChartData = this.formatTasksByMemberData(filteredData);
       } catch (error) {
         console.error('Fehler beim Abrufen der Tasks by Member:', error);
       }
@@ -231,6 +286,17 @@ export default {
       }
     },
 
+    handleGroupChange() {
+      console.log("Gruppe geändert zu (vor nextTick):", this.selectedGroup);
+      nextTick(() => {
+        console.log("Gruppe geändert zu (nach nextTick):", this.selectedGroup);
+        this.fetchTasksPerGroup();
+        this.fetchDonePercentData();
+        this.fetchDoneVsPendingTasks();
+        this.fetchTaskDataPerLabel();
+        this.fetchTasksByMember();
+      });
+    },
   },
 
   created() {
