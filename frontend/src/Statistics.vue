@@ -11,15 +11,16 @@
           @update:modelValue="handleGroupChange"
       />
 
-      <!-- Diagramme für alle Gruppen -->
+      <!-- Diagramme -->
       <BarChart v-if="chartData" :data="chartData" :options="chartOptions" :key="'groupChart-' + selectedGroup"/>
-      <BarChart v-if="donePercentChartData" :data="donePercentChartData" :options="chartOptions" :key="'doneChart-' + selectedGroup" />
+      <BarChart v-if="donePercentChartData" :data="donePercentChartData" :options="chartOptions" :key="'doneChart-' + selectedGroup"/>
       <BarChart v-if="tasksByMemberChartData" :data="tasksByMemberChartData" :options="chartOptions" :key="'memberChart-' + selectedGroup"/>
-      <BarChart v-if="doneVsPendingChartData" :data="doneVsPendingChartData" :options="chartOptions" :key="'doneVsPending-' + selectedGroup"/>
+      <BarChart v-if="tasksDoneVsPendingChartData" :data="tasksDoneVsPendingChartData" :options="chartOptions" :key="'tasksDoneVsPending-' + selectedGroup"/>
       <BarChart v-if="taskPerLabelChartData" :data="taskPerLabelChartData" :options="chartOptions" :key="'labelChart-' + selectedGroup"/>
+
       <div v-if="latestDoneTask">
         <h2>Zuletzt erledigte Aufgabe:</h2>
-        <p><strong>Task id</strong> {{ latestDoneTask.kantask_id }}</p>
+        <p><strong>Task id:</strong> {{ latestDoneTask.kantask_id }}</p>
         <p><strong>Name:</strong> {{ latestDoneTask.name }}</p>
         <p><strong>Beschreibung:</strong> {{ latestDoneTask.description }}</p>
         <p><strong>Fälligkeitsdatum:</strong> {{ latestDoneTask.due_date }}</p>
@@ -38,14 +39,14 @@ export default {
 
   data() {
     return {
-      selectedGroup:            'all',
-      groupOptions:             ['all'],
-      chartData:                null,
-      donePercentChartData:     null,
-      doneVsPendingChartData:   null,
-      taskPerLabelChartData:    null,
-      latestDoneTask:           null,
-      tasksByMemberChartData:   null,
+      selectedGroup: 'all',
+      groupOptions: ['all'],
+      chartData: null,
+      donePercentChartData: null,
+      tasksDoneVsPendingChartData: null,
+      taskPerLabelChartData: null,
+      latestDoneTask: null,
+      tasksByMemberChartData: null,
       chartOptions: {
         scales: {
           y: {
@@ -56,9 +57,7 @@ export default {
             }
           },
           x: {
-            title: {
-              display: true
-            }
+            title: { display: true }
           }
         },
         plugins: {
@@ -66,9 +65,7 @@ export default {
             display: true,
             position: 'top',
             align: 'end',
-            labels: {
-              usePointStyle: true
-            }
+            labels: { usePointStyle: true }
           }
         }
       }
@@ -93,6 +90,7 @@ export default {
         this.fetchTasksPerGroup();
         this.fetchDonePercentData();
         this.fetchTaskDataPerLabel();
+        this.fetchTasksDoneVsPending();
         this.fetchTasksByMember();
         this.fetchLatestDoneTask();
 
@@ -119,15 +117,13 @@ export default {
     formatChartData(data) {
       return {
         labels: data.map(item => `Group ${item.group_id}`),
-        datasets: [
-          {
-            label: 'Tasks per Group',
-            data: data.map(item => item.task_count),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-          }
-        ]
+        datasets: [{
+          label: 'Tasks per Group',
+          data: data.map(item => item.task_count),
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
       };
     },
 
@@ -135,34 +131,27 @@ export default {
       try {
         const response = await fetch('http://localhost:3000/stats/tasks/done/in/percent');
         const data = await response.json();
-        console.log("Originaldaten vom Server:", data);
 
-        // Filtere die Daten basierend auf der Auswahl
         const filteredData = this.selectedGroup === "all"
-            ? data // Alle Daten anzeigen
-            : data.filter(item => item.group_id === parseInt(this.selectedGroup)); // Nach Gruppe filtern
-        console.log("Gefilterte Daten:", filteredData);
+            ? data
+            : data.filter(item => item.group_id === parseInt(this.selectedGroup));
 
         this.donePercentChartData = this.formatDonePercentData(filteredData);
-        console.log("Neue Chartdaten:", this.donePercentChartData);
       } catch (error) {
         console.error('Fehler beim Abrufen der Daten:', error);
       }
     },
 
-
     formatDonePercentData(data) {
       return {
         labels: data.map(item => `Group ${item.group_id}`),
-        datasets: [
-          {
-            label: 'Tasks done in percent',
-            data: data.map(item => parseFloat(item.percent_tasks_done)),
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-          }
-        ]
+        datasets: [{
+          label: 'Tasks done in percent',
+          data: data.map(item => parseFloat(item.percent_tasks_done)),
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
       };
     },
 
@@ -176,51 +165,70 @@ export default {
       }
     },
 
-    async fetchDoneVsPendingTasks() {
-      try {
-        // Skip wenn "all" ausgewählt ist, weil API nur einzelne Gruppen unterstützt
-        if (this.selectedGroup === "all") {
-          this.doneVsPendingChartData = null;
-          return;
-        }
-
-        const response = await fetch(`http://localhost:3000/stats/tasks/by/group/${this.selectedGroup}`);
-        const data = await response.json();
-
-        if (data.length === 0) {
-          this.doneVsPendingChartData = null;
-          return;
-        }
-
-        const item = data[0];
-        this.doneVsPendingChartData = {
-          labels: ['Erledigt', 'Offen'],
-          datasets: [
-            {
-              label: `Gruppe ${item.group_id}`,
-              data: [item.completed_tasks, item.pending_tasks],
-              backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(255, 99, 132, 0.5)'],
-              borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
-              borderWidth: 1
-            }
-          ]
-        };
-      } catch (error) {
-        console.error('Fehler beim Abrufen der erledigten vs. offenen Aufgaben:', error);
-      }
-    },
-
-
     formatTaskDataPerLabel(data) {
       return {
         labels: data.map(item => item.label_name),
+        datasets: [{
+          label: 'Tasks per label',
+          data: data.map(item => item.task_count),
+          backgroundColor: 'rgba(255, 159, 64, 0.2)',
+          borderColor: 'rgba(255, 159, 64, 1)',
+          borderWidth: 1
+        }]
+      };
+    },
+
+    async fetchTasksDoneVsPending() {
+      try {
+        const url = this.selectedGroup === 'all'
+            ? 'http://localhost:3000/stats/taskspergroup'
+            : `http://localhost:3000/stats/tasks/by/group/${this.selectedGroup}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const formatted = this.selectedGroup === 'all'
+            ? this.formatDoneVsPendingForAll(data)
+            : this.formatDoneVsPendingForSingle(data);
+
+        this.tasksDoneVsPendingChartData = formatted;
+      } catch (error) {
+        console.error("Fehler beim Abrufen der erledigten vs offenen Aufgaben:", error);
+      }
+    },
+
+    formatDoneVsPendingForAll(data) {
+      return {
+        labels: data.map(d => `Group ${d.group_id}`),
         datasets: [
           {
-            label: 'Tasks per label',
-            data: data.map(item => item.task_count),
-            backgroundColor: 'rgba(255, 159, 64, 0.2)',
-            borderColor: 'rgba(255, 159, 64, 1)',
-            borderWidth: 1
+            label: 'Erledigt',
+            data: data.map(d => d.completed_tasks),
+            backgroundColor: 'rgba(75, 192, 192, 0.6)'
+          },
+          {
+            label: 'Offen',
+            data: data.map(d => d.pending_tasks),
+            backgroundColor: 'rgba(255, 99, 132, 0.6)'
+          }
+        ]
+      };
+    },
+
+    formatDoneVsPendingForSingle(data) {
+      if (!data || data.length === 0) return null;
+      const d = data[0];
+      return {
+        labels: [`Group ${d.group_id}`],
+        datasets: [
+          {
+            label: 'Erledigt',
+            data: [d.completed_tasks],
+            backgroundColor: 'rgba(75, 192, 192, 0.6)'
+          },
+          {
+            label: 'Offen',
+            data: [d.pending_tasks],
+            backgroundColor: 'rgba(255, 99, 132, 0.6)'
           }
         ]
       };
@@ -232,8 +240,8 @@ export default {
         const data = await response.json();
 
         const filteredData = this.selectedGroup === "all"
-          ? data
-          : data.filter(item => item.group_id === parseInt(this.selectedGroup));
+            ? data
+            : data.filter(item => item.group_id === parseInt(this.selectedGroup));
 
         this.tasksByMemberChartData = this.formatTasksByMemberData(filteredData);
       } catch (error) {
@@ -287,12 +295,10 @@ export default {
     },
 
     handleGroupChange() {
-      console.log("Gruppe geändert zu (vor nextTick):", this.selectedGroup);
       nextTick(() => {
-        console.log("Gruppe geändert zu (nach nextTick):", this.selectedGroup);
         this.fetchTasksPerGroup();
         this.fetchDonePercentData();
-        this.fetchDoneVsPendingTasks();
+        this.fetchTasksDoneVsPending();
         this.fetchTaskDataPerLabel();
         this.fetchTasksByMember();
       });
@@ -302,11 +308,9 @@ export default {
   created() {
     this.fetchGroups();
     this.fetchAllStatistics();
-  },
-
+  }
 };
 </script>
 
 <style scoped>
-
 </style>

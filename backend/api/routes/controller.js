@@ -305,24 +305,31 @@ const deleteSpecificLabelOfBoardOfGroup = (req, res) => {
 };
 
 const getTasksPerGroup = (req, res) => {
-    
-    const query = "SELECT b.group_id, COUNT(k.kantask_id) AS task_count FROM board b JOIN kantask k ON b.board_id = k.board_id GROUP BY b.group_id;"
+    const query = `
+    SELECT
+      b.group_id,
+      COUNT(k.kantask_id) AS task_count,
+      COUNT(*) FILTER (WHERE k.done_time < CURRENT_TIMESTAMP) AS completed_tasks,
+      COUNT(*) FILTER (WHERE k.done_time IS NULL OR k.done_time > CURRENT_TIMESTAMP) AS pending_tasks
+    FROM board b
+    JOIN kantask k ON b.board_id = k.board_id
+    GROUP BY b.group_id;
+  `;
 
     pool.query(query, (err, result) => {
         if (err) {
-            console.log("Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe");
-            return res.status(500).json({ error: 'Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe' });
+            console.log("Fehler beim Erfragen der Aufgaben pro Gruppe:", err);
+            return res.status(500).json({ error: 'Fehler beim Erfragen der Aufgaben pro Gruppe' });
         }
 
         if (result.rows.length === 0) {
-            return res.status(500).json({ error: 'Keine Daten' });
+            return res.status(204).json([]);
         }
 
         res.status(200).json(result.rows);
     });
+};
 
-
-}
 
 const getTasksDoneByGroup = (req, res) => {
     const groupId = req.params.goupId;
