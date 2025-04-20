@@ -8,8 +8,8 @@
     </div>
     
         <!-- Content (Default Slot) -->
-         <!-- <router-view></router-view> -->
-        <TimeTracking />
+         <router-view></router-view>
+        <!-- <TimeTracking /> -->
       
     </div>
   </template>
