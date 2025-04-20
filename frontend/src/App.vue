@@ -1,11 +1,7 @@
 <template>
     <div id="app">
       <!-- Single BaseCard for Title and Content -->
-       <div class="topic-container">
-      <base-card>
-          <h1>Arbeitszeiterfassung</h1>
-        </base-card>
-    </div>
+       
     
         <!-- Content (Default Slot) -->
          <router-view></router-view>

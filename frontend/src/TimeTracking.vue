@@ -1,4 +1,9 @@
 <template>
+  <div class="topic-container">
+      <base-card>
+          <h1>Arbeitszeiterfassung</h1>
+        </base-card>
+    </div>
   <div>
     
     <!-- Add/Edit Form -->
