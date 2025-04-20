@@ -3,7 +3,7 @@ import { createPinia } from 'pinia';
 
 import App from './App.vue';
 import registerGlobalComponents from './global-components';
-//import router from './router/index.js';
+import router from './router';
 
 
 const app = createApp(App);
@@ -11,7 +11,7 @@ const pinia = createPinia();
 
 
 app.use(pinia);
-//app.use(router);
+// app.use(router);
 
 registerGlobalComponents(app);
 
