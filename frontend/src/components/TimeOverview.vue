@@ -81,7 +81,7 @@ export default {
 
     //Gruppierte Einträge nach Tagen
     const getEntriesForDay = (day) => {
-      return store.entries.filter((entry) => entry.day === day);
+      return (store.entries??[]).filter((entry) => entry.day === day);
     };
 
     return {
