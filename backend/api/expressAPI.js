@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 const cors = require('cors');
 
-app.use(cors());
+if (process.env.NODE_ENV !== 'production') app.use(cors())
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

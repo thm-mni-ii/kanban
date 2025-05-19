@@ -7,15 +7,15 @@
     <div class="d-flex  flex-column align-items-center justify-center" style=" margin: 10% auto;">
         <v-card v-for="board in boards" :key="board.boardId" class="mb-4"
         @click="goToApp(board)"
-        variant="outlined" 
+        variant="outlined"
         >
             <v-card-title>
                 {{ board.name }}
             </v-card-title>
         </v-card>
-        <v-btn 
-         @click="dialog = true" 
-         class="mt-5" 
+        <v-btn
+         @click="dialog = true"
+         class="mt-5"
          style="width: 500px;"
          color="#5865f2">
             <v-icon left>mdi-plus</v-icon>

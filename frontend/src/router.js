@@ -3,6 +3,7 @@ import Start from './Start.vue'
 import App from './App.vue'
 import Boards from './Boards.vue'
 import TimeTracking from './TimeTracking.vue'
+import Board from "../Board.vue";
 
 const routes = [
   { 
@@ -13,7 +14,7 @@ const routes = [
   {
     path: '/groups/:groupId/boards/:boardId',
     name: 'App',
-    component: App,
+    component: Board,
   },
   {
     path: '/groups/:groupId/boards',
