@@ -5,6 +5,8 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
   state: () => ({
     entries: [], // Alle Zeiteinträge
     currentView: 'Woche', // Aktive Ansicht: 'Woche', 'Monat', 'Jahr'
+    fromDate: null,
+    toDate: null,
     error: null,
     loading: false,
   }),
@@ -39,7 +41,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
     
       return state.entries.reduce((weeks, entry) => {
         const weekNumber = getWeekNumber(entry.date);
-        if (!weeks[weekNumber]) weeks[weekNumber] = []; // ✅ Korrektur der Initialisierung
+        if (!weeks[weekNumber]) weeks[weekNumber] = [];
         weeks[weekNumber].push(entry);
         return weeks;
       }, {});

@@ -1,19 +1,19 @@
 <template>
   <div>
-    <h2>Übersicht : {{ store.currentView }}</h2>
 
     <!--Ansicht wechsen-->
-  <select id="view-select" v-model="store.currentView">
-    <option value="Woche">Wochenansicht</option>
-    <option value="Monat">Monatsansicht</option>
-    <option value="Jahr">Jahresansicht</option>
-  </select>
+  <h1>
+    <select id="view-select" v-model="store.currentView" class="header-select">
+      <option value="Woche">Wochenansicht</option>
+      <option value="Monat">Monatsansicht</option>
+      <option value="Jahr">Jahresansicht</option>
+    </select>
+  </h1>
 
 
    <!--Dynamische Ansicht der Anzeige -->
-<div v-if="store.currentView ==='Woche'">
-  <h4>Wochenübersicht</h4>
-
+<div v-if="store.currentView ==='Woche'" >
+  <WeekSelector />
   <!-- Neuer Wrapper um die Tabelle hinzufügen -->
   <div class="table-container">
     <table>
@@ -64,11 +64,11 @@
 import { useTimeTrackingStore } from '@/store/timeTracking';
 import TimeCard from './TimeCard.vue';
 import { computed } from 'vue';
-
+import WeekSelector from './selectors/WeekSelector-TimeTracking.vue';
 
 
 export default {
-  components: {TimeCard},
+  components: {TimeCard, WeekSelector},
 
   setup() {
 
@@ -104,6 +104,7 @@ export default {
   width: 100%;
   overflow: auto;
   white-space: nowrap;
+  margin-top: 0.5rem;
  }
 
  table {
@@ -123,6 +124,27 @@ export default {
   background-color: #f9f9f9;
 
  }
+
+ .header-select {
+  font-size: 1.3rem;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  color: #333;
+  appearance: none; /* optional: remove default OS styling */
+  outline: none;
+  cursor: pointer;
+  max-width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.header-select:hover {
+  border-color: #999;
+  background-color: #f0f0f0;
+}
 
 
 </style>
