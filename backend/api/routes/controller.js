@@ -20,7 +20,7 @@ const getBoardsByGroup = (req, res) => {
 
 const postBoardByGroup = (req, res) => {
   const groupId = req.params.groupId;
-  const name = req.body.name;  // request body includes name of board 
+  const name = req.body.name;  // request body includes name of board
 
   // validation of input data
   if (!name) {
@@ -304,7 +304,7 @@ const getSpecificCardTimeDetails = (req, res) => {
     const cardId = req.params.id;
     const boardId = req.params.boardId;
     const query = 'SELECT time_spent FROM kantask WHERE kantask_id = $1 AND board_id = $2;';
-    const values = [cardId, boardId];  
+    const values = [cardId, boardId];
 
     pool.query(query, values, (error, results) => {
         if (error) throw error;
@@ -355,27 +355,36 @@ const updateStatusOfCard = (req, res) => {
 }
 
 const getTasksPerGroup = (req, res) => {
+    const query = `
+    SELECT
+      b.group_id,
+      COUNT(k.kantask_id) AS task_count,
+      COUNT(*) FILTER (WHERE k.done_time < CURRENT_TIMESTAMP) AS completed_tasks,
+      COUNT(*) FILTER (WHERE k.done_time IS NULL OR k.done_time > CURRENT_TIMESTAMP) AS pending_tasks
+    FROM board b
+    JOIN kantask k ON b.board_id = k.board_id
+    GROUP BY b.group_id;
+  `;
 
-  const query = "SELECT b.group_id, COUNT(k.kantask_id) AS task_count FROM board b JOIN kantask k ON b.board_id = k.board_id GROUP BY b.group_id;"
+    pool.query(query, (err, result) => {
+        if (err) {
+            console.log("Fehler beim Erfragen der Aufgaben pro Gruppe:", err);
+            return res.status(500).json({ error: 'Fehler beim Erfragen der Aufgaben pro Gruppe' });
+        }
 
-  pool.query(query, null, (err, res) => {
-    if (err) {
-      console.error("Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe");
-      return res.status(500).json({ error: 'Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe' });
-    }
+        if (result.rows.length === 0) {
+            return res.status(204).json([]);
+        }
 
-    if (results.rows.length === 0) {
-      return res.status(500).json({ error: 'Keine Daten' });
-    }
+        res.status(200).json(result.rows);
+    });
+};
 
-    res.status(200).json(results.rows);
-  });
-}
 
 const getTasksDoneByGroup = (req, res) => {
   const groupId = req.params.goupId;
 
-  const values = [groupId];
+    const values = [groupId];
 
   const query = `
     SELECT  b.group_id,  
@@ -387,18 +396,19 @@ const getTasksDoneByGroup = (req, res) => {
     GROUP BY  b.group_id;
     `
 
-  pool.query(query, values, (error, results) => {
-    if (error) {
-      console.error('Fehler beim Ermitteln der erledigiten Aufgaben:', error);
-      return res.status(500).json({ error: 'Fehler beim Ermitteln der erledigiten Aufgaben:' });
-    }
+    pool.query(query, values, (error, result) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der erledigiten Aufgaben:', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der erledigiten Aufgaben:' });
+        }
 
-    if (results.rows.length === 0) {
-      return res.status(500).json({ error: 'Keine Daten' });
-    }
+        let returnCode = 200;
+        if(result.rows.length === 0) {
+            returnCode = 204
+        }
 
-    res.status(200).json(results);
-  });
+        res.status(returnCode).json(result.rows);
+    });
 }
 
 const getTasksPerMember = (req, res) => {
@@ -437,18 +447,18 @@ const getTasksDoneByInPercent = (req, res) => {
     JOIN kantask k ON b.board_id = k.board_id
     GROUP BY b.group_id;
     `
-  pool.query(query, values, (error, results) => {
-    if (error) {
-      console.error('Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe', error);
-      return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe' });
-    }
+    pool.query(query, (error, results)  =>{
+        if (error) {
+            console.error('Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben in Prozent je Gruppe' });
+        }
 
     if (results.rows.length === 0) {
       return res.status(500).json({ error: 'Keine Daten' });
     }
 
-    res.status(200).json(results);
-  });
+        res.status(200).json(results.rows);
+    });
 
 }
 const getTaskamountPerLabel = (req, res) => {
@@ -458,18 +468,18 @@ const getTaskamountPerLabel = (req, res) => {
     JOIN kantasklabel ktl ON l.label_id = ktl.label_id
     GROUP BY l.label_id, l.name;
     `
-  pool.query(query, values, (error, results) => {
-    if (error) {
-      console.error('Fehler beim Ermitteln der eledigten Aufgaben pro Label', error);
-      return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben pro Label' });
-    }
+    pool.query(query, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der eledigten Aufgaben pro Label', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der eledigten Aufgaben pro Label' });
+        }
 
     if (results.rows.length === 0) {
       return res.status(500).json({ error: 'Keine Daten' });
     }
 
-    res.status(200).json(results);
-  });
+        res.status(200).json(results.rows);
+    });
 
 }
 
@@ -479,11 +489,11 @@ const getMembersPerGroup = (req, res) => {
     FROM assignee
     GROUP BY group_id;
     `
-  pool.query(query, values, (error, results) => {
-    if (error) {
-      console.error('Fehler beim Ermitteln der Mitglieder pro Gruppe', error);
-      return res.status(500).json({ error: 'Fehler beim Ermitteln der Mitglieder pro Gruppe' });
-    }
+    pool.query(query, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der Mitglieder pro Gruppe', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der Mitglieder pro Gruppe' });
+        }
 
     if (results.rows.length === 0) {
       return res.status(500).json({ error: 'Keine Daten' });
@@ -500,42 +510,44 @@ const getLatestDoneTime = (req, res) => {
     FROM kantask 
     WHERE done_time = (SELECT MAX(done_time) FROM kantask WHERE done_time IS NOT NULL);
     `
-  pool.query(query, values, (error, results) => {
-    if (error) {
-      console.error('Fehler beim Ermitteln der letzten erledigten Aufgabe', error);
-      return res.status(500).json({ error: 'Fehler beim Ermitteln der letzten erledigten Aufgabe' });
-    }
+    pool.query(query, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der letzten erledigten Aufgabe', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der letzten erledigten Aufgabe' });
+        }
 
     if (results.rows.length === 0) {
       return res.status(500).json({ error: 'Keine Daten' });
     }
 
-    res.status(200).json(results);
-  });
+        res.status(200).json(results.rows);
+    });
 
 }
 
 const getTasksDoneByDate = (req, res) => {
-  const query = `
-    SELECT group_id, DATE(done_time) AS day, COUNT(*) AS completed_tasks
-    FROM kantask
-    WHERE done_time IS NOT NULL
-    GROUP BY group_id, DATE(done_time)
-    ORDER BY group_id,
-    day;
+    const query = `
+        SELECT b.group_id, TO_CHAR(k.done_time, 'DD.MM.YYYY') AS day, COUNT(*) AS completed_tasks
+        FROM kantask k
+        JOIN board b ON k.board_id = b.board_id
+        WHERE k.done_time IS NOT NULL
+        GROUP BY b.group_id, TO_CHAR(k.done_time, 'DD.MM.YYYY')
+        ORDER BY b.group_id,
+        day;
+
     `
-  pool.query(query, values, (error, results) => {
-    if (error) {
-      console.error('Fehler beim Ermitteln der Erlidigten Aufgaben pro Tag', error);
-      return res.status(500).json({ error: 'Fehler beim Ermitteln der Erlidigten Aufgaben pro Tag' });
-    }
+    pool.query(query, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Ermitteln der Erlidigten Aufgaben pro Tag', error);
+            return res.status(500).json({ error: 'Fehler beim Ermitteln der Erlidigten Aufgaben pro Tag' });
+        }
 
     if (results.rows.length === 0) {
       return res.status(500).json({ error: 'Keine Daten' });
     }
 
-    res.status(200).json(results);
-  });
+        res.status(200).json(results.rows);
+    });
 
 }
 
@@ -645,7 +657,7 @@ const getTimeEntriesByUser = async (req, res) => {
       const values = [userid];
       const result = await client.query(query, values);
       client.release();
-      
+
       if (result.rows.length === 0) {
         res.status(404).json({ error: 'Time entry not found' });
       } else {
