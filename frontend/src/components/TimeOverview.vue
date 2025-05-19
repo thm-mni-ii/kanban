@@ -75,6 +75,7 @@ export default {
     const store = useTimeTrackingStore();
     store.fetchEntries();
     
+    
     const daysOfWeek = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag','Sonntag'];
 
     const groupedEntriesByDay = computed(() => store.groupedEntriesByDay);

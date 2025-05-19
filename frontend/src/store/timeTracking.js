@@ -20,36 +20,38 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
 
     groupedEntriesByDay: (state) => {
       const days = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+
+      // Falls fromDate oder toDate nicht gesetzt sind → alle Einträge zurückgeben wie bisher
+      if (!state.fromDate || !state.toDate) {
+        return days.reduce((acc, day) => {
+          acc[day] = state.entries.filter((entry) => {
+            const entryDate = new Date(entry.activity_start);
+            const entryDay = entryDate.toLocaleDateString("de-DE", { weekday: "long" });
+            return entryDay === day;
+          });
+          return acc;
+        }, {});
+      }
+
+      const from = new Date(state.fromDate);
+      const to = new Date(state.toDate);
+      from.setHours(0, 0, 0, 0);
+      to.setHours(23, 59, 59, 999);
+
       return days.reduce((acc, day) => {
         acc[day] = state.entries.filter((entry) => {
-          const entryDate = new Date(entry.activity_start);
-          const entryDay = entryDate.toLocaleDateString("de-DE", { weekday: "long" }); 
-          return entryDay === day;
+          const entryDate = new Date(entry.activity_start || entry.date);
+          entryDate.setHours(0, 0, 0, 0);
+          const entryDay = entryDate.toLocaleDateString("de-DE", { weekday: "long" });
+
+          return (
+            entryDay === day &&
+            entryDate >= from &&
+            entryDate <= to
+          );
         });
         return acc;
       }, {});
-    },
-    
-
-    groupedEntriesByWeek: (state) => {
-      const getWeekNumber = (dateString) => {
-        const date = new Date(dateString);
-        const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-        const pastDaysOfYear = (date - firstDayOfYear + 86400000) / 86400000;
-        return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-      };
-    
-      return state.entries.reduce((weeks, entry) => {
-        const weekNumber = getWeekNumber(entry.date);
-        if (!weeks[weekNumber]) weeks[weekNumber] = [];
-        weeks[weekNumber].push(entry);
-        return weeks;
-      }, {});
-    },
-    
-
-    filteredEntries: (state) => (filter) => {
-        return state.entries.filter((entry) => entry.date.includes(filter));
     }
   },
 
