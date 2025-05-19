@@ -7,10 +7,6 @@ const getGroups = async (req, res) => {
   res.json(groups);
 };
 
-const postGroup = (req, res) => {
-  // TODO: Implement logic to insert new group into database
-};
-
 const getBoardsByGroup = (req, res) => {
   const groupId = req.params.groupId;
   const query = 'SELECT * FROM board WHERE group_id = $1;';
@@ -364,7 +360,7 @@ const getTasksPerGroup = (req, res) => {
 
   pool.query(query, null, (err, res) => {
     if (err) {
-      console.log("Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe");
+      console.error("Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe");
       return res.status(500).json({ error: 'Fehler beim erfragen der Anzahl der Aufgaben pro Gruppe' });
     }
 
@@ -640,39 +636,47 @@ const getTimeEntriesByGroupUser = async (req, res) => {
 
 const getTimeEntriesByUser = async (req, res) => {
   const userid = req.params.id;
+  const true_user = res.locals.user.id;
 
-  try {
-    const client = await pool.connect();
-    const query = 'SELECT * FROM time_tracking WHERE user_id = $1;';
-    const values = [userid];
-    const result = await client.query(query, values);
-    client.release();
-
-    if (result.rows.length === 0) {
-      res.status(404).json({ error: 'Time entry not found' });
-    } else {
-      res.json(result.rows);
+  if (userid == true_user) {
+    try {
+      const client = await pool.connect();
+      const query = 'SELECT * FROM time_tracking WHERE user_id = $1;';
+      const values = [userid];
+      const result = await client.query(query, values);
+      client.release();
+      
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Time entry not found' });
+      } else {
+        res.json(result.rows);
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching time entry' });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error fetching time entry' });
+  } else {
+    console.error(`User ${true_user} tried to fetch time entries of user ${userid}`);
+    res.status(401).json({ error: 'Unauthorized' });
   }
 }
 
 const updateTimeEntry = async (req, res) => {
   const time_tracking_id = req.params.id;
+  const true_user = res.locals.user.id;
   const { activity_start, activity_duration, title, description } = req.body;
 
+  // ensure that the user edits it's own entry
   try {
     const client = await pool.connect();
 
     // Update the time entry
-    const updateQuery = 'UPDATE time_tracking SET activity_start = $1, activity_duration = $2, title = $3, description = $4 WHERE time_tracking_id = $5 RETURNING *;';
-    const updateValues = [activity_start, activity_duration, title, description, time_tracking_id];
+    const updateQuery = 'UPDATE time_tracking SET activity_start = $1, activity_duration = $2, title = $3, description = $4 WHERE time_tracking_id = $5 AND user_id = $6 RETURNING *;';
+    const updateValues = [activity_start, activity_duration, title, description, time_tracking_id, true_user];
     const updateResult = await client.query(updateQuery, updateValues);
 
     if (updateResult.rowCount === 0) {
-      res.status(404).json({ error: 'Time entry not found' });
+      res.status(404).json({ error: 'Time entry not found, or belongs to another user' });
     } else {
       res.json(updateResult.rows);
     }
@@ -686,17 +690,18 @@ const updateTimeEntry = async (req, res) => {
 
 const deleteTimeEntry = async (req, res) => {
   const time_tracking_id = req.params.id;
+  const true_user = res.locals.user.id;
 
   try {
     const client = await pool.connect();
-    const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 RETURNING *;';
-    const deleteValues = [time_tracking_id];
+    const deleteQuery = 'DELETE FROM time_tracking WHERE time_tracking_id = $1 AND user_id = $2 RETURNING *;';
+    const deleteValues = [time_tracking_id, true_user];
 
     // Delete the time entry
     const deleteResult = await client.query(deleteQuery, deleteValues);
 
     if (deleteResult.rowCount === 0) {
-      res.status(404).json({ error: 'Time entry not found' });
+      res.status(404).json({ error: 'Time entry not found, or belongs to a different user' });
     } else {
       res.json(deleteResult.rows);
     }
@@ -704,7 +709,7 @@ const deleteTimeEntry = async (req, res) => {
     client.release();
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error deleting time entry', values: deleteValues });
+    res.status(500).json({ error: `Error deleting time entry ${time_tracking_id} by user ${true_user}`});
   }
 
 }
@@ -833,7 +838,6 @@ async function deleteTaskTrackingEntry(req, res) {
 
 module.exports = {
   getGroups,
-  postGroup,
   getBoardsByGroup,
   postBoardByGroup,
   getSpecificBoardOfGroup,

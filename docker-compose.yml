@@ -69,6 +69,8 @@ services:
       - api
     ports:
       - "4173:4173"
+    networks:
+      - kanban-net
 
   sql-setup-runner:
     container_name: sql-setup-runner
@@ -87,7 +89,7 @@ services:
 
 networks:
   kanban-net:
-    name: kan-net
+    name: kanban-net
     
 
 volumes:

@@ -256,7 +256,7 @@ async function removeAllUsersFromGroup(cid: number, gid: number) {
 export async function getUserGroups(uid: number, token: string) {
     const response = await fetchWithToken(`${apiUrl}/users/${uid}/groups`, token);
     if (!response.ok){
-        throw new Error(response.statusText);
+        throw new Error(`Received non 200 status while fetching groups: ${response.statusText}`);
     }
     return await response.json() as GroupDetails[];
 }
