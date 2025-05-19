@@ -5,25 +5,31 @@
     <v-divider></v-divider>
 
     <v-list density="compact" nav>
-      <v-list-item prepend-icon="mdi-folder" @click="gotoBoards" title="Meine Boards" value="myfiles"></v-list-item>
-      <v-list-item prepend-icon="mdi-account-multiple" title="Meine Gruppe" value="shared"></v-list-item>
-      <v-list-item prepend-icon="mdi-home" @click="goToHome"title="Home" value="starred"></v-list-item>
+      <v-list-item prepend-icon="mdi-arrow-left" @click="goBack" title="Zurück" value=".."></v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script>
+import {useRoute, useRouter} from "vue-router";
+
 export default {
-  methods: {
-    gotoBoards() {
-      this.$router.push({ name: 'Boards' });
-    },
-    passRouter() {
-      return this.$route.params.groupId;
-    },  
-    goToHome() {
-      this.$router.push({ name: 'Start' });
-    },
-  }
-}
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+
+    function goBack() {
+      const split = route.path.split("/");
+      if (split.length === 4) {
+        router.push({ path: '/' });
+      } else {
+        router.push({path: split.slice(0, -1).join("/")});
+      }
+    }
+
+    return {
+      goBack
+    };
+  },
+};
 </script>

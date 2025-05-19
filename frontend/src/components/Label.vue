@@ -1,88 +1,113 @@
 <template>
   <v-col cols="3">
     <div class="style-box ml-2 mt-2 mb-2 mr-2">
-      <h2>{{ sectionTitle }}</h2>
-      <draggable :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved">
+      <h2 class="text-center mb-3">{{ sectionTitle }}</h2>
+      <draggable :key="i" :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved" class="drag-zone" itemKey="index">
         <template #item="{ element, index }">
-          <div :key="index">
-            <v-card class="mb-3" style="background: #f7f2f9;">
-              <v-card-text>{{ element.name }}</v-card-text>
-              <v-col cols="2">
-                <v-btn icon="mdi-delete-outline" small density="compact" @click.stop="deleteCard(index)">
-                </v-btn>
-              </v-col>
-            </v-card>
-          </div>
+          <Card :group-id="groupId" :board-id="boardId" :content="element" @seleced="selectCard" @cardChanged="$emit('labelChanged'); loadCards()"></Card>
         </template>
       </draggable>
     </div>
   </v-col>
 </template>
 
-<script>
+
+
+<script lang="ts">
+import { ref, onMounted } from 'vue';
 import { apiUrl } from '@/lib/getApi.js';
-import { ref } from 'vue';
 import draggable from 'vuedraggable';
+import Card from "@/components/Card.vue";
+import {BoardService} from "@/lib/board.service.ts";
+
 export default {
   components: {
-    draggable
-  },
-  data() {
-    return {
-      cards: [],
-    }
+    Card,
+    draggable,
   },
   props: {
     sectionTitle: String,
     items: Array,
-    status: String
+    status: String,
+    groupId: String,
+    boardId: String,
   },
-  methods: {
-    async loadCards() {
+  setup(props, { emit }) {
+    const cards = ref([]);
+    const i = ref(0);
+
+    async function loadCards() {
       try {
-        const groupId = this.$route.params.groupId;
-        const boardId = this.$route.params.boardId;
-        const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards/`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        this.cards = data;
-        this.cards = this.cards.filter(card => card.status === this.status);
+        const data = await BoardService.getCards(props.groupId, props.boardId);
+        cards.value = data;
+        cards.value = cards.value.filter(
+            (card) => card.status === props.status
+        );
+        i.value++
       } catch (error) {
         console.error('There was an error!', error);
       }
-    },
-    async deleteCard(index) {
-      const card = this.cards[index];
-      const id = card.kantask_id;
+    }
 
-      const groupId = this.$route.params.groupId;
-      const boardId = this.$route.params.boardId;
+    async function deleteCard(index) {
+      const card = cards.value[index];
 
-      const response = await fetch(`${apiUrl}/groups/${groupId}/boards/${boardId}/cards${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok' + response.status);
-      } else {
-        this.cards.splice(index, 1);
+      try {
+        await BoardService.deleteCard(props.groupId, props.boardId, card)
+        cards.value.splice(index, 1);
+      } catch (e) {
+        console.error('There was an error deleting the card!', e);
       }
-    }, onCardMoved(event) {
-      if (event.moved) {
-        this.$emit('cardMoved', {
-          card: event.moved.element,
-          oldStatus: this.status,
-          newStatus: null // New status will be determined in App.vue
+    }
+
+    async function updateCardStatus(cardId, newStatus) {
+      try {
+        await BoardService.updateCardStatus(props.groupId, props.boardId, cardId, newStatus)
+      } catch (error) {
+        console.error('There was an error updating the card status!', error);
+      }
+    }
+
+    function onCardMoved(event) {
+      if (event.added) {
+        const movedCard = event.added.element;
+        const cardId = movedCard ? movedCard.kantask_id : null;
+        const newStatus = props.status;
+
+        if (cardId && newStatus) {
+          updateCardStatus(cardId, newStatus);
+        }
+
+        emit('cardMoved', {
+          card: movedCard,
+          cardId: cardId,
+          oldStatus: event.removed ? props.status : null,
+          newStatus: newStatus,
         });
       }
-    },
-  },
+    }
 
-  created() {
-   this.loadCards();
-  }
-}
+    function selectCard(card) {
+      emit('cardSelected', card);
+    }
+
+    onMounted(() => {
+      loadCards();
+    });
+
+    return {
+      cards,
+      loadCards,
+      deleteCard,
+      updateCardStatus,
+      onCardMoved,
+      selectCard,
+      groupId: props.groupId,
+      boardId: props.boardId,
+      i,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -92,5 +117,9 @@ export default {
   padding: 20px 10px;
   border-radius: 5px;
   min-height: 300px;
+}
+.drag-zone {
+  min-height: 200px;
+  padding-bottom: 20px;
 }
 </style>

@@ -1,25 +1,27 @@
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+
+import App from './App.vue';
+import registerGlobalComponents from './global-components';
+import router from './router';
 
 
-import { createApp } from 'vue'
-import App from './App.vue'
-import Board from './Boards.vue'
-import Start from './Start.vue'
-import route from './router.js'
-
-//Vuetify
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 const vuetify = createVuetify({
-  components,
-  directives,
+    components,
+    directives,
 })
+const app = createApp(App);
+const pinia = createPinia();
 
+app.use(vuetify)
+app.use(pinia);
+app.use(router);
 
+registerGlobalComponents(app);
 
-createApp(Start)
-  .use(vuetify)
-  .use(route)
-  .mount('#app')
+app.mount('#app');
