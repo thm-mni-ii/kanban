@@ -1,19 +1,8 @@
 <template>
   <div>
 
-    <!--Ansicht wechsen-->
-  <h1>
-    <select id="view-select" v-model="store.currentView" class="header-select">
-      <option value="Woche">Wochenansicht</option>
-      <option value="Monat">Monatsansicht</option>
-      <option value="Jahr">Jahresansicht</option>
-    </select>
-  </h1>
-
-
    <!--Dynamische Ansicht der Anzeige -->
 <div v-if="store.currentView ==='Woche'" >
-  <WeekSelector />
   <!-- Neuer Wrapper um die Tabelle hinzufügen -->
   <div class="table-container">
     <table>
@@ -28,7 +17,6 @@
             <!-- Karten für jeden Tag-->
             <div v-for="entry in groupedEntriesByDay[day]" :key="entry.date">
               <time-card
-              
                 :title="entry.title"
                 :group_id="entry.group_id"
                 :activity_start="entry.activity_start"
@@ -123,29 +111,6 @@ export default {
 
  tr:hover {
   background-color: #f9f9f9;
-
  }
-
- .header-select {
-  font-size: 1.3rem;
-  font-weight: bold;
-  padding: 0.75rem 1.5rem;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  background-color: #f9f9f9;
-  color: #333;
-  appearance: none; /* optional: remove default OS styling */
-  outline: none;
-  cursor: pointer;
-  max-width: 100%;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.header-select:hover {
-  border-color: #999;
-  background-color: #f0f0f0;
-}
-
 
 </style>
