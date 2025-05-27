@@ -33,6 +33,7 @@
 <script>
 import { nextTick } from 'vue';
 import BarChart from "./components/BarChart.vue";
+import { StatisticsService } from "@/lib/statistics.service";
 
 export default {
   components: { BarChart },
@@ -75,8 +76,7 @@ export default {
   methods: {
     async fetchGroups() {
       try {
-        const response = await fetch('http://localhost:3000/stats/taskspergroup');
-        const data = await response.json();
+        const data = await StatisticsService.getTasksPerGroup();
         this.groupOptions = ['all', ...data.map(group => group.group_id)];
       } catch (error) {
         console.error('Fehler beim Abrufen der Gruppen:', error);
@@ -101,8 +101,7 @@ export default {
 
     async fetchTasksPerGroup() {
       try {
-        const response = await fetch('http://localhost:3000/stats/taskspergroup');
-        const data = await response.json();
+        const data = await StatisticsService.getTasksPerGroup();
 
         const filteredData = this.selectedGroup === "all"
             ? data
@@ -129,8 +128,7 @@ export default {
 
     async fetchDonePercentData() {
       try {
-        const response = await fetch('http://localhost:3000/stats/tasks/done/in/percent');
-        const data = await response.json();
+        const data = await StatisticsService.getTasksDoneInPercent();
 
         const filteredData = this.selectedGroup === "all"
             ? data
@@ -157,8 +155,7 @@ export default {
 
     async fetchTaskDataPerLabel() {
       try {
-        const response = await fetch('http://localhost:3000/stats/tasks/per/label');
-        const data = await response.json();
+        const data = await StatisticsService.getTasksPerLabel();
         this.taskPerLabelChartData = this.formatTaskDataPerLabel(data);
       } catch (error) {
         console.error('Fehler beim Abrufen der Daten:', error);
@@ -180,11 +177,9 @@ export default {
 
     async fetchTasksDoneVsPending() {
       try {
-        const url = this.selectedGroup === 'all'
-            ? 'http://localhost:3000/stats/taskspergroup'
-            : `http://localhost:3000/stats/tasks/by/group/${this.selectedGroup}`;
-        const response = await fetch(url);
-        const data = await response.json();
+        const data = this.selectedGroup === 'all'
+            ? await StatisticsService.getTasksPerGroup()
+            : await StatisticsService.getTasksByGroup(this.selectedGroup);
 
         const formatted = this.selectedGroup === 'all'
             ? this.formatDoneVsPendingForAll(data)
@@ -236,8 +231,7 @@ export default {
 
     async fetchTasksByMember() {
       try {
-        const response = await fetch('http://localhost:3000/stats/tasks/by/member');
-        const data = await response.json();
+        const data = await StatisticsService.getTasksByMember();
 
         const filteredData = this.selectedGroup === "all"
             ? data
@@ -284,8 +278,7 @@ export default {
 
     async fetchLatestDoneTask() {
       try {
-        const response = await fetch('http://localhost:3000/stats/latest/done/task');
-        const data = await response.json();
+        const data = await StatisticsService.getLatestDoneTask();
         if (data.length > 0) {
           this.latestDoneTask = data[0];
         }

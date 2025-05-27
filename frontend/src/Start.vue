@@ -25,6 +25,7 @@
 <script>
 import { getColorFromId } from "./colorHelper";
 import BarChart from "./components/BarChart.vue";
+import { GroupService } from "@/lib/group.service";
 
 // Ich war nicht in der Lage herauszufinden, was man machen muss, damit man die Variable im Template benutzen kann
 const options = {
@@ -41,9 +42,6 @@ export default {
   data() {
     return {
       items: [],
-      mockData: [],
-      groupSelected: null,
-      selectedGroupMembers: [],
     };
   },
   computed: {
@@ -51,27 +49,15 @@ export default {
       return this.$route.path === "/";
     },
   },
-  created() {
-    fetch("/groups.json")
-      .then((response) => response.json())
-      .then((data) => {
-        this.items = data;
-      });
-
-    fetch("/MOCK_DATA.json")
-      .then((response) => response.json())
-      .then((data) => {
-        this.mockData = data;
-      });
+  async created() {
+    try {
+      const groups = await GroupService.getMyGroups();
+      this.items = groups.map(group => ({ group: group.id }));
+    } catch (error) {
+      console.error('Fehler beim Laden der Gruppen:', error);
+    }
   },
   methods: {
-    selectGroup(groupId) {
-      this.groupSelected = groupId;
-      const group = this.items.find((item) => item.group === groupId);
-      this.selectedGroupMembers = this.mockData.filter((member) =>
-        group.members.includes(member.id)
-      );
-    },
     getColorFromId,
 
     onGroupCardClick(groupId) {
