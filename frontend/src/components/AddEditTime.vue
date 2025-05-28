@@ -125,3 +125,90 @@ export default {
   },
 };
 </script>
+<style scoped>
+.add-edit-time {
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fafb;
+  border-radius: 12px;
+}
+
+.add-edit-time h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #1f2937;
+}
+
+form > div {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+input[type="text"],
+input[type="datetime-local"],
+input[type="time"],
+textarea,
+select {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #111827;
+  transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  outline: none;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+button[type="submit"] {
+  background-color: #10b981; /* Emerald */
+  color: white;
+}
+
+button[type="submit"]:hover {
+  background-color: #059669;
+}
+
+button[type="button"] {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+button[type="button"]:hover {
+  background-color: #d1d5db;
+}
+</style>

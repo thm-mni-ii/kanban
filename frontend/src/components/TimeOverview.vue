@@ -1,19 +1,8 @@
 <template>
   <div>
-    <h2>Übersicht : {{ store.currentView }}</h2>
-
-    <!--Ansicht wechsen-->
-  <select id="view-select" v-model="store.currentView">
-    <option value="Woche">Wochenansicht</option>
-    <option value="Monat">Monatsansicht</option>
-    <option value="Jahr">Jahresansicht</option>
-  </select>
-
 
    <!--Dynamische Ansicht der Anzeige -->
-<div v-if="store.currentView ==='Woche'">
-  <h4>Wochenübersicht</h4>
-
+<div v-if="store.currentView ==='Woche'" >
   <!-- Neuer Wrapper um die Tabelle hinzufügen -->
   <div class="table-container">
     <table>
@@ -28,7 +17,6 @@
             <!-- Karten für jeden Tag-->
             <div v-for="entry in groupedEntriesByDay[day]" :key="entry.date">
               <time-card
-              
                 :title="entry.title"
                 :group_id="entry.group_id"
                 :activity_start="entry.activity_start"
@@ -64,16 +52,17 @@
 import { useTimeTrackingStore } from '@/store/timeTracking';
 import TimeCard from './TimeCard.vue';
 import { computed } from 'vue';
-
+import WeekSelector from './selectors/WeekSelector-TimeTracking.vue';
 
 
 export default {
-  components: {TimeCard},
+  components: {TimeCard, WeekSelector},
 
   setup() {
 
     const store = useTimeTrackingStore();
     store.fetchEntries();
+    
     
     const daysOfWeek = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag','Sonntag'];
 
@@ -81,7 +70,7 @@ export default {
 
     //Gruppierte Einträge nach Tagen
     const getEntriesForDay = (day) => {
-      return store.entries.filter((entry) => entry.day === day);
+      return (store.entries??[]).filter((entry) => entry.day === day);
     };
 
     return {
@@ -104,6 +93,7 @@ export default {
   width: 100%;
   overflow: auto;
   white-space: nowrap;
+  margin-top: 0.5rem;
  }
 
  table {
@@ -121,8 +111,6 @@ export default {
 
  tr:hover {
   background-color: #f9f9f9;
-
  }
-
 
 </style>

@@ -20,7 +20,6 @@ if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET must be set!")
 const validator = new JwtValidator(process.env.JWT_SECRET);
 app.use(async (req, res, next) => {
   const authHeader = req.header("Authorization");
-  console.log(authHeader);
   if (!authHeader) {
     res.status(401)
     res.end();
