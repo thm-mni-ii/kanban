@@ -17,6 +17,23 @@ router
   });
 
 router
+  .route(`/me`)
+  .get((req, res) => {
+    const user = res.locals.user;
+    
+    if (!user) {
+      res.status(401);
+      res.json({ error: 'unauthorized' });
+      return;
+    }
+
+    res.json({
+      id: user.id,
+      username: user.username
+    });
+  });
+
+router
   .route(`/:id`)
   .get((req, res) => {
     const userId = req.params.id;

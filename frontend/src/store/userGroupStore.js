@@ -1,15 +1,24 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { GroupService } from '@/lib/group.service';
+import { UserService } from '@/lib/user.service';
 
 export const userGroupStore = defineStore('groupStore', () => {
   // State: Gruppenliste und ausgewählte Gruppe
   const groups = ref([]);
   const loading = ref(false);
   const error = ref(null);
+  const currentUser = ref(null);
 
-  // Bearer Token (Replace with actual token or get from auth store)
-  const bearerToken = localStorage.getItem("token")? localStorage.getItem("token"):import.meta.env.VITE_API_TOKEN; // Replace with actual token
-  const userId = localStorage.getItem("userid")? localStorage.getItem("userid"):import.meta.env.VITE_USER_ID
+  const fetchCurrentUser = async () => {
+    try {
+      currentUser.value = await UserService.getCurrentUser();
+      return currentUser.value;
+    } catch (err) {
+      error.value = err.message;
+      throw err;
+    }
+  };
 
   // Fetch groups from API
   const fetchGroups = async () => {
@@ -17,21 +26,12 @@ export const userGroupStore = defineStore('groupStore', () => {
     error.value = null;
 
     try {
-      const response = await fetch(`https://feedback.mni.thm.de/api/v1/users/${userId}/groups`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${bearerToken}`, // Send token in Authorization header
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch groups');
+      if (!currentUser.value) {
+        await fetchCurrentUser();
       }
-
-      const data = await response.json();
-      groups.value = data; // Assuming the API returns { "groups": [...] }
-
+      
+      const data = await GroupService.getMyGroups();
+      groups.value = data;
     } catch (err) {
       error.value = err.message;
     } finally {
@@ -48,5 +48,5 @@ export const userGroupStore = defineStore('groupStore', () => {
     return groups.value.find(group => group.id === id);
   }
 
-  return { groups, fetchGroups, loading, error, findGroupById};
+  return { groups, fetchGroups, loading, error, findGroupById, currentUser, fetchCurrentUser};
 });
