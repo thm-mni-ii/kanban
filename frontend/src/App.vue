@@ -15,7 +15,12 @@
   <script>
   import BaseCard from "./components/BaseCard.vue";
   import TimeTracking from "./TimeTracking.vue";
-  
+
+  const token = new URLSearchParams(location.search).get("token");
+  if (token) {
+    sessionStorage.setItem("token", token);
+  }
+
   export default {
     components: {
       BaseCard,
