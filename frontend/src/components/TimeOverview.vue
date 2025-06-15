@@ -109,7 +109,7 @@ export default {
   vertical-align: top;
  }
 
- tr:hover {
+ td:hover {
   background-color: #f9f9f9;
  }
 
