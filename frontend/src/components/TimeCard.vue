@@ -36,7 +36,7 @@
                 <form @submit.prevent="saveChanges">
                     <div>
                         <label>
-                            <input type="datetime-local" v-model="editStart" />
+                            <input type="datetime-local" v-model="editDate" />
                         </label>
                     </div>
                     <div>
@@ -144,6 +144,9 @@ export default {
     },
     methods: {
         toggleEdit() {
+            this.editDate = this.getFormattedDate(this.activity_start);
+            this.editEndTime = this.activity_duration;
+            this.editDescription = this.description;
             this.isEditing = true;
         },
         saveChanges() {
@@ -157,7 +160,7 @@ export default {
             const activity = {
               time_tracking_id: this.time_tracking_id,
               group_id: this.group_id,
-              activity_start: new Date(this.editStart).toUTCString(),
+              activity_start: new Date(this.editDate).toUTCString(),
               activity_duration: this.editEndTime.slice(0,5), // in minutes
               title: this.title,
               description: this.editDescription
@@ -175,8 +178,7 @@ export default {
             store.removeEntry(this.time_tracking_id);
         },
         cancelEdit() {
-            this.editDate = this.date;
-            this.editStartTime = this.activity_start;
+            this.editDate = this.getFormattedDate(this.activity_start);
             this.editEndTime = this.activity_duration;
             this.editDescription = this.description;
             this.isEditing = false;
