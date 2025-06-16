@@ -1,8 +1,6 @@
 <template>
-  <div class="topic-container">
-      <base-card>
+  <div class="topic-header-dark">
           <h1>Arbeitszeiterfassung</h1>
-        </base-card>
     </div>
   <div>
     
@@ -192,4 +190,21 @@ export default {
     order: 2;
   }
 }
+.topic-header-dark {
+  background-color: #2d2d2d; /* dark grey */
+  padding: 1rem 2rem;
+  text-align: center;
+  color: white;
+  width: 100%;
+  border-bottom: 1px solid #444;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.topic-header-dark h1 {
+  font-size: 1.6rem;
+  margin: 0;
+  font-weight: 500;
+}
+
 </style>
