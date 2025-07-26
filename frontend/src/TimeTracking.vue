@@ -10,13 +10,11 @@
     <!--Ansicht wechsen-->
     <div class="toolbar">
       <div class="toolbar-left toolbar-section">
-          <h1>
-            <select id="view-select" v-model="store.currentView" class="header-select">
-              <option value="Woche">Wochenansicht</option>
-              <option value="Monat">Monatsansicht</option>
-              <option value="Jahr">Jahresansicht</option>
-            </select>
-          </h1>
+        <select id="view-select" v-model="store.currentView" class="header-select">
+          <option value="Woche">Wochenansicht</option>
+          <option value="Monat">Monatsansicht</option>
+          <option value="Jahr">Jahresansicht</option>
+        </select>
       </div>
 
       <div v-if="store.currentView === 'Woche'" class="toolbar-center toolbar-section">
@@ -24,15 +22,10 @@
       </div>
 
       <div class="toolbar-right toolbar-section">
-        <div>
-          <label for="group">Gruppe:</label>
-          <GroupSelector id="group" v-model="timeOverviewGroup"/>
-        </div>
-        <div>
-          <button class="new-time-entry-btn" @click="isAdding = true; selectedEntry = null">
-            <v-icon>mdi-plus</v-icon>
-          </button>
-        </div>
+        <GroupSelector id="group" v-model="timeOverviewGroup" class="header-select" />
+        <button class="new-time-entry-btn" @click="isAdding = true; selectedEntry = null">
+          <v-icon>mdi-plus</v-icon>
+        </button>
       </div>
     </div>
 
@@ -222,4 +215,25 @@ export default {
   margin: 0;
   font-weight: 500;
 }
+
+.header-select.small {
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  color: #333;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+  height: 40px;
+  min-width: 160px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20,40 70,90 120,40' fill='none' stroke='%23666' stroke-width='14' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.75rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
 </style>
