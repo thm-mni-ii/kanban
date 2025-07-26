@@ -1,43 +1,44 @@
 <template>
-  <div class="topic-header-dark">
-          <h1>Arbeitszeiterfassung</h1>
-    </div>
+  <!-- <div class="topic-header-dark">
+    <h1>Arbeitszeiterfassung</h1>
+  </div> -->
   <div>
-    
     <!-- Add/Edit Form -->
-    <add-edit-time
-      v-if="isAdding"
-      :entry ="selectedEntry"
-      @edit-entry="editEntry"
-      @cancel="isAdding = false; selectedEntry = null"
-    />
+    <add-edit-time v-if="isAdding" :entry="selectedEntry" @edit-entry="editEntry"
+      @cancel="isAdding = false; selectedEntry = null" />
 
-        <!--Ansicht wechsen-->
-  <div class="toolbar">
-  <div class="toolbar-left toolbar-section">
-    <h1>
-      <select id="view-select" v-model="store.currentView" class="header-select">
-        <option value="Woche">Wochenansicht</option>
-        <option value="Monat">Monatsansicht</option>
-        <option value="Jahr">Jahresansicht</option>
-      </select>
-    </h1>
-  </div>
+    <!--Ansicht wechsen-->
+    <div class="toolbar">
+      <div class="toolbar-left toolbar-section">
+          <h1>
+            <select id="view-select" v-model="store.currentView" class="header-select">
+              <option value="Woche">Wochenansicht</option>
+              <option value="Monat">Monatsansicht</option>
+              <option value="Jahr">Jahresansicht</option>
+            </select>
+          </h1>
+      </div>
 
-  <div v-if="store.currentView === 'Woche'" class="toolbar-center toolbar-section">
-    <WeekSelector />
-  </div>
+      <div v-if="store.currentView === 'Woche'" class="toolbar-center toolbar-section">
+        <WeekSelector />
+      </div>
 
-  <div class="toolbar-right toolbar-section">
-    <button class="new-time-entry-btn" @click="isAdding = true; selectedEntry = null">
-      <v-icon>mdi-plus</v-icon>
-    </button>
-  </div>
-</div>
+      <div class="toolbar-right toolbar-section">
+        <div>
+          <label for="group">Gruppe:</label>
+          <GroupSelector id="group" v-model="timeOverviewGroup"/>
+        </div>
+        <div>
+          <button class="new-time-entry-btn" @click="isAdding = true; selectedEntry = null">
+            <v-icon>mdi-plus</v-icon>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Time Overview Table -->
-     <time-overview :entries="entries" />
-   
+    <time-overview :entries="entries" />
+
 
   </div>
 </template>
@@ -47,11 +48,12 @@
 import AddEditTime from "./components/AddEditTime.vue";
 import TimeOverview from "./components/TimeOverview.vue";
 import { useTimeTrackingStore } from "./store/timeTracking";
-import { computed,ref } from "vue";
+import { computed, ref, watch } from "vue";
 import WeekSelector from './components/selectors/WeekSelector-TimeTracking.vue';
+import GroupSelector from "./components/GroupSelector.vue";
 
 export default {
-  components: { AddEditTime, TimeOverview, WeekSelector },
+  components: { AddEditTime, TimeOverview, WeekSelector, GroupSelector },
 
   setup() {
     const store = useTimeTrackingStore();
@@ -64,12 +66,21 @@ export default {
     const selectedEntry = ref(null);
     const isEditing = computed(() => selectedEntry.value !== null);
     const isAdding = ref(false);
+    const timeOverviewGroup = ref(-1);
 
     const startEditing = (entry) => {
-      selectedEntry.value = {...entry};
+      selectedEntry.value = { ...entry };
       isAdding.value = true;
     }
-   
+
+    // react to group change
+    watch(timeOverviewGroup, (newGroup, oldGroup) => {
+      store.setCurrentGroup(newGroup);
+      console.log(`Store Group: ${newGroup}`);
+      store.fetchEntries()
+      // Beispiel: store.filterByGroup(newGroup);
+    });
+
 
     return {
       store,
@@ -80,11 +91,11 @@ export default {
       startEditing,
       addEntry,
       editEntry,
-      
+      timeOverviewGroup,
     }
-  }
+  },
 
- 
+
 };
 </script>
 <style scoped>
@@ -121,7 +132,8 @@ export default {
 
 /* WeekSelector block */
 .toolbar-center {
-  flex: 1 1 100%; /* Force to new line when needed */
+  flex: 1 1 100%;
+  /* Force to new line when needed */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -133,14 +145,16 @@ export default {
   flex: 1 1 33%;
   display: flex;
   align-items: center;
+  gap: 1rem;
 }
 
-.toolbar-left   {
-   order: 1;
-   justify-content: flex-start;
-   }
-.toolbar-right  { 
-  order: 2; 
+.toolbar-left {
+  order: 1;
+  justify-content: flex-start;
+}
+
+.toolbar-right {
+  order: 2;
   justify-content: flex-end;
 }
 
@@ -190,8 +204,10 @@ export default {
     order: 2;
   }
 }
+
 .topic-header-dark {
-  background-color: #2d2d2d; /* dark grey */
+  background-color: #2d2d2d;
+  /* dark grey */
   padding: 1rem 2rem;
   text-align: center;
   color: white;
@@ -206,5 +222,4 @@ export default {
   margin: 0;
   font-weight: 500;
 }
-
 </style>

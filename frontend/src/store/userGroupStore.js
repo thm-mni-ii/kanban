@@ -29,7 +29,7 @@ export const userGroupStore = defineStore('groupStore', () => {
       if (!currentUser.value) {
         await fetchCurrentUser();
       }
-      
+
       const data = await GroupService.getMyGroups();
       groups.value = data;
     } catch (err) {
@@ -48,5 +48,11 @@ export const userGroupStore = defineStore('groupStore', () => {
     return groups.value.find(group => group.id === id);
   }
 
-  return { groups, fetchGroups, loading, error, findGroupById, currentUser, fetchCurrentUser};
+  const getCourseIdByGroupId = (groupId) => {
+    const group = findGroupById(groupId);
+    return group ? group.courseId : null;
+  };
+
+
+  return { groups, fetchGroups, loading, error, findGroupById, currentUser, fetchCurrentUser, getCourseIdByGroupId};
 });

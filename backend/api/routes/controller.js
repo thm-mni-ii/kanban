@@ -1,6 +1,6 @@
 const pool = require('../db');
 const { get } = require('./groups');
-const {getUserGroups} = require("../services/groupService");
+const {getUserGroups, getGroupMembers} = require("../services/groupService");
 
 const getGroups = async (req, res) => {
   const groups = await getUserGroups(res.locals.user.id, res.locals.token)
@@ -605,12 +605,52 @@ async function getTimeEntryById(req, res) {
 }
 
 const getTimeEntriesByGroup = async (req, res) => {
-  const groupid = req.params.id;
+  const groupId = req.params.id;
+  const userId = res.locals.user.id;
+  const token = res.locals.token;
 
+
+  // get course ID (because the service requires that)
+  const groups = await getUserGroups(userId, token);
+  const group = groups.find(g => g.id === Number(groupId));
+  
+  if (!group) {
+    return res.status(404).json({ error: 'Group not found' });
+  }
+
+  const courseId = group.courseId;
+
+  // get role of user
+  const participants = await getGroupMembers(courseId, groupId, token);
+  const participant = participants.find(p => p.user.id === Number(userId));
+
+  console.log(`Participants: ${JSON.stringify(participants)}`);
+  console.log(`Participant: ${JSON.stringify(participant)}`);
+
+  if (!participant) {
+    return res.status(403).json({ error: 'User is not a member of this group' });
+  }
+
+  const roleString = participant.role.value;
+
+  // if user is dozent Query entries of all group members
+  let query = '';
+  let values = [];
+
+  if (roleString == "DOCENT") {
+    query = 'SELECT * FROM time_tracking WHERE group_id = $1;';
+    values = [groupId];
+  } else {
+    query = 'SELECT * FROM time_tracking WHERE group_id = $1 AND user_id = $2;';
+    values = [groupId, userId];
+  }
+
+  // else Query only own entries
   try {
+    console.log(`Query: ${query}`);
+    console.log(`Values: ${values}`);
+
     const client = await pool.connect();
-    const query = 'SELECT * FROM time_tracking WHERE group_id = $1;';
-    const values = [groupid];
     const result = await client.query(query, values);
     client.release();
 
