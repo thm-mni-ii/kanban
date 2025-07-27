@@ -14,8 +14,8 @@ COPY . .
 # Build typescript
 RUN npm run build
 
-# Expose port 3000
-EXPOSE 3000
+# Expose port 3001
+EXPOSE 3001
 
 # Run app
 CMD [ "npm", "run", "preview", "--", "--host", "0.0.0.0" ]

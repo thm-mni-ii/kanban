@@ -88,7 +88,7 @@ async function getGroupList(cid: number, token: string, visible?: boolean) {
  */
 async function createGroup(cid: number, postData: GroupInput){
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups`, {
+        const response = await fetch(`${apiUrl}/courses/${cid}/groups`, {
             method: 'POST',
             body: JSON.stringify(postData),
             headers: {'Content-Type': 'application/json'}
@@ -133,7 +133,7 @@ async function getGroup(cid: number, gid: number, token: string) {
  */
 async function updateGroup(cid: number, gid: number, postData: GroupInput){
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`, {
+        const response = await fetch(`${apiUrl}/courses/${cid}/groups/${gid}`, {
             method: 'PUT',
             body: JSON.stringify(postData),
             headers: {'Content-Type': 'application/json'}
@@ -158,7 +158,7 @@ async function updateGroup(cid: number, gid: number, postData: GroupInput){
  */
 async function deleteGroup(cid: number, gid: number) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`, {
+        const response = await fetch(`${apiUrl}/courses/${cid}/groups/${gid}`, {
             method: 'DELETE',
         });
         if (!response.ok){
@@ -186,7 +186,7 @@ async function deleteGroup(cid: number, gid: number) {
  */
 async function addUserToGroup(cid: number, gid: number, uid: number){
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
+        const response = await fetch(`${apiUrl}/courses/${cid}/groups/${gid}/users/${uid}`, {
             method: 'PUT',
         });
         if (!response.ok){
@@ -210,7 +210,7 @@ async function addUserToGroup(cid: number, gid: number, uid: number){
  */
 async function removeUserFromGroup(cid: number, gid: number,  uid: number) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
+        const response = await fetch(`${apiUrl}/courses/${cid}/groups/${gid}/users/${uid}`, {
             method: 'DELETE',
         });
         if (!response.ok){
@@ -232,7 +232,7 @@ async function removeUserFromGroup(cid: number, gid: number,  uid: number) {
  */
 async function removeAllUsersFromGroup(cid: number, gid: number) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users`, {
+        const response = await fetch(`${apiUrl}/courses/${cid}/groups/${gid}/users`, {
             method: 'DELETE',
         });
         if (!response.ok){
@@ -270,9 +270,9 @@ export async function getUserGroups(uid: number, token: string) {
  *
  * throws {Error} Throws an error if the network request fails or the response is not ok.
  */
-async function getGroupMembers(cid: number, gid: number){
+export async function getGroupMembers(cid: number, gid: number, token: string) {
     try {
-        const response = await fetchWithToken(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/participants`, token);
+        const response = await fetchWithToken(`${apiUrl}/courses/${cid}/groups/${gid}/participants`, token);
         if (!response.ok){
             throw new Error(response.statusText);
         }
