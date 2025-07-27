@@ -22,13 +22,6 @@
       </div>
 
       <div class="toolbar-right toolbar-section">
-        <!-- TODO: Sum of entire worked time of the entire group | only visible if there are times of other group members in the store -->
-        <!-- TODO: Sum of entire worked time of oneself  -->
-
-        <!-- TODO: Sum of entire worked time of other group members | only visible if there are times of other group members in the store  -->
-        <!-- TODO: Sum of currently displayed worked time of the entire group | only visible if there are times of other group members in the store   -->
-        <!-- TODO: Sum of currently displayed worked time of oneself  -->
-        <!-- TODO: Sum of currently displayed worked time of other group members | only visible if there are times of other group members in the store -->
         <table class="time-summary">
           <thead>
             <tr>

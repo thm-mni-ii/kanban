@@ -624,9 +624,6 @@ const getTimeEntriesByGroup = async (req, res) => {
   const participants = await getGroupMembers(courseId, groupId, token);
   const participant = participants.find(p => p.user.id === Number(userId));
 
-  console.log(`Participants: ${JSON.stringify(participants)}`);
-  console.log(`Participant: ${JSON.stringify(participant)}`);
-
   if (!participant) {
     return res.status(403).json({ error: 'User is not a member of this group' });
   }
@@ -647,9 +644,6 @@ const getTimeEntriesByGroup = async (req, res) => {
 
   // else Query only own entries
   try {
-    console.log(`Query: ${query}`);
-    console.log(`Values: ${values}`);
-
     const client = await pool.connect();
     const result = await client.query(query, values);
     client.release();

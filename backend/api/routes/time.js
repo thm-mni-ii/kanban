@@ -37,6 +37,4 @@ router.put('/:id', controller.updateTimeEntry);
 
 router.delete('/:id', controller.deleteTimeEntry);
 
-// TODO: test it
-
 module.exports = router;
