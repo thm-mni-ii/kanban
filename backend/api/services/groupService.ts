@@ -272,7 +272,7 @@ export async function getUserGroups(uid: number, token: string) {
  */
 async function getGroupMembers(cid: number, gid: number){
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/participants`);
+        const response = await fetchWithToken(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/participants`, token);
         if (!response.ok){
             throw new Error(response.statusText);
         }

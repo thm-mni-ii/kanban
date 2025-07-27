@@ -22,6 +22,40 @@
       </div>
 
       <div class="toolbar-right toolbar-section">
+        <!-- TODO: Sum of entire worked time of the entire group | only visible if there are times of other group members in the store -->
+        <!-- TODO: Sum of entire worked time of oneself  -->
+
+        <!-- TODO: Sum of entire worked time of other group members | only visible if there are times of other group members in the store  -->
+        <!-- TODO: Sum of currently displayed worked time of the entire group | only visible if there are times of other group members in the store   -->
+        <!-- TODO: Sum of currently displayed worked time of oneself  -->
+        <!-- TODO: Sum of currently displayed worked time of other group members | only visible if there are times of other group members in the store -->
+        <table class="time-summary">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Gesamt</th>
+              <th>Angezeigt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>🧍 Ich</td>
+              <td>{{ formatHoursToTimeString(myTotalHours) }}</td>
+              <td>{{ formatHoursToTimeString(myDisplayedHours) }}</td>
+            </tr>
+            <tr v-if="hasOtherGroupMembers">
+              <td>👥 Andere</td>
+              <td>{{ formatHoursToTimeString(otherGroupMembersTotalHours) }}</td>
+              <td>{{ formatHoursToTimeString(othersDisplayedHours) }}</td>
+            </tr>
+            <tr v-if="hasOtherGroupMembers">
+              <td>📊 Gruppe</td>
+              <td>{{ formatHoursToTimeString(groupTotalHours) }}</td>
+              <td>{{ formatHoursToTimeString(displayedGroupHours) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
         <GroupSelector id="group" v-model="timeOverviewGroup" class="header-select" />
         <button class="new-time-entry-btn" @click="isAdding = true; selectedEntry = null">
           <v-icon>mdi-plus</v-icon>
@@ -41,21 +75,110 @@
 import AddEditTime from "./components/AddEditTime.vue";
 import TimeOverview from "./components/TimeOverview.vue";
 import { useTimeTrackingStore } from "./store/timeTracking";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import WeekSelector from './components/selectors/WeekSelector-TimeTracking.vue';
 import GroupSelector from "./components/GroupSelector.vue";
+import { UserService } from '@/lib/user.service';
 
 export default {
   components: { AddEditTime, TimeOverview, WeekSelector, GroupSelector },
 
   setup() {
     const store = useTimeTrackingStore();
+    const currentUserId = ref(null);
+
+    onMounted(async () => {
+      const user = await UserService.getCurrentUser();
+      currentUserId.value = user.id;
+    });
+
 
     const entries = computed(() => store.entries);
+
+    function parseDurationToHours(durationStr) {
+      if (!durationStr) return 0;
+      const [hours, minutes, seconds] = durationStr.split(":").map(Number);
+      return hours + minutes / 60 + seconds / 3600;
+    }
+
+    const hasOtherGroupMembers = computed(() =>
+      currentUserId.value !== null &&
+      store.entries.some(entry => entry.user_id !== currentUserId.value)
+    );
+
+    function formatHoursToTimeString(decimalHours) {
+      const totalSeconds = Math.round(decimalHours * 3600);
+
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      // Pad with leading zeros if needed
+      const pad = (n) => n.toString().padStart(2, '0');
+      return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+
+
     const addEntry = (entry) => store.addEntry(entry);
     const editEntry = (updatedEntry) => {
       store.editEntry(updatedEntry);
     }
+
+    const groupTotalHours = computed(() =>
+      store.entries
+        .reduce((sum, entry) => sum + parseDurationToHours(entry.activity_duration), 0)
+    );
+
+    const myTotalHours = computed(() =>
+      store.entries
+        .filter(entry => entry.user_id === currentUserId.value)
+        .reduce((sum, entry) => sum + parseDurationToHours(entry.activity_duration), 0)
+    );
+
+    const otherGroupMembersTotalHours = computed(() =>
+      store.entries
+        .filter(entry => entry.user_id !== currentUserId.value)
+        .reduce((sum, entry) => sum + parseDurationToHours(entry.activity_duration), 0)
+    );
+
+    const displayedGroupHours = computed(() => {
+      const from = new Date(store.fromDate);
+      const to = new Date(store.toDate);
+
+      return store.entries
+        .filter(entry => {
+          const date = new Date(entry.activity_start);
+          return date >= from && date <= to;
+        })
+        .reduce((sum, entry) => sum + parseDurationToHours(entry.activity_duration), 0);
+    });
+
+    const myDisplayedHours = computed(() => {
+      const from = new Date(store.fromDate);
+      const to = new Date(store.toDate);
+
+      return store.entries
+        .filter(entry => {
+          const date = new Date(entry.activity_start);
+          return date >= from && date <= to && entry.user_id === currentUserId.value;
+        })
+        .reduce((sum, entry) => sum + parseDurationToHours(entry.activity_duration), 0);
+    });
+
+    const othersDisplayedHours = computed(() => {
+      const from = new Date(store.fromDate);
+      const to = new Date(store.toDate);
+
+      return store.entries
+        .filter(entry => {
+          const date = new Date(entry.activity_start);
+          return date >= from && date <= to && entry.user_id !== currentUserId.value;
+        })
+        .reduce((sum, entry) => sum + parseDurationToHours(entry.activity_duration), 0);
+    });
+
+
+
     const selectedEntry = ref(null);
     const isEditing = computed(() => selectedEntry.value !== null);
     const isAdding = ref(false);
@@ -69,7 +192,6 @@ export default {
     // react to group change
     watch(timeOverviewGroup, (newGroup, oldGroup) => {
       store.setCurrentGroup(newGroup);
-      console.log(`Store Group: ${newGroup}`);
       store.fetchEntries()
       // Beispiel: store.filterByGroup(newGroup);
     });
@@ -85,6 +207,18 @@ export default {
       addEntry,
       editEntry,
       timeOverviewGroup,
+      onMounted,
+      currentUserId,
+      hasOtherGroupMembers,
+      parseDurationToHours,
+      formatHoursToTimeString,
+      groupTotalHours,
+      myTotalHours,
+      otherGroupMembersTotalHours,
+      displayedGroupHours,
+      myDisplayedHours,
+      othersDisplayedHours
+
     }
   },
 
@@ -236,4 +370,20 @@ export default {
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+.time-summary {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 240px;
+}
+
+.time-summary th,
+.time-summary td {
+  padding: 0.25rem 0.5rem;
+  text-align: right;
+}
+
+.time-summary th:first-child,
+.time-summary td:first-child {
+  text-align: left;
+}
 </style>
