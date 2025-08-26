@@ -50,10 +50,10 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
-      FBS_API_URL: https://172.17.0.1/api/v1
+      FBS_API_URL: ${API_URL}
       NODE_TLS_REJECT_UNAUTHORIZED: "0"
     ports:
-      - "3000:3000"
+      - "3001:3001"
     depends_on:
       kandb:
         condition: service_healthy

@@ -25,7 +25,7 @@ var CourseRole;
  */
 async function getGroupList(cid, visible) {
     try {
-        let url = `https://feedback.mni.thm.de/api/v1/courses/${cid}/groups`;
+        let url = `https://localhost/api/v1/courses/${cid}/groups`;
         if (visible !== undefined) {
             url += `?visible = ${visible}`;
         }
@@ -51,7 +51,7 @@ async function getGroupList(cid, visible) {
  */
 async function createGroup(cid, postData) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups`, {
+        const response = await fetch(`https://localhost/api/v1/courses/${cid}/groups`, {
             method: 'POST',
             body: JSON.stringify(postData),
             headers: { 'Content-Type': 'application/json' }
@@ -77,7 +77,7 @@ async function createGroup(cid, postData) {
  */
 async function getGroup(cid, gid) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`);
+        const response = await fetch(`https://localhost/api/v1/courses/${cid}/groups/${gid}`);
         if (!response.ok) {
             throw new Error(response.statusText);
         }
@@ -100,7 +100,7 @@ async function getGroup(cid, gid) {
  */
 async function updateGroup(cid, gid, postData) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`, {
+        const response = await fetch(`https://localhost/api/v1/courses/${cid}/groups/${gid}`, {
             method: 'PUT',
             body: JSON.stringify(postData),
             headers: { 'Content-Type': 'application/json' }
@@ -125,7 +125,7 @@ async function updateGroup(cid, gid, postData) {
  */
 async function deleteGroup(cid, gid) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}`, {
+        const response = await fetch(`https://localhost/api/v1/courses/${cid}/groups/${gid}`, {
             method: 'DELETE',
         });
         if (!response.ok) {
@@ -152,7 +152,7 @@ async function deleteGroup(cid, gid) {
  */
 async function addUserToGroup(cid, gid, uid) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
+        const response = await fetch(`https://localhost/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
             method: 'PUT',
         });
         if (!response.ok) {
@@ -176,7 +176,7 @@ async function addUserToGroup(cid, gid, uid) {
  */
 async function removeUserFromGroup(cid, gid, uid) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
+        const response = await fetch(`https://localhost/api/v1/courses/${cid}/groups/${gid}/users/${uid}`, {
             method: 'DELETE',
         });
         if (!response.ok) {
@@ -198,7 +198,7 @@ async function removeUserFromGroup(cid, gid, uid) {
  */
 async function removeAllUsersFromGroup(cid, gid) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/users`, {
+        const response = await fetch(`https://localhost/api/v1/courses/${cid}/groups/${gid}/users`, {
             method: 'DELETE',
         });
         if (!response.ok) {
@@ -220,7 +220,7 @@ async function removeAllUsersFromGroup(cid, gid) {
  */
 async function getUserGroups(uid) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/users/${uid}/groups`);
+        const response = await fetch(`https://localhost/api/v1/users/${uid}/groups`);
         if (!response.ok) {
             throw new Error(response.statusText);
         }
@@ -242,7 +242,7 @@ async function getUserGroups(uid) {
  */
 async function getGroupMembers(cid, gid) {
     try {
-        const response = await fetch(`https://feedback.mni.thm.de/api/v1/courses/${cid}/groups/${gid}/participants`);
+        const response = await fetch(`https://localhost/api/v1/courses/${cid}/groups/${gid}/participants`);
         if (!response.ok) {
             throw new Error(response.statusText);
         }

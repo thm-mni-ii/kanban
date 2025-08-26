@@ -10,6 +10,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
     toDate: null,
     error: null,
     loading: false,
+    currentGroupId: -1,
   }),
 
   getters: {
@@ -62,7 +63,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       this.error = null;
 
       // make time utc
-      if(entry.activity_start) {
+      if (entry.activity_start) {
         entry.activity_start = new Date(entry.activity_start).toUTCString();
       }
 
@@ -94,13 +95,13 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
         console.warn(`Activity with id ${id} not found`)
       }
     },
-    async editEntry(entry){
+    async editEntry(entry) {
       this.loading = true;
       this.error = null;
       const entryId = entry.time_tracking_id;
 
       // make time utc
-      if(entry.activity_start) {
+      if (entry.activity_start) {
         entry.activity_start = new Date(entry.activity_start).toUTCString();
       }
 
@@ -118,7 +119,7 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       // Entfernt einen Eintrag nach seiner ID
       this.loading = true;
       this.error = null;
-      
+
       try {
         await TimeTrackingService.deleteTimeTracker(entryId);
         await this.fetchEntries();
@@ -133,13 +134,26 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       // Ändert die aktuelle Ansicht
       this.currentView = view;
     },
+    setCurrentGroup(groupId) {
+      this.currentGroupId = groupId;
+    },
     async fetchEntries() {
       this.loading = true;
       this.error = null;
 
       try {
         const user = await UserService.getCurrentUser();
-        this.entries = await TimeTrackingService.getTimeTrackersByUser(user.id);
+        const group_id = this.currentGroupId;
+
+
+        if (group_id === -1 || group_id === null) {
+          // no group selected
+          this.entries = await TimeTrackingService.getTimeTrackersByUser(user.id);
+        } else {
+          // group selected -> backend decides if the user see only his own entries or the groups entries
+          this.entries = await TimeTrackingService.getTimeTrackersByGroup(group_id);
+        }
+
       } catch (err) {
         this.error = err.message;
         console.error(this.error);

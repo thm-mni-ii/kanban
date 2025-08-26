@@ -1,11 +1,13 @@
 <template>
-    <select v-model="groupId" @change="emitModelValue" :disabled="userHasNoGroups">
-      <option v-if="!userHasNoGroups" disabled value=-1>-- wähle eine Gruppe aus --</option>
-      <option v-else disabled value=-1>-- Sie sind in keiner Gruppe --</option>
-      <option v-for="group in groupStore.groups" :value="group.id">
-        {{ group.name }}
-      </option>
-    </select>
+  <select :value="modelValue" @change="onChange" :disabled="userHasNoGroups">
+    <option :disabled="userHasNoGroups" value="-1">
+      {{ userHasNoGroups ? '-- Sie sind in keiner Gruppe --' : 'Keine Gruppe' }}
+    </option>
+
+    <option v-for="group in groupStore.groups" :value="group.id" :key="group.id">
+      {{ group.name }}
+    </option>
+  </select>
 </template>
 
 <script>
@@ -17,17 +19,17 @@ export default {
   data() {
     return {
       groupStore: userGroupStore(),
-      groupId: -1,
     }
   },
   computed: {
     userHasNoGroups() {
-      return this.groupStore.groups.length == 0;
+      return this.groupStore.groups.length === 0;
     }
   },
   methods: {
-    emitModelValue() {
-      this.$emit('update:modelValue', this.groupId);
+    onChange(event) {
+      const value = parseInt(event.target.value, 10);
+      this.$emit('update:modelValue', value);
     }
   }
 }

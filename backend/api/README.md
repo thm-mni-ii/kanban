@@ -21,7 +21,7 @@ A single-use container is automatically deleted when it is stopped. Normally, Do
 To create and run a single-use container use the command:
 
 ```
-docker run -d -p 3000:3000 --rm --name api-container api-image
+docker run -d -p 3001:3001 --rm --name api-container api-image
 ```
 
 The resulting docker container will be named `api-container`.
@@ -37,7 +37,7 @@ When there is no need to recreate a container very often it is easier to just cr
 
 To create a container use:
 ```
-docker run -d -p 3000:3000 --name api-container api-image
+docker run -d -p 3001:3001 --name api-container api-image
 ```
 
 The resulting docker container will be named `api-container`.
@@ -53,4 +53,4 @@ docker start api-container
 ```
 
 ### accessing the api
-When accessing http://localhost:3000/ with your web browser hello world should be displayed
+When accessing http://localhost:3001/ with your web browser hello world should be displayed
