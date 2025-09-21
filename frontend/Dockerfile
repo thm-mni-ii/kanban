@@ -11,6 +11,9 @@ RUN npm install
 # Copy all files
 COPY . .
 
+ARG VITE_APP_API_URL=/kanban/api
+ARG VITE_BASE_URL=/kanban/
+
 # Build typescript
 RUN npm run build
 
