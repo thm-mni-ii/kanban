@@ -14,20 +14,60 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
   }),
 
   getters: {
-    totalHours: (state) => {    // Der Pfeil-Operator (Arrow Function) definiert eine Funktion.
-      // Berechnet die Gesamtstunden basierend auf den Einträgen
-      return state.entries.reduce((sum, entry) => sum + entry.hours, 0);
+    totalHours: (state) => {
+      return state.entries.reduce((sum, entry) => sum + (entry.hours || 0), 0);
     },
 
+    groupedEntriesByMonth: (state) => {
+      // Wenn kein Zeitraum gesetzt ist: nicht filtern, aber trotzdem pro Tag gruppieren
+      const hasRange = !!(state.fromDate && state.toDate);
+
+      const from = hasRange ? new Date(state.fromDate) : null;
+      const to = hasRange ? new Date(state.toDate) : null;
+
+      if (from && to) {
+        from.setHours(0, 0, 0, 0);
+        to.setHours(23, 59, 59, 999);
+      }
+
+      const pad = (n) => String(n).padStart(2, "0");
+      const toISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+      const map = {};
+
+      for (const e of state.entries ?? []) {
+        // Datum bestimmen
+        let d = null;
+        if (e.activity_start) {
+          d = new Date(e.activity_start);
+        } else if (e.date) {
+          d = new Date(e.date);
+        } else {
+          continue; // kein Datum -> überspringen
+        }
+
+        // Optional filtern
+        if (hasRange) {
+          const cmp = new Date(d);
+          cmp.setHours(12, 0, 0, 0); // Stabil gegen TZ-Kanten
+          if (cmp < from || cmp > to) continue;
+        }
+
+        const key = toISO(d); // pro Kalendertag gruppieren
+        if (!map[key]) map[key] = [];
+        map[key].push(e);
+      }
+
+      return map; // { '2025-09-01': [..], '2025-09-02': [..], ... }
+    },
 
     groupedEntriesByDay: (state) => {
       const days = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
 
-      // Falls fromDate oder toDate nicht gesetzt sind → alle Einträge zurückgeben wie bisher
       if (!state.fromDate || !state.toDate) {
         return days.reduce((acc, day) => {
-          acc[day] = state.entries.filter((entry) => {
-            const entryDate = new Date(entry.activity_start);
+          acc[day] = (state.entries ?? []).filter((entry) => {
+            const entryDate = new Date(entry.activity_start || entry.date);
             const entryDay = entryDate.toLocaleDateString("de-DE", { weekday: "long" });
             return entryDay === day;
           });
@@ -41,21 +81,18 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       to.setHours(23, 59, 59, 999);
 
       return days.reduce((acc, day) => {
-        acc[day] = state.entries.filter((entry) => {
+        acc[day] = (state.entries ?? []).filter((entry) => {
           const entryDate = new Date(entry.activity_start || entry.date);
           entryDate.setHours(0, 0, 0, 0);
           const entryDay = entryDate.toLocaleDateString("de-DE", { weekday: "long" });
 
-          return (
-            entryDay === day &&
-            entryDate >= from &&
-            entryDate <= to
-          );
+          return entryDay === day && entryDate >= from && entryDate <= to;
         });
         return acc;
       }, {});
     }
   },
+
 
   actions: {
     async addEntry(entry) {
@@ -160,6 +197,19 @@ export const useTimeTrackingStore = defineStore('timeTracking', {
       } finally {
         this.loading = false;
       }
+    },
+    setMonthRange(year, month) {
+      // month: 1-12 (Januar = 1)
+      const first = new Date(year, month - 1, 1);
+      const last = new Date(year, month, 0); // letzter Tag des Monats
+
+      // Normalisierungen
+      first.setHours(0, 0, 0, 0);
+      last.setHours(23, 59, 59, 999);
+
+      this.fromDate = first.toISOString();
+      this.toDate = last.toISOString();
     }
+
   }
 });
