@@ -20,6 +20,9 @@
       <div v-if="store.currentView === 'Woche'" class="toolbar-center toolbar-section">
         <WeekSelector />
       </div>
+      <div v-if="store.currentView === 'Monat'" class="toolbar-center toolbar-section">
+        <MonthSelector />
+      </div>
 
       <div class="toolbar-right toolbar-section">
         <table class="time-summary">
@@ -70,11 +73,12 @@ import TimeOverview from "./components/TimeOverview.vue";
 import { useTimeTrackingStore } from "./store/timeTracking";
 import { computed, ref, watch, onMounted } from "vue";
 import WeekSelector from './components/selectors/WeekSelector-TimeTracking.vue';
+import MonthSelector from "./components/selectors/MonthSelector-TimeTracking.vue";
 import GroupSelector from "./components/GroupSelector.vue";
 import { UserService } from '@/lib/user.service';
 
 export default {
-  components: { AddEditTime, TimeOverview, WeekSelector, GroupSelector },
+  components: { AddEditTime, TimeOverview, WeekSelector, GroupSelector, MonthSelector },
 
   setup() {
     const store = useTimeTrackingStore();
