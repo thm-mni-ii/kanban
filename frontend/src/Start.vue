@@ -8,10 +8,10 @@
         v-for="(item, index) in items"
         :key="index"
         class="mb-4"
-        :style="{ backgroundColor: getColorFromId(item.group) }"
-        @click="onGroupCardClick(item.group)"
+        :style="{ backgroundColor: getColorFromId(item.id) }"
+        @click="onGroupCardClick(item.id)"
       >
-        <v-card-title> GruppeID: {{ item.group }} </v-card-title>
+        <v-card-title>{{ item.name }}</v-card-title>
       </v-card>
 
       <v-container>
@@ -52,7 +52,7 @@ export default {
   async created() {
     try {
       const groups = await GroupService.getMyGroups();
-      this.items = groups.map(group => ({ group: group.id }));
+      this.items = groups;
     } catch (error) {
       console.error('Fehler beim Laden der Gruppen:', error);
     }

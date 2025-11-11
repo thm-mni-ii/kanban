@@ -103,7 +103,7 @@ const deleteSpecificBoardOfGroup = (req, res) => {
 const getCardsOfBoardOfGroup = (req, res) => {
   const boardId = req.params.boardId;
 
-  const query = 'SELECT * FROM kantask WHERE board_id = $1';
+  const query = 'SELECT * FROM kantask WHERE board_id = $1 ORDER BY status, position';
   const values = [boardId]
 
   pool.query(query, values, (error, results) => {
@@ -344,6 +344,28 @@ const updateStatusOfCard = (req, res) => {
         if (error) {
             console.error('Fehler beim Aktualisieren des Status:', error);
             return res.status(500).json({ error: 'Fehler beim Aktualisieren des Status' });
+        }
+
+        if (results.rows.length === 0) {
+            return res.status(404).json({ error: 'Karte nicht gefunden' });
+        }
+
+        res.status(200).json(results.rows[0]);
+    });
+}
+
+const updateCardPosition = (req, res) => {
+    const cardId = req.params.id;
+    const boardId = req.params.boardId;
+    const { position, status } = req.body;
+    
+    const query = 'UPDATE kantask SET position = $1, status = $2 WHERE kantask_id = $3 AND board_id = $4 RETURNING *;';
+    const values = [position, status, cardId, boardId];
+
+    pool.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Fehler beim Aktualisieren der Position:', error);
+            return res.status(500).json({ error: 'Fehler beim Aktualisieren der Position' });
         }
 
         if (results.rows.length === 0) {
@@ -925,4 +947,5 @@ module.exports = {
   getSpecificCardTimeDetails,
   updateSpecificCardTime,
   updateStatusOfCard,
+  updateCardPosition,
 };

@@ -75,12 +75,6 @@
       </div>
     </div>
 
-    <div v-else-if="store.currentView === 'Jahr'">
-      <h4>Jahresübersicht</h4>
-      <p> Jahresübersicht muss noch implementiert werden</p>
-    </div>
-
-
   </div>
 </template>
 

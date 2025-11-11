@@ -13,7 +13,6 @@
         <select id="view-select" v-model="store.currentView" class="header-select">
           <option value="Woche">Wochenansicht</option>
           <option value="Monat">Monatsansicht</option>
-          <option value="Jahr">Jahresansicht</option>
         </select>
       </div>
 

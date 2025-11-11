@@ -55,6 +55,7 @@ const fetchWithToken = (url: string, token: string, init: RequestInit = {}) => f
  * Returns the list of groups for a specific course.
  *
  * @param cid - The course id
+ * @param token - The token
  * @param visible - Optional filter to filter only for visible groups
  * @returns list of groups for the course with the id 'cid'
  *

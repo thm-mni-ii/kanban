@@ -22,6 +22,8 @@ jobs:
             context: ./backend/api
           - name: frontend
             context: ./frontend
+          - name: sql-setup-runner
+            context: ./backend/database/setup
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5

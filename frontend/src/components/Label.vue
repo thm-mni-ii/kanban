@@ -2,7 +2,7 @@
   <v-col cols="3">
     <div class="style-box ml-2 mt-2 mb-2 mr-2">
       <h2 class="text-center mb-3">{{ sectionTitle }}</h2>
-      <draggable :key="i" :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved" class="drag-zone" itemKey="index">
+      <draggable :key="i" :list="cards" group="tasks" @start="drag = true" @end="drag = false" @change="onCardMoved" class="drag-zone" itemKey="kantask_id">
         <template #item="{ element, index }">
           <Card :group-id="groupId" :board-id="boardId" :content="element" @seleced="selectCard" @cardChanged="$emit('labelChanged'); loadCards()"></Card>
         </template>
@@ -43,6 +43,8 @@ export default {
         cards.value = cards.value.filter(
             (card) => card.status === props.status
         );
+        // Sort by position
+        cards.value.sort((a, b) => (a.position || 0) - (b.position || 0));
         i.value++
       } catch (error) {
         console.error('There was an error!', error);
@@ -68,14 +70,24 @@ export default {
       }
     }
 
-    function onCardMoved(event) {
+    async function onCardMoved(event) {
       if (event.added) {
         const movedCard = event.added.element;
         const cardId = movedCard ? movedCard.kantask_id : null;
-        const newStatus = props.status;
+        const newStatus = props.status as any;
+        const newIndex = event.added.newIndex;
 
         if (cardId && newStatus) {
-          updateCardStatus(cardId, newStatus);
+          // Update the card's position and status
+          await BoardService.updateCardPosition(props.groupId, props.boardId, cardId, newIndex, newStatus);
+          
+          // Update positions of all other cards in this column
+          for (let i = 0; i < cards.value.length; i++) {
+            const card = cards.value[i];
+            if (card.kantask_id !== cardId && card.position !== i) {
+              await BoardService.updateCardPosition(props.groupId, props.boardId, card.kantask_id, i, newStatus);
+            }
+          }
         }
 
         emit('cardMoved', {
@@ -84,6 +96,21 @@ export default {
           oldStatus: event.removed ? props.status : null,
           newStatus: newStatus,
         });
+      } else if (event.moved) {
+        // Card was reordered within the same column
+        const movedCard = event.moved.element;
+        const cardId = movedCard ? movedCard.kantask_id : null;
+        const newIndex = event.moved.newIndex;
+
+        if (cardId) {
+          // Update positions of all cards in this column
+          for (let i = 0; i < cards.value.length; i++) {
+            const card = cards.value[i];
+            if (card.position !== i) {
+              await BoardService.updateCardPosition(props.groupId, props.boardId, card.kantask_id, i, props.status as any);
+            }
+          }
+        }
       }
     }
 

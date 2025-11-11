@@ -121,4 +121,7 @@ router.route(`/:groupId/boards/:boardId/cards/:id/time_spent`)
 router.route(`/:groupId/boards/:boardId/cards/:id/status`)
  .put(controller.updateStatusOfCard);
 
+router.route(`/:groupId/boards/:boardId/cards/:id/position`)
+ .put(controller.updateCardPosition);
+
 module.exports = router

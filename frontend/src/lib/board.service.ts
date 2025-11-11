@@ -29,6 +29,10 @@ export class BoardService extends ApiService {
         return ApiService.postApiJson(`/groups/${groupId}/boards/${boardId}/cards/${cardId}/status`, {status}, "PUT");
     }
 
+    public static updateCardPosition(groupId: Identifier, boardId: Identifier, cardId: Identifier, position: number, status: CardStatus): Promise<void> {
+        return ApiService.postApiJson(`/groups/${groupId}/boards/${boardId}/cards/${cardId}/position`, {position, status}, "PUT");
+    }
+
     public static deleteCard(groupId: Identifier, boardId: Identifier, card: Card): Promise<void> {
         return ApiService.fetchApiJson(`/groups/${groupId}/boards/${boardId}/cards/${card.kantask_id}`, {method: "DELETE"});
     }
